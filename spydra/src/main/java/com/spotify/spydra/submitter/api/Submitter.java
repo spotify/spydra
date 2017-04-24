@@ -1,0 +1,46 @@
+/*
+ * Copyright 2017 Spotify AB.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package com.spotify.spydra.submitter.api;
+
+import com.spotify.spydra.metrics.Metrics;
+import com.spotify.spydra.metrics.MetricsFactory;
+import com.spotify.spydra.model.SpydraArgument;
+import com.spotify.spydra.submitter.executor.Executor;
+import com.spotify.spydra.submitter.executor.ExecutorFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
+public class Submitter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(Submitter.class);
+
+  private final Metrics metrics = MetricsFactory.getInstance();
+
+  public boolean executeJob(SpydraArgument arguments) {
+    try {
+      Executor executor = new ExecutorFactory().getExecutor(arguments);
+      return executor.submit(arguments);
+    } catch (IOException e) {
+      LOGGER.error("Failed to submit job", e);
+      metrics.fatalError(arguments, e);
+      return false;
+    }
+  }
+}

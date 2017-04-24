@@ -1,0 +1,15 @@
+{
+  "client_id": "client-unique-id-c9cceab0-8037-447f-a178-be9f99dd1ec6",
+  "job_type": "hadoop",
+  "cluster_type": "onpremise",
+  "submit": {
+    "job_args": [
+      "pi",
+      "2",
+      "2"
+    ],
+    "options": {
+      "jar": "hadoop-mapreduce-examples.jar"
+    }
+  }
+}

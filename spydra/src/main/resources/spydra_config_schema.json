@@ -1,0 +1,128 @@
+{
+  "id": "http://spydra.spotify.net/configuration#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "schema for Spydra configuration",
+  "type": "object",
+  "properties": {
+    "cluster_type": {
+      "description": "type of cluster to execute on",
+      "enum": [
+        "onpremise",
+        "dataproc",
+        "null"
+      ]
+    },
+    "client_id": {
+      "description": "a unique ID of spydra client",
+      "type": "string"
+    },
+    "heartbeat_interval_seconds": {
+      "description": "frequency of heartbeats in seconds",
+      "type": "number"
+    },
+    "collector_timeout_minutes": {
+      "description": "timeout after which a cluster is being deleted if no heartbeats were received",
+      "type": "number"
+    },
+    "history_timeout": {
+      "description": "time in seconds to wait for job history to be moved",
+      "type": "number"
+    },
+    "log_bucket": {
+      "description": "bucket for storage of Hadoop logs and history information",
+      "type": "string"
+    },
+    "job_type": {
+      "description": "type of job to execute (e.g. hadoop/spark/etc), see `gcloud dataproc jobs submit --help`",
+      "type": "string"
+    },
+    "default_zones": {
+      "description": "Zones to be chosen from randomly if not specified",
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "cluster": {
+      "description": "options for cluster creation",
+      "type": "object",
+      "properties": {
+        "options": {
+          "description": "gcloud options for cluster creation, see `gcloud dataproc clusters create --help`",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "submit": {
+      "description": "options for job submission",
+      "type": "object",
+      "properties": {
+        "options": {
+          "description": "gcloud options for job submission, see `gcloud dataproc jobs submit --help`",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "job_args": {
+          "description": "additional job arguments",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "auto_scaler": {
+      "description": "options for the EXPERIMENTAL autoscaler",
+      "type": "object",
+      "properties": {
+        "interval": {
+          "description": "autoscaling interval in minutes",
+          "type": "number"
+        },
+        "max": {
+          "description": "maximum number of nodes to use for autoscaling",
+          "type": "number"
+        },
+        "factor": {
+          "description": "percentage of containers that should be running from 0.0 to 1.0",
+          "type": "number"
+        },
+        "downscale": {
+          "description": "whether or not to enable downscaling",
+          "type": "boolean"
+        }
+      }
+    },
+    "pooling": {
+      "description": "options for the EXPERIMENTAL pooling of cluster",
+      "type": "object",
+      "properties": {
+        "limit": {
+          "description": "limit of concurrent clusters",
+          "type": "number"
+        },
+        "max_age": {
+          "description": "A java.time.Duration for the maximum age of a cluster",
+          "type": "boolean"
+        }
+      }
+    },
+    "dry_run": {
+      "description": "do not execute anything, just print out commands that would be run",
+      "type": "boolean"
+    },
+    "metric_class": {
+      "description": "Implementation to use for metrics reporting",
+      "type": "string"
+    }
+  }
+}

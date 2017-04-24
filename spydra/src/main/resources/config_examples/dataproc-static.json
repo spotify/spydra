@@ -1,0 +1,16 @@
+{
+  "client_id": "client-unique-id-da0bad6e-ede7-4e62-8cdb-f940af1c158e",
+  "cluster_type": "dataproc",
+  "submit": {
+    "job_args": [
+      "pi",
+      "2",
+      "2"
+    ],
+    "options": {
+      "cluster": "some-static-cluster",
+      "project": "some-project",
+      "jar": "hadoop-mapreduce-examples.jar"
+    }
+  }
+}

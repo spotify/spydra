@@ -1,0 +1,5 @@
+{
+  "cluster_type": "onpremise",
+  "job_type": "hadoop",
+  "metric_class": "com.spotify.spydra.metrics.impl.LoggingMetrics"
+}

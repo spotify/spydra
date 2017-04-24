@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- This is a minimal hadoop configuration for dumping logs and history information
+     of spydra jobs stored in GCS. Properties from core-site.xml and mapred-site.xml are
+     mixed in this file. Some properties are included just to make sure that possibly
+     destructive operations can not be executed by accident -->
+
+<configuration>
+
+  <property>
+    <name>fs.defaultFS</name>
+    <value>gs://${spydra.job.history.bucket}/</value>
+    <description>HDFS should not be defaultFS for this scenario</description>
+  </property>
+
+  <property>
+    <name>fs.gs.impl</name>
+    <value>com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem</value>
+    <description>The FileSystem for gs: (GCS) uris.</description>
+  </property>
+
+  <property>
+    <name>fs.AbstractFileSystem.gs.impl</name>
+    <value>com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS</value>
+    <description>
+      The AbstractFileSystem for gs: (GCS) uris. Only necessary for use with Hadoop 2.
+    </description>
+  </property>
+
+  <property>
+    <name>mapreduce.jobhistory.intermediate-done-dir</name>
+    <value>gs://${spydra.job.history.bucket}/history/${spydra.job.history.client_id}/done-intermediate</value>
+  </property>
+
+  <property>
+    <name>mapreduce.jobhistory.done-dir</name>
+    <value>gs://${spydra.job.history.bucket}/history/${spydra.job.history.client_id}/done</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.remote-app-log-dir</name>
+    <value>gs://${spydra.job.history.bucket}/logs/${spydra.job.history.client_id}</value>
+  </property>
+
+  <property>
+    <name>yarn.log-aggregation-enable</name>
+    <value>true</value>
+    <description>When this is disabled JHS will not even try to look for logs</description>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.log-aggregation.retain-seconds</name>
+    <value>-1</value>
+    <description>Logs should not be moved, deleted or anything when using spydra client</description>
+  </property>
+
+  <property>
+    <name>mapreduce.jobhistory.cleaner.enable</name>
+    <value>false</value>
+    <description>We don't want to modify the history at all when running JHS for spydra client</description>
+  </property>
+
+</configuration>

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+SPYDRA_JAR=${SPYDRA_JAR:-"/data/submitter.jar"}
+echo "Running spydra from JAR: ${SPYDRA_JAR}"
+java -cp "${SPYDRA_JAR}:$(hadoop classpath)" com.spotify.spydra.submitter.runner.Runner $@
