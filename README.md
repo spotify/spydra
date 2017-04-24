@@ -1,16 +1,39 @@
 # Spydra
 
+## Description
 `Spydra` is "Hadoop Cluster as a Service" based on Google Cloud Dataproc and Google Cloud Storage.
 The intention of Spydra is to enable the use of ephemeral Hadoop clusters while hiding
 the complexity of cluster creation and lifecycle management from users.
 
 Spydra supports submitting jobs Dataproc as well as submitting to existing on-premise scheduler.
 
+### Architecture
+
+## Development Status
 **Spydra is currently in beta, and is not feature complete. Nevertheless, Spotify is currently
 using Spydra in production.**
 
+## Usage
 
-## Spydra CLI
+### Evnironment Setup
+
+#### On-premise Hadoop Setup
+
+#### Google Cloud Platform Credential Setup
+
+When creating a dataproc cluster, a service account name can be specified which is then used by
+the cluster when accessing external resources. This account name can be specified in two ways:
+
+   * Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the name of a json key file.
+     The account name (`client_email`) in the json key file is then used.
+   * Set `service-account` under cluster options in Spydra JSON config.
+
+Note that in neither of these cases are any keys actually sent to Dataproc. In the former case
+(env-var pointing to a key file) it is normally the same account as the one executing the spydra
+command. In the latter, the user running spydra needs to have permissions to run as
+the service account.
+
+### Spydra CLI
 
 Spydra CLI supports multiple sub-commands:
 
@@ -19,7 +42,7 @@ Spydra CLI supports multiple sub-commands:
 * [`dump-history`](#retrieving-full-history-data) - viewing history
 * [`run-jhs`](#running-an-embedded-jobhistoryserver) - embedded history server
 
-### Submission
+#### Submit
 
 ```
 $ spydra submit --help
@@ -53,7 +76,7 @@ For details on the format of the JSON file see
 [this schema](/spydra/src/main/resources/spydra_config_schema.json) and
 [these examples](spydra/src/main/resources/config_examples/).
 
-#### Minimal submission example
+##### Minimal Submission Example
 
 Only command-line:
 ```
@@ -80,7 +103,11 @@ $ cat example.json
 $ spydra submit --spydra-json example.json
 ```
 
-#### Submission Gotchas
+##### Cluster Autoscaling (experimental)
+
+##### Cluster Pooling (experimental)
+
+##### Submission Gotchas
 
    * You can use `--` if you need to pass a parameter starting with dashes to your job,
      e.g. `submit --jar=jar ... -- -myParam`
@@ -94,20 +121,14 @@ $ spydra submit --spydra-json example.json
      instead of getting the correct filesystem for a given URI. It can also lead to the Crunch
      output committer working very slowly while copying all files from HDFS to GCS in a
      last non-distributed step.
+     
+#### Dump-logs
 
-### Dataproc user account
+#### Dump-history
 
-When creating a dataproc cluster, a service account name can be specified which is then used by
-the cluster when accessing external resources. This account name can be specified in two ways:
+#### Run-jhs
 
-   * Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the name of a json key file.
-     The account name (`client_email`) in the json key file is then used.
-   * Set `service-account` under cluster options in Spydra JSON config.
-
-Note that in neither of these cases are any keys actually sent to Dataproc. In the former case
-(env-var pointing to a key file) it is normally the same account as the one executing the spydra
-command. In the latter, the user running spydra needs to have permissions to run as
-the service account.
+## Building
 
 ## Contributing
 
