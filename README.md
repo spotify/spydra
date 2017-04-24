@@ -6,20 +6,13 @@ the complexity of cluster creation and lifecycle management from users.
 
 Spydra supports submitting jobs Dataproc as well as submitting to existing on-premise scheduler.
 
-*Spydra is a work in progress, and things may change at any time.*
+**Spydra is currently in beta, and is not feature complete. Nevertheless, Spotify is currently
+using Spydra in production.**
 
-## Spydra Client
 
-The purpose of the Spydra client is to be a transparent submitter capable of submitting
-batch processing jobs to both on-premise Hadoop cluster and to Google Dataproc. Additionally it
-offers some tools to handle logs and history of jobs executed on Spydra-managed clusters.
+## Spydra CLI
 
-**Spydra is currently under development, not feature complete and currently misses
-many convenience facilities.**
-
-### Current CLI Functionality
-
-Spydra supports multiple sub-commands:
+Spydra CLI supports multiple sub-commands:
 
 * [`submit`](#submission) - submitting jobs to on-premise and Dataproc
 * [`dump-logs`](#retrieving-full-logs) - viewing logs
@@ -60,7 +53,7 @@ For details on the format of the JSON file see
 [this schema](/spydra/src/main/resources/spydra_config_schema.json) and
 [these examples](spydra/src/main/resources/config_examples/).
 
-### Minimal submission example
+#### Minimal submission example
 
 Only command-line:
 ```
