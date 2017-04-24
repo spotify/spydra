@@ -106,3 +106,10 @@ This account name can be specified in two ways:
 
 Note that in neither of these cases are any keys actually sent to Dataproc. In the former case (env-var pointing to a key file) it is normally
 the same account as the one executing the spydra command. In the latter, the user running spydra needs to have permissions to run as the service account.
+
+
+### Contributing
+
+This project adheres to the [Open Code of Conduct][code-of-conduct]. By participating, you are expected to honor this code.
+
+[code-of-conduct]: https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md
