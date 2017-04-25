@@ -238,6 +238,32 @@ To enable autoscaling, add an autoscaler section similar to the one below to you
 }
 ```
 
+##### Static Cluster Submission
+If you prefer to manage your Dataproc clusters manually you still can use Spydra for job submission and just skip dynamic cluster creation part. The only change that is needed to be done to Spydra configurations is that you need to specify the name of the cluster you want to submit the job to. Here is an example:
+
+```$xslt
+{
+  "client_id": "simple-spydra-test",
+  "cluster_type": "dataproc",
+  "log_bucket": "spydra-test-logs",
+  "submit": {
+    "options": {
+        "project": "spydra-test",
+        "cluster": "NAME_OF_YOUR_CLUSTER"
+    }
+    "job_args": [
+      "pi",
+      "8",
+      "100"
+    ],
+    "options": {
+      "jar": "hadoop-mapreduce-examples.jar"
+    }
+  }
+}
+```
+Also notice that `project` parameter is specified in `submit/options` section instead of `cluster/options` section.
+
 ##### Cluster Pooling (Experimental)
 Disclaimer: The usage of the pooling is experimental!
 
