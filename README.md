@@ -27,7 +27,7 @@ and is designed to ease the migration to and/or dual use of Google Cloud Platfor
 
 `Spydra` is in beta and things might change but we are aiming at not breaking the currently exposed APIs and configuration.
 
-### How we use Spydra at Spotify
+### Spydra at Spotify
 At Spotify, `Spydra` is being used for our on-going migration to Google Cloud Platform. It is being used for the 
 submission of on-premise Hadoop jobs as well as Dataproc jobs, simplifying the switch from on-premise Hadoop
 to Dataproc.
@@ -57,7 +57,7 @@ For Dataproc as well as on-premise submissions, `Spydra` will act similar to had
 used locally by `Spydra` to manage the cluster and submit jobs is by default forwarded to the Hadoop cluster when
 calling Dataproc. This means that access rights to resources need only be provided with a single set of credentials.
 
-#### Storing execution data and logs
+#### Storing Execution Data and Logs
 To make job execution data available after an ephemeral cluster was shut down, and to provide similar functionality to
 the Hadoop MapReduce History Server, `Spydra` stores execution data and logs on Google Cloud Storage, grouping it by 
 a user-defined client id. Typically client id is unique per job. The execution data and logs are then made available via 
@@ -74,7 +74,7 @@ job restarts.
 
 The autoscaler is being installed on the cluster using a Dataproc [initialization-action](https://cloud.google.com/dataproc/docs/concepts/init-actions).
 
-#### Cluster pooling
+#### Cluster Pooling
 `Spydra` has **experimental** support for cluster pooling withing a single Google Compute Platform project. Cluster pooling
 can be used to limit the resources used by the job submissions, and also limit the cluster initialization overhead.
 The maximum number of clusters to be used can be defined as well as their maximum lifetime. Upon job submission, a random cluster
@@ -108,10 +108,10 @@ Spydra CLI supports multiple sub-commands:
 
 * [`submit`](#submission) - submitting jobs to on-premise Hadoop and GCP Dataproc
 * [`run-jhs`](#running-an-embedded-jobhistoryserver) - embedded history server
-* [`dump-logs`](#retrieving-full-logs) - viewing logs
-* [`dump-history`](#retrieving-full-history-data) - viewing history
+* [`dump-logs`](#retrieving-logs) - viewing logs
+* [`dump-history`](#retrieving-history-data) - viewing history
 
-#### Submit
+#### Submission
 
 ```
 $ java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar submit --help
@@ -213,7 +213,7 @@ $ cat examples.json
 $ spydra submit --spydra-json example.json
 ```
 
-##### Cluster Autoscaling (experimental)
+##### Cluster Autoscaling (Experimental)
 The Spydra autoscaler provides automatic sizing for Spydra clusters by adding enough preemptable worker
 nodes until a user supplied percentage of containers is running in parallel on the cluster.
 It enables cluster sizes to automatically adjust to growing resource needs over time and removes
@@ -238,7 +238,7 @@ To enable autoscaling, add an autoscaler section similar to the one below to you
 }
 ```
 
-##### Cluster Pooling (experimental)
+##### Cluster Pooling (Experimental)
 Disclaimer: The usage of the pooling is experimental!
 
 The Spydra cluster pooling provides automatic pooling for Spydra clusters by selecting an existing
@@ -271,7 +271,7 @@ To enable cluster pooling add a pooling section similar to the one below to your
      output committer working very slowly while copying all files from HDFS to GCS in a
      last non-distributed step.
 
-#### Run-jhs
+#### Running an Embedded JobHistoryServer
 The run-jhs is designed for an interactive exploration of the job execution. This command spawns an embedded 
 JobHistoryServer that can display all jobs executed using the client id associated with your job submission.
 Familiarity with the use of JobHistoryServer from on-premise Hadoop is assumed.
@@ -281,7 +281,7 @@ The client id used when executing the job, and the log bucket is required for ru
 
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar run-jhs --clientid=JOB_CLIENT_ID --log-bucket=LOG_BUCKET```
 
-#### Dump-logs
+#### Retrieving Logs
 The dump-logs command will dump logs for an application to stdout. Currently only full logs of
 the YARN application can be dumped - similarly to YARN logs when no specific container is specified.
 This is useful for processing/exploration with further tools in the shell.
@@ -291,7 +291,7 @@ for running dump-logs command.
 
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-logs --clientid=MY_CLIENT_ID --username=HADOOP_USERNAME --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 
-#### Dump-history
+#### Retrieving History Data
 The history files can be dumped as in regular Hadoop using the dump-history command.
 
 The client id used when executing the job, the Hadoop application id, and the log bucket is required
@@ -299,7 +299,7 @@ for running dump-history command.
 
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-history --clientid=MY_CLIENT_ID --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 
-## Accessing Hadoop web interfaces on ephemeral clusters
+## Accessing Hadoop Web Interfaces for Ephemeral Clusters
 [Dataprocxy](https://github.com/spotify/dataprocxy) can be used to open the web interfaces of the Hadoop daemons of
 an ephemeral cluster as long as the cluster is running.
 
@@ -319,7 +319,7 @@ an ephemeral cluster as long as the cluster is running.
 * [gcloud](https://cloud.google.com/sdk/gcloud/) authenticated with the service account
 * [gsutil](https://cloud.google.com/storage/docs/gsutil) authenticated with the service account
 
-### Integration test configuration
+### Integration Test Configuration
 In order to run integration tests, basic configuration needs to be provided during the build process.
 Create a spydra_conf.json file similar to the one below and reference it during the maven invocation.
 
@@ -335,7 +335,7 @@ Create a spydra_conf.json file similar to the one below and reference it during 
 }
 ```
 
-### Build and package
+### Build and Package
 Replace YOUR_INIT_ACTION_BUCKET with the bucket you created when setting up the prerequisites and YOUR_SPYDRA_CONF.JSON
 with the path to the integration test configuration and execute the following maven command.
 
