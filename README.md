@@ -83,18 +83,19 @@ mechanism.
 `Spydra` is not yet being packaged so you will need to build the executable yourself. We will provide a prepackaged
 version in the near future.
 
-### Environment Setup
-To be able to use `Spydra` with Dataproc, a [Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
-with the right [APIs enable](https://support.google.com/cloud/answer/6158841?hl=en) is required. Additionally, a [service account](https://cloud.google.com/compute/docs/access/service-accounts)
-with [project editor](https://cloud.google.com/compute/docs/access/iam) rights needs to be created and exported as json. Ensure that [gcloud](https://cloud.google.com/sdk/gcloud/) is installed and [authenticated using 
-that service account](https://cloud.google.com/sdk/gcloud/reference/auth/). The environment variable
-`GOOGLE_APPLICATION_CREDENTIALS` needs to point to the location of the service account json, see
- [Google Application Default Credentials](https://developers.google.com/identity/protocols/application-default-credentials).
+### Prerequisites
+To be able to use Dataproc and on-premise Hadoop, a few things need to be set up before using `Spydra`.
 
-For submitting to an on-premise Hadoop infrastructure, ensure that [hadoop jar](https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-common/CommandsManual.html#jar)
-is installed and configured to submit to your cluster.
-
-Java 8 needs to be installed.
+* Java 8
+* A [Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
+with the right [APIs enable](https://support.google.com/cloud/answer/6158841?hl=en)
+* A [service account](https://cloud.google.com/compute/docs/access/service-accounts) with [project editor](https://cloud.google.com/compute/docs/access/iam) rights in your project
+* The sercvice account need to be exported as json
+* [gcloud](https://cloud.google.com/sdk/gcloud/) needs to be installed
+* `gcloud` needs to be [authenticated using the service account](https://cloud.google.com/sdk/gcloud/reference/auth/)
+* The environment variable [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials) needs to point to the location of the service account json
+* [hadoop jar](https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-common/CommandsManual.html#jar)
+  needs to be installed and configured to submit to your cluster
 
 ### Spydra CLI
 
