@@ -6,7 +6,7 @@ Ephemeral Hadoop clusters using Google Compute Platform
 
 ## Description
 `Spydra` is "Hadoop Cluster as a Service" implemented as a library utilizing [Google Cloud Dataproc](https://cloud.google.com/dataproc/) 
-and [Google Cloud Storage](https://cloud.google.com/storage/). The intention of Spydra is to enable the use of ephemeral Hadoop clusters while hiding
+and [Google Cloud Storage](https://cloud.google.com/storage/). The intention of `Spydra` is to enable the use of ephemeral Hadoop clusters while hiding
 the complexity of cluster lifecycle management and keeping troubleshooting simple. `Spydra` is designed to be integrated
 as a `hadoop jar` replacement.
 
@@ -104,7 +104,7 @@ To be able to use Dataproc and on-premise Hadoop, a few things need to be set up
 
 ### Spydra CLI
 
-Spydra CLI supports multiple sub-commands:
+`Spydra` CLI supports multiple sub-commands:
 
 * [`submit`](#submission) - submitting jobs to on-premise Hadoop and GCP Dataproc
 * [`run-jhs`](#running-an-embedded-jobhistoryserver) - embedded history server
@@ -129,7 +129,7 @@ usage: submit [options] [jobArgs]
 ```
 
 Only a few basic things can be supplied on the command line; a client-id (an arbitrary identifier
-of the client running Spydra), the main and additional JAR files for the job, and arguments for
+of the client running `Spydra`), the main and additional JAR files for the job, and arguments for
 the job. For any use-case requiring more details, the user needs to create a JSON file and supply
 the path to that as a parameter. All the command-line options will override the corresponding
 options in the JSON config. Apart from all the command-line options and some general settings,
@@ -142,7 +142,7 @@ to it, which will then be used as the Dataproc job ID. This is useful in finding
 the Google Cloud Console.
 
 ##### The spydra-json argument
-All properties that cannot be controlled via the few arguments of the submit command, can be set in the
+All properties that cannot be controlled via the few arguments of the *submit* command, can be set in the
 configuration file supplied with the --spydra-json parameter. The configuration file follows the structure of the 
 `cloud dataproc clusters create` and `cloud dataproc jubs submit` commands and allows to set all
 the possible arguments for these commands. The basic structure looks as follows:
@@ -214,16 +214,16 @@ $ spydra submit --spydra-json example.json
 ```
 
 ##### Cluster Autoscaling (Experimental)
-The Spydra autoscaler provides automatic sizing for Spydra clusters by adding enough preemptable worker
+The `Spydra` autoscaler provides automatic sizing for `Spydra` clusters by adding enough preemptable worker
 nodes until a user supplied percentage of containers is running in parallel on the cluster.
 It enables cluster sizes to automatically adjust to growing resource needs over time and removes
-the need to come up with a good size when scheduling a job executed on Spydra.
+the need to come up with a good size when scheduling a job executed on `Spydra`.
 The autoscaler has two modes, upscale only and downscale. Downscale will remove nodes when the cluster
 is not fully utilized. When doing so, it does currently not do this gracefully meaning that running
 containers might be killed, possibly causing container retries or even application retries.
 Downscale should currently only be used for experimental purposes.
 
-To enable autoscaling, add an autoscaler section similar to the one below to your Spydra configuration.
+To enable autoscaling, add an autoscaler section similar to the one below to your `Spydra` configuration.
 
 ```$xslt
 {
@@ -267,10 +267,10 @@ Also notice that `project` parameter is specified in `submit/options` section in
 ##### Cluster Pooling (Experimental)
 Disclaimer: The usage of the pooling is experimental!
 
-The Spydra cluster pooling provides automatic pooling for Spydra clusters by selecting an existing
+The `Spydra` cluster pooling provides automatic pooling for `Spydra` clusters by selecting an existing
 cluster according to certain conditions.
 
-To enable cluster pooling add a pooling section similar to the one below to your Spydra configuration.
+To enable cluster pooling add a pooling section similar to the one below to your `Spydra` configuration.
 
 ```$xslt
 {
@@ -298,30 +298,30 @@ To enable cluster pooling add a pooling section similar to the one below to your
      last non-distributed step.
 
 #### Running an Embedded JobHistoryServer
-The run-jhs is designed for an interactive exploration of the job execution. This command spawns an embedded 
+The *run-jhs* is designed for an interactive exploration of the job execution. This command spawns an embedded 
 JobHistoryServer that can display all jobs executed using the client id associated with your job submission.
 Familiarity with the use of JobHistoryServer from on-premise Hadoop is assumed.
 The JHS is accessible on default port 19888.
 
-The client id used when executing the job, and the log bucket is required for running run-jhs command.
+The client id used when executing the job, and the log bucket is required for running *run-jhs* command.
 
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar run-jhs --clientid=JOB_CLIENT_ID --log-bucket=LOG_BUCKET```
 
 #### Retrieving Logs
-The dump-logs command will dump logs for an application to stdout. Currently only full logs of
+The *dump-logs* command will dump logs for an application to stdout. Currently only full logs of
 the YARN application can be dumped - similarly to YARN logs when no specific container is specified.
 This is useful for processing/exploration with further tools in the shell.
 
 The client id used when executing the job, the Hadoop application id, and the log bucket is required
-for running dump-logs command.
+for running *dump-logs* command.
 
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-logs --clientid=MY_CLIENT_ID --username=HADOOP_USERNAME --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 
 #### Retrieving History Data
-The history files can be dumped as in regular Hadoop using the dump-history command.
+The history files can be dumped as in regular Hadoop using the *dump-history* command.
 
 The client id used when executing the job, the Hadoop application id, and the log bucket is required
-for running dump-history command.
+for running *dump-history* command.
 
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-history --clientid=MY_CLIENT_ID --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 
