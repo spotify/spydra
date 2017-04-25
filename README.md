@@ -105,10 +105,10 @@ Spydra CLI supports multiple sub-commands:
 
 * [`submit`](#submission) - submitting jobs to on-premise and Dataproc
 * [`run-jhs`](#running-an-embedded-jobhistoryserver) - embedded history server
-* [`dump-logs`](#retrieving-full-logs) - viewing logs
-* [`dump-history`](#retrieving-full-history-data) - viewing history
+* [`dump-logs`](#retrieving-logs) - viewing logs
+* [`dump-history`](#retrieving-history-data) - viewing history
 
-#### Submit
+#### Submission
 
 ```
 $ java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar submit --help
@@ -260,7 +260,7 @@ To enable autoscaling add an autoscaler section similar to the one below to your
      output committer working very slowly while copying all files from HDFS to GCS in a
      last non-distributed step.
      
-#### Run-jhs
+#### Running an Embedded JobHistoryServer
 The run-jhs is designed for an interactive exploration of the job execution. This command spawns an embedded 
 JobHistoryServer that can display all jobs executed using the same clientid. Familiarity with use of the JobHistoryServer 
 from on-premise is assumed. The JHS is accessible on default port 19888.
@@ -269,14 +269,14 @@ The client id used when executing the job as well as the log bucket that was spe
 
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar run-jhs --clientid=JOB_CLIENT_ID --log-bucket=LOG_BUCKET```
 
-#### Dump-logs
+#### Retrieving Logs
 The dump-logs command will dump logs for an application to stdout. Currently only full logs of the yarn application can be dumped - similarly to yarn logs when no specific container is specified. This is useful for processing/exploration with further tools in the shell.
 
 The client id used when executing the job as well as the log bucket that was specified is required for running the command and
 the Hadoop application id are required to run this command.
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-logs --clientid=MY_CLIENT_ID --username=HADOOP_USERNAME --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 
-#### Dump-history
+#### Retrieving History Data
 The history files can be dumped as in regular Hadoop using the dump-history command.
 
 The client id used when executing the job as well as the log bucket that was specified is required for running the command and
