@@ -90,12 +90,12 @@ To be able to use Dataproc and on-premise Hadoop, a few things need to be set up
 
 * Java 8
 * A [Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
-with the right [APIs enable](https://support.google.com/cloud/answer/6158841?hl=en)
+with the right [APIs enabled](https://support.google.com/cloud/answer/6158841?hl=en)
 * A [service account](https://cloud.google.com/compute/docs/access/service-accounts) with [project editor](https://cloud.google.com/compute/docs/access/iam) rights in your project
-* The sercvice account need to be exported as json
+* Json key for the service account
 * [gcloud](https://cloud.google.com/sdk/gcloud/) needs to be installed
 * `gcloud` needs to be [authenticated using the service account](https://cloud.google.com/sdk/gcloud/reference/auth/)
-* The environment variable [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials) needs to point to the location of the service account json
+* The environment variable [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials) needs to point to the location of the service account json key
 * [hadoop jar](https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-common/CommandsManual.html#jar)
   needs to be installed and configured to submit to your cluster
 
@@ -146,13 +146,13 @@ and allows to set all possible arguments of these commands. The basic structure 
 
 ```$xslt
 {
-  "client_id": "hydra-test",                  # Hydra client id. Usually left out as set by the frameworks during runtime.
+  "client_id": "spydra-test",                  # Spydra client id. Usually left out as set by the frameworks during runtime.
   "cluster_type": "dataproc",                 # Where to execute. Either dataproc or onpremise. Defaults to onpremise.
   "job_type": "hadoop",                       # Defaults to hadoop. For supported types see gcloud dataproc jobs submit --help
-  "log_bucket": "hydra-test-logs",            # The bucket where Hadoop logs and history information are stored.
+  "log_bucket": "spydra-test-logs",            # The bucket where Hadoop logs and history information are stored.
   "cluster": {                                # All cluster related configuration
     "options": {                              # Map supporting all options from the gcloud dataproc clusters create command
-      "project": "hydra-test",                 
+      "project": "spydra-test",
       "zone": "europe-west1-d",
       "num-workers": "13",
       "worker-machine-type": "n1-standard-2", # The default machine type used by Dataproc is n1-standard-8.
@@ -185,10 +185,17 @@ $ java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar submit --clie
 
 JSON config:
 ```
-$ cat example.json
+$ cat examples.json
 {
   "client_id": "simple-spydra-test",
   "cluster_type": "dataproc",
+  "log_bucket": "spydra-test-logs",
+  "cluster": {
+    "options": {
+      "project": "spydra-test",
+      "zone": "europe-west1-d",
+    }
+  },
   "submit": {
     "job_args": [
       "pi",
@@ -204,10 +211,10 @@ $ spydra submit --spydra-json example.json
 ```
 
 ##### Cluster Autoscaling (experimental)
-The Hydra autoscaler provides automatic sizing for Hydra clusters by adding enough preemptable worker nodes until a user supplied percentage of containers is running in parallel on the cluster. It enables cluster sizes to automatically adjust to growing resource needs over time and removes the need to come up with a good size when scheduling a job executed on Hydra.
+The Spydra autoscaler provides automatic sizing for Spydra clusters by adding enough preemptable worker nodes until a user supplied percentage of containers is running in parallel on the cluster. It enables cluster sizes to automatically adjust to growing resource needs over time and removes the need to come up with a good size when scheduling a job executed on Spydra.
 The autoscaler has two modes, upscale only and downscale. Downscale will remove nodes when the cluster is not fully utilized. When doing so, it does currently not do this gracefully meaning that running containers might be killed possibly causing container retries or even application retries. Downscale should currently only be used for experimental purposes.
-Enabling the Hydra autoscaler
-To enable autoscaling add an autoscaler section similar to the one below to your Hydra configuration.
+Enabling the Spydra autoscaler
+To enable autoscaling add an autoscaler section similar to the one below to your Spydra configuration.
 
 ```$xslt
 {
@@ -224,9 +231,9 @@ To enable autoscaling add an autoscaler section similar to the one below to your
 
 ##### Cluster Pooling (experimental)
 Disclaimer: The usage of the pooling is experimental!
-The Hydra cluster pooling provides automatic pooling for Hydra clusters by selecting an existing cluster according to certain conditions.
+The Spydra cluster pooling provides automatic pooling for Spydra clusters by selecting an existing cluster according to certain conditions.
 Enabling pooling of clusters
-To enable autoscaling add an autoscaler section similar to the one below to your Hydra configuration.
+To enable autoscaling add an autoscaler section similar to the one below to your Spydra configuration.
 
 ```$xslt
 {
@@ -288,8 +295,8 @@ an emphemeral cluster as long as the cluster is running.
 * A Google Compute Platform project with Dataproc enabled
 * A Google Cloud Storage bucket for uploading init-actions
 * A Google Cloud Storage bucket for storing integration test logs
-* A [service account](https://cloud.google.com/compute/docs/access/service-accounts) with editor access to the project and bucket exported as json
-* The environment variable `GOOGLE_APPLICATION_CREDENTIALS` pointing at the location of the service account json
+* Json key for a [service account](https://cloud.google.com/compute/docs/access/service-accounts) with editor access to the project and bucket
+* The environment variable `GOOGLE_APPLICATION_CREDENTIALS` pointing at the location of the service account json key
 * [gcloud](https://cloud.google.com/sdk/gcloud/) authenticated with the service account
 * [gsutil](https://cloud.google.com/storage/docs/gsutil) authenticated with the service account
 
