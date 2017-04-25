@@ -40,12 +40,32 @@
       <email>steffeng@spotify.com</email>
       <name>Steffen Grohsschmiedt</name>
     </developer>
+    <developer>
+      <id>jstck</id>
+      <email>stack@spotify.com</email>
+      <name>John Stäck</name>
+    </developer>
+    <developer>
+      <id>Cy6erBr4in</id>
+      <email>alexander@spotify.com</email>
+      <name>Alexander Dergachev</name>
+    </developer>
+    <developer>
+      <id>varjoranta</id>
+      <email>varjo@spotify.com</email>
+      <name>Hannu Varjoranta</name>
+    </developer>
+    <developer>
+      <id>Xeago</id>
+      <email>xeago@spotify.com</email>
+      <name>Twan Wolthof</name>
+    </developer>
   </developers>
 
   <scm>
     <url>https://github.com/spotify/spydra</url>
-    <connection>scm:git:git@github.com:spotify/styx.git</connection>
-    <developerConnection>scm:git:git@github.com:spotify/styx.git</developerConnection>
+    <connection>scm:git:git@github.com:spotify/spydra.git</connection>
+    <developerConnection>scm:git:git@github.com:spotify/spydra.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
