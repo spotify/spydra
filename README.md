@@ -57,7 +57,7 @@ on Dataproc. By this means, access rights to resources need only to be provided 
 
 #### Storing of execution data and logs
 As to make job execution data available after a ephemeral cluster was shut down and to provide similar functionality to
-the Hadoop MapReduce History Server, `Spydra` stores execution data and logs on Google Cloud Storage, grouping it by 
+the Hadoop MapReduce History Server, `Spydra` stores execution data and logs on Google Cloud Storage,```` grouping it by 
 a user-defined client id. Typically client id is unique per job. The execution data and logs are then made available via 
 `Spydra` commands. These allow spinning up a local MapReduce History Server to access execution data and logs
 as well as dumping them.
@@ -72,33 +72,60 @@ job restarts.
 
 The autoscaler is being installed on the cluster using an [initialization-action](https://cloud.google.com/dataproc/docs/concepts/init-actions).
 
-
 #### Cluster pooling
 `Spydra` has **experimental** support for cluster pooling withing a single Google Compute Platform project. The maximum
 number of clusters to be used can be defined as well as their maximum lifetime. Upon job submission, a random cluster
 is being chosen to submit the job to. When reaching their maximum lifetime, clusters are being deleted by the self-deletion
 mechanism.
- 
 
 ## Usage
 
-### Evnironment Setup
+### Installation
+`Spydra` is not yet being packaged so you will need to build the executable yourself. We will provide a prepackaged
+version in the near future.
 
-#### On-premise Hadoop Setup
+### Building
 
-#### Google Cloud Platform Credential Setup
+#### Prerequisites
+* Java JDK 8
+* Maven 3.2.2
+* A Google Compute Platform project with Dataproc enabled
+* A Google Cloud Storage bucket for uploading init-actions
+* A Google Cloud Storage bucket for storing integration test logs
+* A [service account](https://cloud.google.com/compute/docs/access/service-accounts) with editor access to the project and bucket exported as json
+* The environment variable `GOOGLE_APPLICATION_CREDENTIALS` pointing at the location of the service account json
+* [gcloud](https://cloud.google.com/sdk/gcloud/) authenticated with the service account
+* [gsutil](https://cloud.google.com/storage/docs/gsutil) authenticated with the service account
 
-When creating a dataproc cluster, a service account name can be specified which is then used by
-the cluster when accessing external resources. This account name can be specified in two ways:
+#### Integration test configuration
+In order to run integration tests, basic configuration needs to be provided during the build process. Create a spydra_conf.json
+file similar to the one below and reference it during the maven invocation.
 
-   * Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the name of a json key file.
-     The account name (`client_email`) in the json key file is then used.
-   * Set `service-account` under cluster options in Spydra JSON config.
+```$xslt
+{
+  "log_bucket": "YOUR_GCS_LOG_BUCKET",
+  "cluster": {
+    "options": {
+      "project": "YOUR_PROJECT",
+      "zone": "europe-west1-d"
+    }
+  }
+}
+```
 
-Note that in neither of these cases are any keys actually sent to Dataproc. In the former case
-(env-var pointing to a key file) it is normally the same account as the one executing the spydra
-command. In the latter, the user running spydra needs to have permissions to run as
-the service account.
+#### Build Commands
+```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
+
+### Environment Setup
+To be able to use `Spydra` with Dataproc, a [Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
+with the right [APIs enable](https://support.google.com/cloud/answer/6158841?hl=en) is required. Additionally, a [service account](https://cloud.google.com/compute/docs/access/service-accounts)
+with [project editor](https://cloud.google.com/compute/docs/access/iam) rights needs to be created and exported as json. Ensure that [gcloud](https://cloud.google.com/sdk/gcloud/) is installed and [authenticated using 
+that service account](https://cloud.google.com/sdk/gcloud/reference/auth/). The environment variable
+`GOOGLE_APPLICATION_CREDENTIALS` needs to point to the location of the service account json, see
+ [Google Application Default Credentials](https://developers.google.com/identity/protocols/application-default-credentials).
+
+For submitting to an on-premise Hadoop infrastructure, ensure that [hadoop jar](https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-common/CommandsManual.html#jar)
+is installed and configured to submit to your cluster.
 
 ### Spydra CLI
 
@@ -194,8 +221,6 @@ $ spydra submit --spydra-json example.json
 #### Dump-history
 
 #### Run-jhs
-
-## Building
 
 ## Contributing
 
