@@ -116,6 +116,8 @@ file similar to the one below and reference it during the maven invocation.
 #### Building
 ```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
 
+Executing the command below will create a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`.
+
 ### Environment Setup
 To be able to use `Spydra` with Dataproc, a [Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
 with the right [APIs enable](https://support.google.com/cloud/answer/6158841?hl=en) is required. Additionally, a [service account](https://cloud.google.com/compute/docs/access/service-accounts)
