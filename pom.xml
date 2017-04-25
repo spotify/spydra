@@ -25,6 +25,29 @@
     <module>api</module>
     <module>metrics</module>
   </modules>
+         
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>steffengr</id>
+      <email>steffeng@spotify.com</email>
+      <name>Steffen Grohsschmiedt</name>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/spotify/spydra</url>
+    <connection>scm:git:git@github.com:spotify/styx.git</connection>
+    <developerConnection>scm:git:git@github.com:spotify/styx.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
 
   <build>
     <plugins>
