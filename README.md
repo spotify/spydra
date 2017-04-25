@@ -114,6 +114,9 @@ file similar to the one below and reference it during the maven invocation.
 ```
 
 #### Building
+Replace YOUR_INIT_ACTION_BUCKET with the bucket you created when setting up the prerquisites and YOUR_SPYDRA_CONF.JSON
+with the path to the integration test configuration and execute the following maven command.
+
 ```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
 
 Executing the maven command above will create a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`.
