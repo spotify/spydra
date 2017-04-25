@@ -202,8 +202,6 @@ $ spydra submit --spydra-json example.json
 ```
 
 ##### Cluster Autoscaling (experimental)
-Disclaimer: The usage of the autoscaler is experimental!
-
 The Hydra autoscaler provides automatic sizing for Hydra clusters by adding enough preemptable worker nodes until a user supplied percentage of containers is running in parallel on the cluster. It enables cluster sizes to automatically adjust to growing resource needs over time and removes the need to come up with a good size when scheduling a job executed on Hydra.
 The autoscaler has two modes, upscale only and downscale. Downscale will remove nodes when the cluster is not fully utilized. When doing so, it does currently not do this gracefully meaning that running containers might be killed possibly causing container retries or even application retries. Downscale should currently only be used for experimental purposes.
 Enabling the Hydra autoscaler
