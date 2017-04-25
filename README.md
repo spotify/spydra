@@ -308,7 +308,7 @@ file similar to the one below and reference it during the maven invocation.
 }
 ```
 
-### Building
+### Build and package
 Replace YOUR_INIT_ACTION_BUCKET with the bucket you created when setting up the prerquisites and YOUR_SPYDRA_CONF.JSON
 with the path to the integration test configuration and execute the following maven command.
 
