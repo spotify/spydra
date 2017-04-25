@@ -78,48 +78,10 @@ number of clusters to be used can be defined as well as their maximum lifetime. 
 is being chosen to submit the job to. When reaching their maximum lifetime, clusters are being deleted by the self-deletion
 mechanism.
 
+## Usage
 ### Installation
 `Spydra` is not yet being packaged so you will need to build the executable yourself. We will provide a prepackaged
 version in the near future.
-
-## Building
-
-### Prerequisites
-* Java JDK 8
-* Maven 3.2.2
-* A Google Compute Platform project with Dataproc enabled
-* A Google Cloud Storage bucket for uploading init-actions
-* A Google Cloud Storage bucket for storing integration test logs
-* A [service account](https://cloud.google.com/compute/docs/access/service-accounts) with editor access to the project and bucket exported as json
-* The environment variable `GOOGLE_APPLICATION_CREDENTIALS` pointing at the location of the service account json
-* [gcloud](https://cloud.google.com/sdk/gcloud/) authenticated with the service account
-* [gsutil](https://cloud.google.com/storage/docs/gsutil) authenticated with the service account
-
-### Integration test configuration
-In order to run integration tests, basic configuration needs to be provided during the build process. Create a spydra_conf.json
-file similar to the one below and reference it during the maven invocation.
-
-```$xslt
-{
-  "log_bucket": "YOUR_GCS_LOG_BUCKET",
-  "cluster": {
-    "options": {
-      "project": "YOUR_PROJECT",
-      "zone": "europe-west1-d"
-    }
-  }
-}
-```
-
-### Building
-Replace YOUR_INIT_ACTION_BUCKET with the bucket you created when setting up the prerquisites and YOUR_SPYDRA_CONF.JSON
-with the path to the integration test configuration and execute the following maven command.
-
-```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
-
-Executing the maven command above will create a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`.
-
-## Usage
 
 ### Environment Setup
 To be able to use `Spydra` with Dataproc, a [Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
@@ -226,6 +188,43 @@ $ spydra submit --spydra-json example.json
 #### Dump-history
 
 #### Run-jhs
+
+## Building
+
+### Prerequisites
+* Java JDK 8
+* Maven 3.2.2
+* A Google Compute Platform project with Dataproc enabled
+* A Google Cloud Storage bucket for uploading init-actions
+* A Google Cloud Storage bucket for storing integration test logs
+* A [service account](https://cloud.google.com/compute/docs/access/service-accounts) with editor access to the project and bucket exported as json
+* The environment variable `GOOGLE_APPLICATION_CREDENTIALS` pointing at the location of the service account json
+* [gcloud](https://cloud.google.com/sdk/gcloud/) authenticated with the service account
+* [gsutil](https://cloud.google.com/storage/docs/gsutil) authenticated with the service account
+
+### Integration test configuration
+In order to run integration tests, basic configuration needs to be provided during the build process. Create a spydra_conf.json
+file similar to the one below and reference it during the maven invocation.
+
+```$xslt
+{
+  "log_bucket": "YOUR_GCS_LOG_BUCKET",
+  "cluster": {
+    "options": {
+      "project": "YOUR_PROJECT",
+      "zone": "europe-west1-d"
+    }
+  }
+}
+```
+
+### Building
+Replace YOUR_INIT_ACTION_BUCKET with the bucket you created when setting up the prerquisites and YOUR_SPYDRA_CONF.JSON
+with the path to the integration test configuration and execute the following maven command.
+
+```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
+
+Executing the maven command above will create a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`.
 
 ## Contributing
 
