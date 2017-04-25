@@ -113,7 +113,7 @@ file similar to the one below and reference it during the maven invocation.
 }
 ```
 
-#### Build Commands
+#### Building
 ```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
 
 ### Environment Setup
