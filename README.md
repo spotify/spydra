@@ -336,7 +336,7 @@ an ephemeral cluster as long as the cluster is running.
 * Java JDK 8
 * Maven 3.2.2
 * A Google Compute Platform project with Dataproc enabled
-* A Google Cloud Storage bucket for uploading init-actions
+* A Google Cloud Storage bucket for uploading init-actions. Ensure that this bucket is readable with all credentials used with `Spydra`.
 * A Google Cloud Storage bucket for storing integration test logs
 * JSON key for a [service account](https://cloud.google.com/compute/docs/access/service-accounts)
   with editor access to the project and bucket
