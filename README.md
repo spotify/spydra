@@ -274,6 +274,11 @@ The history files can be dumped as in regular Hadoop using the dump-history comm
 The client id used when executing the job as well as the log bucket that was specified is required for running the command and
 the Hadoop application id are required to run this command.
 ```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-history --clientid=MY_CLIENT_ID --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
+
+## Accessing Hadoop web interfaces on emphemeral clusters
+[Dataprocxy](https://github.com/spotify/dataprocxy) can be used to open the web interfaces of the Hadoop daemons of
+an emphemeral cluster as long as the cluster is running.
+
 ## Building
 
 ### Prerequisites
