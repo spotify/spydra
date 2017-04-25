@@ -94,6 +94,8 @@ that service account](https://cloud.google.com/sdk/gcloud/reference/auth/). The 
 For submitting to an on-premise Hadoop infrastructure, ensure that [hadoop jar](https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-common/CommandsManual.html#jar)
 is installed and configured to submit to your cluster.
 
+Java 8 needs to be installed.
+
 ### Spydra CLI
 
 Spydra CLI supports multiple sub-commands:
@@ -106,7 +108,7 @@ Spydra CLI supports multiple sub-commands:
 #### Submit
 
 ```
-$ spydra submit --help
+$ java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar submit --help
 
 usage: submit [options] [jobArgs]
     --clientid <arg>     client id, used as identifier in job history output
@@ -133,6 +135,40 @@ A job name can also be supplied. This will be sanitized and have a unique identi
 to it, to then be used as the Dataproc job ID. This is mainly useful to find the job in
 the Google Cloud Console.
 
+##### The spydra-json argument
+All properties that cannot be controlled via the few arguments of the submit command ca be set in the
+configuration file supplied with --spydra-json. The configuration file follows the structure of the 
+`cloud dataproc clusters create` and `cloud dataproc jubs submit` commands 
+and allows to set all possible arguments of these commands. The basic structure looks as follows.
+
+```$xslt
+{
+  "client_id": "hydra-test",                  # Hydra client id. Usually left out as set by the frameworks during runtime.
+  "cluster_type": "dataproc",                 # Where to execute. Either dataproc or onpremise. Defaults to onpremise.
+  "job_type": "hadoop",                       # Defaults to hadoop. For supported types see gcloud dataproc jobs submit --help
+  "log_bucket": "hydra-test-logs",            # The bucket where Hadoop logs and history information are stored.
+  "cluster": {                                # All cluster related configuration
+    "options": {                              # Map supporting all options from the gcloud dataproc clusters create command
+      "project": "hydra-test",                 
+      "zone": "europe-west1-d",
+      "num-workers": "13",
+      "worker-machine-type": "n1-standard-2", # The default machine type used by Dataproc is n1-standard-8.
+      "master-machine-type": "n1-standard-4"
+    }
+  },
+  "submit": {                                 # All configuration related to job submission
+    "job_args": [                             # Job arguments. Usually left out as set by the frameworks during runtime.
+      "pi",
+      "2",
+      "2"
+    ],
+    "options": {                              # Map supporting all options from the gcloud dataproc jobs submit [hadoop,spark,hive...] command
+      "jar": "/path/my.jar"                   # Path of the job jar file. Usually left out as set by the frameworks during runtime.
+    }
+  }
+}
+```
+
 For details on the format of the JSON file see
 [this schema](/spydra/src/main/resources/spydra_config_schema.json) and
 [these examples](spydra/src/main/resources/config_examples/).
@@ -141,7 +177,7 @@ For details on the format of the JSON file see
 
 Only command-line:
 ```
-$ spydra submit --client-id simple-spydra-test --jar hadoop-mapreduce-examples.jar pi 8 100
+$ java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar submit --client-id simple-spydra-test --jar hadoop-mapreduce-examples.jar pi 8 100
 ```
 
 JSON config:
@@ -165,11 +201,44 @@ $ spydra submit --spydra-json example.json
 ```
 
 ##### Cluster Autoscaling (experimental)
+Disclaimer: The usage of the autoscaler is experimental!
+
+The Hydra autoscaler provides automatic sizing for Hydra clusters by adding enough preemptable worker nodes until a user supplied percentage of containers is running in parallel on the cluster. It enables cluster sizes to automatically adjust to growing resource needs over time and removes the need to come up with a good size when scheduling a job executed on Hydra.
+The autoscaler has two modes, upscale only and downscale. Downscale will remove nodes when the cluster is not fully utilized. When doing so, it does currently not do this gracefully meaning that running containers might be killed possibly causing container retries or even application retries. Downscale should currently only be used for experimental purposes.
+Enabling the Hydra autoscaler
+To enable autoscaling add an autoscaler section similar to the one below to your Hydra configuration.
+
+```$xslt
+{
+  "cluster:" {...},
+  "submit:" {...},
+  "auto_scaler": {
+    "interval": "2",        # Execution interval of the autoscaler in minutes
+    "max": "20",            # Maximum number of workers
+    "factor": "0.3",        # Percentage of YARN containers that should be running at any point in time 0.0 to 1.0.
+    "downscale": "false",   # Whether or not to downscale. Highly experimental! Please check our notes on downscaling!
+  }
+}
+```
 
 ##### Cluster Pooling (experimental)
+Disclaimer: The usage of the pooling is experimental!
+The Hydra cluster pooling provides automatic pooling for Hydra clusters by selecting an existing cluster according to certain conditions.
+Enabling pooling of clusters
+To enable autoscaling add an autoscaler section similar to the one below to your Hydra configuration.
+
+```$xslt
+{
+  "cluster:" {...},
+  "submit:" {...},
+  "pooling": {
+    "limit": 2,     # limit of concurrent clusters
+    "max_age": "20" # A java.time.Duration for the maximum age of a cluster
+  }
+}
+```
 
 ##### Submission Gotchas
-
    * You can use `--` if you need to pass a parameter starting with dashes to your job,
      e.g. `submit --jar=jar ... -- -myParam`
    * Don't forget to specify `=` for arguments like `--jar=$jar`, otherwise the CLI parsing
@@ -183,12 +252,28 @@ $ spydra submit --spydra-json example.json
      output committer working very slowly while copying all files from HDFS to GCS in a
      last non-distributed step.
      
+#### Run-jhs
+The run-jhs is designed for an interactive exploration of the job execution. This command spawns an embedded 
+JobHistoryServer that can display all jobs executed using the same clientid. Familiarity with use of the JobHistoryServer 
+from on-premise is assumed. The JHS is accessible on default port 19888.
+
+The client id used when executing the job as well as the log bucket that was specified is required for running the command.
+
+```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar run-jhs --clientid=JOB_CLIENT_ID --log-bucket=LOG_BUCKET```
+
 #### Dump-logs
+The dump-logs command will dump logs for an application to stdout. Currently only full logs of the yarn application can be dumped - similarly to yarn logs when no specific container is specified. This is useful for processing/exploration with further tools in the shell.
+
+The client id used when executing the job as well as the log bucket that was specified is required for running the command and
+the Hadoop application id are required to run this command.
+```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-logs --clientid=MY_CLIENT_ID --username=HADOOP_USERNAME --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 
 #### Dump-history
+The history files can be dumped as in regular Hadoop using the dump-history command.
 
-#### Run-jhs
-
+The client id used when executing the job as well as the log bucket that was specified is required for running the command and
+the Hadoop application id are required to run this command.
+```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-history --clientid=MY_CLIENT_ID --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 ## Building
 
 ### Prerequisites
