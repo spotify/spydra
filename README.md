@@ -25,13 +25,6 @@ and is designed to ease the migration to and/or dual use of Google Cloud Platfor
 
 `Spydra` is in beta and things might change but we are aiming at not breaking the currently exposed APIs and configuration.
 
-### Contributing
-
-This project adheres to the [Open Code of Conduct][code-of-conduct]. By participating,
-you are expected to honor this code.
-
-[code-of-conduct]: https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md
-
 ### How we use Spydra at Spotify
 At Spotify, `Spydra` is being used for our on-going migration to Google Cloud Platform. It is being used for the 
 submission of on-premise Hadoop jobs as well as Dataproc jobs and by that simplifies the switch from on-premise Hadoop
@@ -203,3 +196,10 @@ $ spydra submit --spydra-json example.json
 #### Run-jhs
 
 ## Building
+
+## Contributing
+
+This project adheres to the [Open Code of Conduct][code-of-conduct]. By participating,
+you are expected to honor this code.
+
+[code-of-conduct]: https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md
