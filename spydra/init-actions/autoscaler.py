@@ -19,6 +19,7 @@ import math
 import requests
 import socket
 import subprocess
+import sys
 import time
 
 METADATA_URL = 'http://metadata.google.internal/computeMetadata/v1/'
@@ -88,7 +89,7 @@ containers_pending = int(metrics['containersPending'])
 
 if active_nodes == 0 or total_mb == 0 or containers_allocated == 0 or allocated_mb == 0:
     print "Nothing to do, exit"
-    exit
+    sys.exit(0)
 
 container_size = allocated_mb / float(containers_allocated)
 memory_per_node = total_mb / active_nodes
@@ -105,15 +106,15 @@ preemptable_nodes_required = min(autoscaler_max, preemptable_nodes_required)
 preemptable_nodes_required = max(0, preemptable_nodes_required)
 
 if current_preemtable_count == preemptable_nodes_required:
-    exit
+    sys.exit(0)
 
 if current_factor > factor and not downscale:
     print "Downscaling is disabled, continue"
-    exit
+    sys.exit(0)
 
 if current_factor == factor:
     print "Perfectly sized, continue"
-    exit
+    sys.exit(0)
 
 print "Decided to scale. Current factor is %s. Requiring %s nodes." % (current_factor, preemptable_nodes_required)
 scale(cluster, preemptable_nodes_required)
