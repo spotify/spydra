@@ -23,7 +23,7 @@ and is designed to ease the migration to and/or dual use of Google Cloud Platfor
 
 ### Development Status
 `Spydra` is the rewrite of a concept that has been developed at Spotify for more than a year. The current version of
-`Spydra` is in beta and is being actively developed and supported by our data infrastructure team at Spotify.
+`Spydra` is in beta, used in production at Spotify, and actively developed and supported by our data infrastructure team.
 
 `Spydra` is in beta and things might change but we are aiming at not breaking the currently exposed APIs and configuration.
 
