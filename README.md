@@ -278,7 +278,7 @@ To enable cluster pooling add a pooling section similar to the one below to your
   "submit:" {...},
   "pooling": {
     "limit": 2,     # limit of concurrent clusters
-    "max_age": "20" # A java.time.Duration for the maximum age of a cluster
+    "max_age": "P1D"# A java.time.Duration for the maximum age of a cluster
   }
 }
 ```
