@@ -1,6 +1,6 @@
 # Spydra (Beta)
 
-[![License](https://img.shields.io/github/license/spotify/styx.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/spotify/spydra.svg)](LICENSE)
 
 Ephemeral Hadoop clusters using Google Compute Platform
 
