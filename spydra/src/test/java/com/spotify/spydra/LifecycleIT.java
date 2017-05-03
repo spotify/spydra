@@ -34,6 +34,7 @@ import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
 
+import java.util.Arrays;
 import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -67,6 +68,8 @@ public class LifecycleIT {
     SpydraArgument arguments = new SpydraArgument();
     gcpUtils.configureClusterProjectFromCredential(arguments);
     arguments.setClusterType(ClusterType.DATAPROC);
+    arguments.setLogBucket("spydra-integration-test");
+    arguments.defaultZones = Arrays.asList("europe-west1-b", "europe-west1-c", "europe-west1-d");
     arguments.getCluster().getOptions().put("num-workers", "3");
     arguments.getSubmit().getOptions().put(SpydraArgument.OPTION_JAR, getExamplesJarPath());
     arguments.getSubmit().setJobArgs(Lists.newArrayList("pi", "1", "1"));
@@ -76,6 +79,8 @@ public class LifecycleIT {
     String userId = gcpUtils.userIdFromJsonCredential(json);
     arguments = SpydraArgumentUtil.mergeConfigurations(arguments, userId);
     arguments.replacePlaceholders();
+
+    SpydraArgumentUtil.checkRequiredArguments(arguments, false, false);
 
     // TODO We should test the init action as well but the uploading before running the test is tricky
     // We could upload it manually to a test bucket here and set the right things
