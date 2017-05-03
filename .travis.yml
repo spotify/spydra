@@ -3,5 +3,34 @@ language: java
 jdk:
   - oraclejdk8
 
+cache:
+  directories:
+    - "$HOME/google-cloud-sdk/"
+
+env:
+  global:
+    - GOOGLE_APPLICATION_CREDENTIALS=spydra_foss_ci.json
+    - INIT_ACTIONS_BUCKET=spotify-init-actions
+    - PATH=$PATH:${HOME}/google-cloud-sdk/bin
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
+before_install:
+  # Decrypt the credentials for accessing GCP project (only non pull-requests)
+  - openssl aes-256-cbc -K $encrypted_e1de2a468852_key -iv $encrypted_e1de2a468852_iv -in secrets/spydra_foss_ci.json.enc -out spydra_foss_ci.json -d
+  # If the SDK is not already cached, download it and unpack it
+  - if [ ! -d ${HOME}/google-cloud-sdk ]; then
+     curl https://sdk.cloud.google.com | bash;
+    fi
+
+branches:
+  only:
+  - master
+
+script:
+  # Run on pull requests (encrypted data not available for pull requests)
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra; fi'
+  # Run on merges to master
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra; fi'
+
 notifications:
   email: false
