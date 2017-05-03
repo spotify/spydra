@@ -6,6 +6,7 @@ jdk:
 cache:
   directories:
     - "$HOME/google-cloud-sdk/"
+    - "$HOME/.m2/"
 
 env:
   global:
