@@ -13,6 +13,8 @@ env:
     - INIT_ACTIONS_BUCKET=spotify-init-actions
     - PATH=$PATH:${HOME}/google-cloud-sdk/bin
     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+    - secure: aatnyQCO8F79sc2IvA6efAew2oilalgBgh5Q8nhpdorf+UlfLeFBlqiImU6EmFBbwgBgwZRQLARKQkpe3wcqLVoacf2YDKPmbBgFtph2Mmdy4uyNRD6EShyW9FiHThWN6iy5CYd9XI8sWiDW7GmD1pP9+SKdBA4G7JHzFcYap6ZiOnTz2BZ7oJndKRgLMFBLU+bGFsIAHchk4KoQFk0W1OGkDY/otasMmUQ56tHKsGJaAzcCF6Xr5qdprTgUIK+fUmL3QgNKseUxTE6QGQGQOGLCrGVQ7cMOsweTJUo/k88eliqEkee6BrH847NP+KrJ79gy4hOf8xDdCrjOquruz91EOPXIEGodKJlznHBUXdpT1VwltJ9Iv6c6DbOcZkMKv2xHc+yHo/D5NRxg0Zy1drTYu25hTOJCw/mvY5gPZiqLivoMIJLAD33LUU5c6F09ROE7SNAUYRIzrsNVcg9Mcyv1uz34sOlj58+GaN3Rzj3/D9d2CcJe0l29pxesYk4IbJ6ofM6Pp5FwYVtk2TuSmkeXoYU0YWLUZN1KxM5JCMjOTCUVRxEfrYPOb338O/PBQ7j7anpPAoXMG98Gr7EOGwqEDRyr91nBvRjRSAVcVtWRFJ5khZWqbUBkv/isI9Af4e8rPUgsb7SzW/QmRWPwYCcBP/un3B+v8dbim4aDtJU=
+    - secure: GkVJrZ1PQn8wT+wL7zSjjvDWKvooPyP+ESkkGaqAxlfl+miFaB7YPWPL3K9JpvodZ3uh+7W2hd1WuqSlTQo7sKReaH3hdfYWO43JgcLkVf7dNiVysEOuNFesRawvchKHYy5+QdHfwX3gqBmFJWqVXsBL3v4NVQZaEmhSAxMoSjwJsAamArPG/3DHlt0daTXC9yeraG3cF5GiBeuYrbSzvYMF1z0Z5te9E7F68f7xZCjGFq2cgYQbLyxzErZFXJZcxrMoz6i/HNcChEVQmqqLqNt4rykyDVnjy4IhWw45eujBnBvs0qwBVGIjaarl0ZmQh8dV+DbOQIA3wxXFQVhJdMeu2tai+MHRWYHM+Q3vfrO5Tv3CpWLaKroJeRRNyHLeTtmAUT4JE5D/kpUS71BuWF1ibWVWBKGNNoKZzz2DwqAf4tj1D1DQL+qt7PqXHgqOL3pTT3FuXIpR07TqMlmlnsH3DCyEwTD4f43KMlrj93G+AowVYTP/jlCXAxoO4I4IOJeqpWiEg7LGqdzBYkI6j3po7vASvJzNVUWIn9glf+lljLrV7qH8AMaD4S4n+2XvxMrBodDx8QhcvMCDIDPZOQ13xrhGCR8veu4D3qeA3dtL4RQ/0PAg7J/Ar9RgUdRDXggNDMmN+uCHJY4t5dmhp7CENTsA2Y0jNawgM30gccM=
 
 before_install:
   # Decrypt the credentials for accessing GCP project (only non pull-requests)
@@ -30,7 +32,7 @@ script:
   # Run on pull requests (encrypted data not available for pull requests)
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra; fi'
   # Run on merges to master
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy --settings=secrets/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra; fi'
 
 notifications:
   email: false
