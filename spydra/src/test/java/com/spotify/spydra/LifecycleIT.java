@@ -68,7 +68,7 @@ public class LifecycleIT {
     SpydraArgument arguments = new SpydraArgument();
     gcpUtils.configureClusterProjectFromCredential(arguments);
     arguments.setClusterType(ClusterType.DATAPROC);
-    arguments.setLogBucket("spydra-integration-test");
+    arguments.setLogBucket("spydra-integration-tests");
     arguments.defaultZones = Arrays.asList("europe-west1-b", "europe-west1-c", "europe-west1-d");
     arguments.getCluster().getOptions().put("num-workers", "3");
     arguments.getSubmit().getOptions().put(SpydraArgument.OPTION_JAR, getExamplesJarPath());
