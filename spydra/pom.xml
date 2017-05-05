@@ -10,7 +10,7 @@
   <artifactId>spydra</artifactId>
 
   <properties>
-    <init-action-uri/>
+    <init-action-uri>spydra-init-actions</init-action-uri>
     <versioned-init-action-uri>${init-action-uri}/${project.version}</versioned-init-action-uri>
     <test-configuration-folder>/Users/steffeng/spydra-conf/</test-configuration-folder>
   </properties>
