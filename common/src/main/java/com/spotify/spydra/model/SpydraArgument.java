@@ -47,9 +47,9 @@ public class SpydraArgument {
 
   public static final String JOB_TYPE_HADOOP = "hadoop";
 
-  public static final String CLIENT_ID_PROPERTIES_PLACEHOLDER = "\\$\\{CLIENT_ID\\}";
-  public static final String LOG_BUCKET_PROPERTIES_PLACEHOLDER = "\\$\\{LOG_BUCKET\\}";
-  public static final String UUID_PLACEHOLDER = "\\$\\{UUID\\}";
+  public static final String CLIENT_ID_PROPERTIES_PLACEHOLDER = "${CLIENT_ID}";
+  public static final String LOG_BUCKET_PROPERTIES_PLACEHOLDER = "${LOG_BUCKET}";
+  public static final String UUID_PLACEHOLDER = "${UUID}";
 
   public static final String OPTION_DRYRUN = "dry-run";
 
@@ -291,11 +291,11 @@ public class SpydraArgument {
     if (options.containsKey(OPTION_PROPERTIES)) {
       String properties = options.get(OPTION_PROPERTIES);
       if (clientId.isPresent()) {
-        properties = properties.replaceAll(CLIENT_ID_PROPERTIES_PLACEHOLDER, getClientId());
+        properties = properties.replace(CLIENT_ID_PROPERTIES_PLACEHOLDER, getClientId());
       }
       if (logBucket.isPresent()) {
-        properties = properties.replaceAll(LOG_BUCKET_PROPERTIES_PLACEHOLDER, getLogBucket());
-        properties = properties.replaceAll(UUID_PLACEHOLDER, UUID.randomUUID().toString());
+        properties = properties.replace(LOG_BUCKET_PROPERTIES_PLACEHOLDER, getLogBucket());
+        properties = properties.replace(UUID_PLACEHOLDER, UUID.randomUUID().toString());
       }
       options.put(OPTION_PROPERTIES, properties);
     }
