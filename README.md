@@ -346,29 +346,42 @@ an ephemeral cluster as long as the cluster is running.
 * [gsutil](https://cloud.google.com/storage/docs/gsutil) authenticated with the service account
 
 ### Integration Test Configuration
+
 In order to run integration tests, basic configuration needs to be provided during the build process.
-Create a spydra_conf.json file similar to the one below and reference it during the maven invocation.
+Create a file with name *integration-test-config.json* similar to the one below and reference
+it during the maven invocation.
 
 ```$xslt
 {
   "log_bucket": "YOUR_GCS_LOG_BUCKET",
   "cluster": {
     "options": {
-      "project": "YOUR_PROJECT",
       "zone": "europe-west1-d"
     }
   }
 }
 ```
 
+Replace the YOUR_GCS_LOG_BUCKET with a bucket you have in your GCP project for storing the logs.
+
+Notice that the file name must be exactly *integration-test-config.json* as that is what the
+integration test will search for when it is run on the maven verify phase.
+
 ### Build and Package
-Replace YOUR_INIT_ACTION_BUCKET with the bucket you created when setting up the prerequisites and YOUR_SPYDRA_CONF.JSON
-with the path to the integration test configuration and execute the following maven command.
 
-```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
+In the following command, replace YOUR_INIT_ACTION_BUCKET with the bucket you created
+when setting up the prerequisites and YOUR_TEST_CONFIG_DIR with a directory name containing
+the file *integration-test-config.json* you created in the previous step. YOUR_TEST_CONFIG_DIR
+cannot be the same as the package root, so create a separate directory for this purpose.
+Then execute the maven command:
 
-Executing the maven command above will create a spydra-VERSION-jar-with-dependencies.jar under
-spydra/target that packages `Spydra` and can be executed with `java -jar`.
+```
+mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_TEST_CONFIG_DIR
+```
+
+Executing the maven command above will run the integration tests, and create
+a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`,
+which can be executed with `java -jar`.
 
 ## Contributing
 

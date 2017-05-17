@@ -12,7 +12,7 @@
   <properties>
     <init-action-uri/>
     <versioned-init-action-uri>${init-action-uri}/${project.version}</versioned-init-action-uri>
-    <test-configuration-folder>/Users/steffeng/spydra-conf/</test-configuration-folder>
+    <test-configuration-folder/>
   </properties>
 
   <dependencies>
@@ -153,6 +153,38 @@
                   <directory>${test-configuration-folder}</directory>
                 </resource>
               </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <id>enforce-property</id>
+            <!-- process-classes phase is just before generate-test-resources when we need the properties set -->
+            <phase>process-classes</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>init-action-uri</property>
+                  <message>You must set a init-action-uri property!</message>
+                  <regex>.*\w.*</regex>
+                  <regexMessage>The init-action-uri property must contain at least one character.</regexMessage>
+                </requireProperty>
+                <requireProperty>
+                  <property>test-configuration-folder</property>
+                  <message>You must set a test-configuration-folder property!</message>
+                  <regex>.*\w.*</regex>
+                  <regexMessage>The test-configuration-folder property must contain at least one character.</regexMessage>
+                </requireProperty>
+              </rules>
+              <fail>true</fail>
             </configuration>
           </execution>
         </executions>
