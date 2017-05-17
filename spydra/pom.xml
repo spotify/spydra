@@ -151,6 +151,9 @@
               <resources>
                 <resource>
                   <directory>${test-configuration-folder}</directory>
+                  <includes>
+                    <include>integration-test-config.json</include>
+                  </includes>
                 </resource>
               </resources>
             </configuration>
