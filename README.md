@@ -383,6 +383,15 @@ Executing the maven command above will run the integration tests, and create
 a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`,
 which can be executed with `java -jar`.
 
+## Communications
+
+If you use Spydra and experience any issues, please create an issue under this Github project
+in [here](https://github.com/spotify/spydra/issues/new).
+
+You can also ask for help and talk to us on Spydra related issues in
+[Spotify FOSS Slack](https://spotify-foss.slack.com) on channel
+[#spydra](https://spotify-foss.slack.com/messages/C58L8GVS8/).
+
 ## Contributing
 
 This project adheres to the [Open Code of Conduct][code-of-conduct]. By participating,
