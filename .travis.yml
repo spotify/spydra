@@ -30,6 +30,9 @@ branches:
   only:
   - master
 
+# Skipping the install step or otherwise it would trigger enforcer plugin and fail.
+install: true
+
 script:
   # Run on pull requests (encrypted data not available for pull requests)
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra; fi'
