@@ -147,7 +147,7 @@ configuration file supplied with the --spydra-json parameter. The configuration 
 `cloud dataproc clusters create` and `cloud dataproc jubs submit` commands and allows to set all
 the possible arguments for these commands. The basic structure looks as follows:
 
-```$xslt
+```json
 {
   "client_id": "spydra-test",                  # Spydra client id. Usually left out as set by the frameworks during runtime.
   "cluster_type": "dataproc",                 # Where to execute. Either dataproc or onpremise. Defaults to onpremise.
@@ -225,7 +225,7 @@ Downscale should currently only be used for experimental purposes.
 
 To enable autoscaling, add an autoscaler section similar to the one below to your `Spydra` configuration.
 
-```$xslt
+```json
 {
   "cluster:" {...},
   "submit:" {...},
@@ -241,7 +241,7 @@ To enable autoscaling, add an autoscaler section similar to the one below to you
 ##### Static Cluster Submission
 If you prefer to manage your Dataproc clusters manually you still can use Spydra for job submission and just skip dynamic cluster creation part. The only change that is needed to be done to Spydra configurations is that you need to specify the name of the cluster you want to submit the job to. Here is an example:
 
-```$xslt
+```json
 {
   "client_id": "simple-spydra-test",
   "cluster_type": "dataproc",
@@ -272,7 +272,7 @@ cluster according to certain conditions.
 
 To enable cluster pooling add a pooling section similar to the one below to your `Spydra` configuration.
 
-```$xslt
+```json
 {
   "cluster:" {...},
   "submit:" {...},
@@ -351,7 +351,7 @@ In order to run integration tests, basic configuration needs to be provided duri
 Create a file with name *integration-test-config.json* similar to the one below and reference
 it during the maven invocation.
 
-```$xslt
+```json
 {
   "log_bucket": "YOUR_GCS_LOG_BUCKET",
   "cluster": {
