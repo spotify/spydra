@@ -34,7 +34,6 @@ import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
 
-import java.util.Arrays;
 import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -62,14 +61,11 @@ public class LifecycleIT {
 
   private final static GcpUtils gcpUtils = new GcpUtils();
 
-
   @Test
   public void testLifecycle() throws Exception {
-    SpydraArgument arguments = new SpydraArgument();
+    SpydraArgument arguments = SpydraArgumentUtil.loadArguments("integration-test-config.json");
     gcpUtils.configureClusterProjectFromCredential(arguments);
     arguments.setClusterType(ClusterType.DATAPROC);
-    arguments.setLogBucket("spydra-integration-tests");
-    arguments.defaultZones = Arrays.asList("europe-west1-b", "europe-west1-c", "europe-west1-d");
     arguments.getCluster().getOptions().put("num-workers", "3");
     arguments.getSubmit().getOptions().put(SpydraArgument.OPTION_JAR, getExamplesJarPath());
     arguments.getSubmit().setJobArgs(Lists.newArrayList("pi", "1", "1"));

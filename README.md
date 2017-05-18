@@ -147,7 +147,7 @@ configuration file supplied with the --spydra-json parameter. The configuration 
 `cloud dataproc clusters create` and `cloud dataproc jubs submit` commands and allows to set all
 the possible arguments for these commands. The basic structure looks as follows:
 
-```$xslt
+```json
 {
   "client_id": "spydra-test",                  # Spydra client id. Usually left out as set by the frameworks during runtime.
   "cluster_type": "dataproc",                 # Where to execute. Either dataproc or onpremise. Defaults to onpremise.
@@ -225,7 +225,7 @@ Downscale should currently only be used for experimental purposes.
 
 To enable autoscaling, add an autoscaler section similar to the one below to your `Spydra` configuration.
 
-```$xslt
+```json
 {
   "cluster:" {...},
   "submit:" {...},
@@ -241,7 +241,7 @@ To enable autoscaling, add an autoscaler section similar to the one below to you
 ##### Static Cluster Submission
 If you prefer to manage your Dataproc clusters manually you still can use Spydra for job submission and just skip dynamic cluster creation part. The only change that is needed to be done to Spydra configurations is that you need to specify the name of the cluster you want to submit the job to. Here is an example:
 
-```$xslt
+```json
 {
   "client_id": "simple-spydra-test",
   "cluster_type": "dataproc",
@@ -272,7 +272,7 @@ cluster according to certain conditions.
 
 To enable cluster pooling add a pooling section similar to the one below to your `Spydra` configuration.
 
-```$xslt
+```json
 {
   "cluster:" {...},
   "submit:" {...},
@@ -346,29 +346,51 @@ an ephemeral cluster as long as the cluster is running.
 * [gsutil](https://cloud.google.com/storage/docs/gsutil) authenticated with the service account
 
 ### Integration Test Configuration
-In order to run integration tests, basic configuration needs to be provided during the build process.
-Create a spydra_conf.json file similar to the one below and reference it during the maven invocation.
 
-```$xslt
+In order to run integration tests, basic configuration needs to be provided during the build process.
+Create a file with name *integration-test-config.json* similar to the one below and reference
+it during the maven invocation.
+
+```json
 {
   "log_bucket": "YOUR_GCS_LOG_BUCKET",
   "cluster": {
     "options": {
-      "project": "YOUR_PROJECT",
       "zone": "europe-west1-d"
     }
   }
 }
 ```
 
+Replace the YOUR_GCS_LOG_BUCKET with a bucket you have in your GCP project for storing the logs.
+
+Notice that the file name must be exactly *integration-test-config.json* as that is what the
+integration test will search for when it is run on the maven verify phase.
+
 ### Build and Package
-Replace YOUR_INIT_ACTION_BUCKET with the bucket you created when setting up the prerequisites and YOUR_SPYDRA_CONF.JSON
-with the path to the integration test configuration and execute the following maven command.
 
-```mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_SPYDRA_CONF.JSON```
+In the following command, replace YOUR_INIT_ACTION_BUCKET with the bucket you created
+when setting up the prerequisites and YOUR_TEST_CONFIG_DIR with a directory name containing
+the file *integration-test-config.json* you created in the previous step. YOUR_TEST_CONFIG_DIR
+cannot be the same as the package root, so create a separate directory for this purpose.
+Then execute the maven command:
 
-Executing the maven command above will create a spydra-VERSION-jar-with-dependencies.jar under
-spydra/target that packages `Spydra` and can be executed with `java -jar`.
+```
+mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_TEST_CONFIG_DIR
+```
+
+Executing the maven command above will run the integration tests, and create
+a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`,
+which can be executed with `java -jar`.
+
+## Communications
+
+If you use Spydra and experience any issues, please create an issue under this Github project
+in [here](https://github.com/spotify/spydra/issues/new).
+
+You can also ask for help and talk to us on Spydra related issues in
+[Spotify FOSS Slack](https://spotify-foss.slack.com) on channel
+[#spydra](https://spotify-foss.slack.com/messages/C58L8GVS8/).
 
 ## Contributing
 
