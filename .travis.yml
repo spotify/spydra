@@ -20,6 +20,8 @@ env:
 before_install:
   # Decrypt the credentials for accessing GCP project (only non pull-requests)
   - openssl aes-256-cbc -K $encrypted_e1de2a468852_key -iv $encrypted_e1de2a468852_iv -in ${TEST_CONFIG_FOLDER}/spydra_foss_ci.json.enc -out ${GOOGLE_APPLICATION_CREDENTIALS} -d
+  # The integration test configuration must be in absolute path, thus using mktemp
+  - export INTEGRATION_TEST_CONFIG_FOLDER=$(mktemp -d) && cp ${TEST_CONFIG_FOLDER}/*.json ${INTEGRATION_TEST_CONFIG_FOLDER}
   # If the SDK is not already cached, download it and install it into path
   - gcloud version || true
   - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
@@ -36,9 +38,9 @@ install: true
 
 script:
   # Run on pull requests (encrypted data not available for pull requests)
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-folder=${TEST_CONFIG_FOLDER}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-folder=${INTEGRATION_TEST_CONFIG_FOLDER}; fi'
   # Run on merges to master
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy --settings=${TEST_CONFIG_FOLDER}/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-folder=${TEST_CONFIG_FOLDER}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy --settings=${TEST_CONFIG_FOLDER}/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-folder=${INTEGRATION_TEST_CONFIG_FOLDER}; fi'
 
 notifications:
   email: false
