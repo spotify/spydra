@@ -376,7 +376,7 @@ cannot be the same as the package root, so create a separate directory for this 
 Then execute the maven command:
 
 ```
-mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-folder=YOUR_TEST_CONFIG_DIR
+mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
 ```
 
 Executing the maven command above will run the integration tests, and create

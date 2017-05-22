@@ -11,7 +11,7 @@
   <properties>
     <init-action-uri />
     <versioned-init-action-uri>${init-action-uri}/${project.version}</versioned-init-action-uri>
-    <test-configuration-folder />
+    <test-configuration-dir />
   </properties>
 
   <dependencies>
@@ -149,7 +149,7 @@
             <configuration>
               <resources>
                 <resource>
-                  <directory>${test-configuration-folder}</directory>
+                  <directory>${test-configuration-dir}</directory>
                   <includes>
                     <include>integration-test-config.json</include>
                   </includes>
@@ -180,10 +180,10 @@
                   <regexMessage>The init-action-uri property must contain at least one character.</regexMessage>
                 </requireProperty>
                 <requireProperty>
-                  <property>test-configuration-folder</property>
-                  <message>You must set a test-configuration-folder property!</message>
+                  <property>test-configuration-dir</property>
+                  <message>You must set a test-configuration-dir property!</message>
                   <regex>.*\w.*</regex>
-                  <regexMessage>The test-configuration-folder property must contain at least one character.</regexMessage>
+                  <regexMessage>The test-configuration-dir property must contain at least one character.</regexMessage>
                 </requireProperty>
               </rules>
               <fail>true</fail>
@@ -232,6 +232,10 @@
     <resources>
       <resource>
         <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/test/resources</directory>
         <filtering>true</filtering>
       </resource>
       <resource>

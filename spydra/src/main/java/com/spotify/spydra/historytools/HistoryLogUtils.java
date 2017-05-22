@@ -144,7 +144,7 @@ public class HistoryLogUtils {
    *
    * @return Path of the located jhist file
    * @throws IOException        Failure to initialize filesystem to access history file
-   * @throws URISyntaxException Location specified for history folder prefix is not a valid URI
+   * @throws URISyntaxException Location specified for history path prefix is not a valid URI
    */
   public static Optional<String> findHistoryFilePath(FileSystem fs, String historyDirPrefix,
       ApplicationId applicationId) throws IOException, URISyntaxException {
