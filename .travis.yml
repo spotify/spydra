@@ -10,18 +10,27 @@ cache:
 
 env:
   global:
-    - GOOGLE_APPLICATION_CREDENTIALS=/tmp/spydra_foss_ci.json
     - INIT_ACTIONS_BUCKET=spydra-init-actions
-    - TEST_CONFIG_FOLDER=travis_files
+    - CONFIG_DIR=travis_files
     - PATH=$PATH:${HOME}/google-cloud-sdk/bin
+    # CI_DEPLOY_USERNAME
     - secure: aatnyQCO8F79sc2IvA6efAew2oilalgBgh5Q8nhpdorf+UlfLeFBlqiImU6EmFBbwgBgwZRQLARKQkpe3wcqLVoacf2YDKPmbBgFtph2Mmdy4uyNRD6EShyW9FiHThWN6iy5CYd9XI8sWiDW7GmD1pP9+SKdBA4G7JHzFcYap6ZiOnTz2BZ7oJndKRgLMFBLU+bGFsIAHchk4KoQFk0W1OGkDY/otasMmUQ56tHKsGJaAzcCF6Xr5qdprTgUIK+fUmL3QgNKseUxTE6QGQGQOGLCrGVQ7cMOsweTJUo/k88eliqEkee6BrH847NP+KrJ79gy4hOf8xDdCrjOquruz91EOPXIEGodKJlznHBUXdpT1VwltJ9Iv6c6DbOcZkMKv2xHc+yHo/D5NRxg0Zy1drTYu25hTOJCw/mvY5gPZiqLivoMIJLAD33LUU5c6F09ROE7SNAUYRIzrsNVcg9Mcyv1uz34sOlj58+GaN3Rzj3/D9d2CcJe0l29pxesYk4IbJ6ofM6Pp5FwYVtk2TuSmkeXoYU0YWLUZN1KxM5JCMjOTCUVRxEfrYPOb338O/PBQ7j7anpPAoXMG98Gr7EOGwqEDRyr91nBvRjRSAVcVtWRFJ5khZWqbUBkv/isI9Af4e8rPUgsb7SzW/QmRWPwYCcBP/un3B+v8dbim4aDtJU=
+    # CI_DEPLOY_PASSWORD
     - secure: GkVJrZ1PQn8wT+wL7zSjjvDWKvooPyP+ESkkGaqAxlfl+miFaB7YPWPL3K9JpvodZ3uh+7W2hd1WuqSlTQo7sKReaH3hdfYWO43JgcLkVf7dNiVysEOuNFesRawvchKHYy5+QdHfwX3gqBmFJWqVXsBL3v4NVQZaEmhSAxMoSjwJsAamArPG/3DHlt0daTXC9yeraG3cF5GiBeuYrbSzvYMF1z0Z5te9E7F68f7xZCjGFq2cgYQbLyxzErZFXJZcxrMoz6i/HNcChEVQmqqLqNt4rykyDVnjy4IhWw45eujBnBvs0qwBVGIjaarl0ZmQh8dV+DbOQIA3wxXFQVhJdMeu2tai+MHRWYHM+Q3vfrO5Tv3CpWLaKroJeRRNyHLeTtmAUT4JE5D/kpUS71BuWF1ibWVWBKGNNoKZzz2DwqAf4tj1D1DQL+qt7PqXHgqOL3pTT3FuXIpR07TqMlmlnsH3DCyEwTD4f43KMlrj93G+AowVYTP/jlCXAxoO4I4IOJeqpWiEg7LGqdzBYkI6j3po7vASvJzNVUWIn9glf+lljLrV7qH8AMaD4S4n+2XvxMrBodDx8QhcvMCDIDPZOQ13xrhGCR8veu4D3qeA3dtL4RQ/0PAg7J/Ar9RgUdRDXggNDMmN+uCHJY4t5dmhp7CENTsA2Y0jNawgM30gccM=
+    # GPG_KEY_NAME
+    - secure: kHGE8GorEqaDb3ujXHTKV+YJV9CN3SlUCinCbGf8ETJ4V9JzdkVKWfKE8I4cLEjjNF9emertfwUSOGFVG70NL8bYjX4n79i9kGRC3H8yjfVK1ZK976kbQvqmJ+9SXSC92VRtZXW5d5kp4NkQW7e/nNEonKEO1SofAYjovXBdh4tbzPGiwks1K6jPDsANtyI2/Y4nsPxl9ljw1H6IlsKbR5Qk5ovA6bkvLrKA3arNsskhzrF0TN+ZCA0V6E8AzVEH4XGveGc3B8BvgcJH3TmOYMFESJpKGMTRa4HAphwAyeL/2OUH8ylqY9BmYjfU1G4+R84f9/+/RhWb3iA7QXZswzHhlcfmhqfipq+MYYKAZ/FQXtYVJd8e1jygbcSf14lVYnu5kjKTm0e5Bv35Oa0vJ2hfzYuRNU5XSMBtiUKFRzlr2+5+qR24XH3yUeHV5r55A5jPLk89xfAS0KDwWFCqh9eeu29I5juce7Tg8IT5GTuiwBFtfLVOFbiDuOIr2qK4sxU0VJlMp+7X84IKiZGDndvsfejIg5z6ReeK4ertx4UyfLQIlaW0dUdG7/E49U9UcgK7+0+FlHIj0+0qrNZquhMMNrQIbg5WqFW2RuBWViQfH7Z/gO3RzxyZbsLiJUQu92dXTHo9OAtYqzPPIRZ7FumESe3KhxMjpADYd7Z3ggs=
+    # GPG_PASSPHRASE
+    - secure: Qa3yc9gBzymK4PoUM90y3b+9lWjeFVmPckBv5zOeBtn4NR6r161LBalr6+ximD0dFUFpsojDM3JbgHTOwq32l//Syzf2GFaZElRmeL0rdqLJ21KtooWFshESaBYzM/FP4cYFpIt7PrsHkgAKjZ1x7QW3akiv5Y8741gPW2WPl/zAxSRFDb8c1vEi556V1/O3MIpnZ4EFrcSivBe1q/RIKnklIYaIxl/p/wnZnxLHoWOOWkEcHk3mtGSx2fYdWL6at64ui4lCXc+X5FVS91BxhFuK19UE9TXFmdjZrFdJjD8lP97pGvTpZwpYk+bbFCWgyo/M+jDCHPK6PSWP9h65T2LmA262CQmNqkDjo8r6WA/zl0GSRkx6PYu4v/IOTyH3aMYFSgrlmpu4p4oNQS+zCKC3Tc8iy8yROtnWWv0pjrYVqGMCHL0kdsl3I5GZEy/5gOnxpSt2ABAf9tTp2fxNTx6GEtdko6m1KpyPx5bYJKXaSRX0rNv3hhIl/ZV63Ouvbzkf6crm1n2w8vnNB7QxFI5JSov9jXPvERzDgo1BSd0QcxgEpUNs43G5YhaEjfAduNGUnRs52em1B5zbqetxoX0C8Q90lITIt3AUMsXPmaoYm0+xhIYwQXswaAkevlLnORwMrJoJhWQzNdGAvffYUpp8N6S96DT8X5lH63McWO8=
 
 before_install:
-  # Decrypt the credentials for accessing GCP project (only non pull-requests)
-  - openssl aes-256-cbc -K $encrypted_e1de2a468852_key -iv $encrypted_e1de2a468852_iv -in ${TEST_CONFIG_FOLDER}/spydra_foss_ci.json.enc -out ${GOOGLE_APPLICATION_CREDENTIALS} -d
+  # Decrypt the secrets (only non pull-requests)
+  - openssl aes-256-cbc -K $encrypted_44004b20f94b_key -iv $encrypted_44004b20f94b_iv -in ${CONFIG_DIR}/secrets.tar.enc -out ${CONFIG_DIR}/secrets.tar -d
+  - tar xvf ${CONFIG_DIR}/secrets.tar --directory ${CONFIG_DIR}
+  # Import the FOSS signing key
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then gpg --fast-import ${CONFIG_DIR}/spydra_sign_keys; fi
   # The integration test configuration must be in absolute path, thus using mktemp
-  - export INTEGRATION_TEST_CONFIG_FOLDER=$(mktemp -d) && cp ${TEST_CONFIG_FOLDER}/*.json ${INTEGRATION_TEST_CONFIG_FOLDER}
+  - export INTEGRATION_TEST_CONFIG_DIR=$(mktemp -d) && cp ${CONFIG_DIR}/*.json ${INTEGRATION_TEST_CONFIG_DIR}
+  - export GOOGLE_APPLICATION_CREDENTIALS=${INTEGRATION_TEST_CONFIG_DIR}/spydra_foss_ci.json
   # If the SDK is not already cached, download it and install it into path
   - gcloud version || true
   - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
@@ -38,9 +47,9 @@ install: true
 
 script:
   # Run on pull requests (encrypted data not available for pull requests)
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-folder=${INTEGRATION_TEST_CONFIG_FOLDER}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -P !build-extras -Dmaven.javadoc.skip=true -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
   # Run on merges to master
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy --settings=${TEST_CONFIG_FOLDER}/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-folder=${INTEGRATION_TEST_CONFIG_FOLDER}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -P sign,build-extras --settings=${CONFIG_DIR}/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
 
 notifications:
   email: false
