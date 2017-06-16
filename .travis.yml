@@ -47,9 +47,9 @@ install: true
 
 script:
   # Run on pull requests (encrypted data not available for pull requests)
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -P !build-extras -Dmaven.javadoc.skip=true -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -P !release -Dmaven.javadoc.skip=true -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
   # Run on merges to master
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -P sign,build-extras --settings=${CONFIG_DIR}/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -P release --settings=${CONFIG_DIR}/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
 
 notifications:
   email: false
