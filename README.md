@@ -28,21 +28,21 @@ and is designed to ease the migration to and/or dual use of Google Cloud Platfor
 `Spydra` is in beta and things might change but we are aiming at not breaking the currently exposed APIs and configuration.
 
 ### Spydra at Spotify
-At Spotify, `Spydra` is being used for our on-going migration to Google Cloud Platform. It is being used for the 
+At Spotify, `Spydra` is being used for our on-going migration to Google Cloud Platform. It handles the 
 submission of on-premise Hadoop jobs as well as Dataproc jobs, simplifying the switch from on-premise Hadoop
 to Dataproc.
 
-`Spydra` is being packaged in a [docker](https://www.docker.com/) image that is being used to deploy data
+`Spydra` is packaged in a [docker](https://www.docker.com/) image that is used to deploy data
 pipelines. This docker image includes Hadoop tools and configurations to be able to submit to our on-premise Hadoop
 cluster as well as an installation of [gcloud](https://cloud.google.com/sdk/gcloud/) and other basic dependencies
-required to execute Hadoop jobs in our environment. Pipelines are then being scheduled using [Styx](https://github.com/spotify/styx)
+required to execute Hadoop jobs in our environment. Pipelines are then scheduled using [Styx](https://github.com/spotify/styx)
 and orchestrated by [Luigi](https://github.com/spotify/luigi) which then invokes `Spydra` instead of `hadoop jar`.
 
 ### Design
 
 `Spydra` is built as a wrapper around Google Cloud Dataproc and designed not to have any central component. It exposes
 all functionality supported by Dataproc via its own configuration while adding some defaults. `Spydra` manages
-clusters and submits jobs invoking the `gcloud dataproc` command. `Spydra` ensures that clusters are being deleted
+clusters and submits jobs invoking the `gcloud dataproc` command. `Spydra` ensures that clusters are eventually deleted
 by updating a heartbeat marker in the cluster's metadata and utilizes [initialization-actions](https://cloud.google.com/dataproc/docs/concepts/init-actions)
 to set up a self-deletion script on the cluster to handle the deletion of the cluster in the event of client failures.
 
@@ -53,9 +53,9 @@ For Dataproc as well as on-premise submissions, `Spydra` will act similar to had
 
 #### Credentials
 `Spydra` is designed to ease the usage of Google Compute Platform credentials by utilizing 
-[service accounts](https://cloud.google.com/compute/docs/access/service-accounts). The same credential that is being
-used locally by `Spydra` to manage the cluster and submit jobs is by default forwarded to the Hadoop cluster when
-calling Dataproc. This means that access rights to resources need only be provided with a single set of credentials.
+[service accounts](https://cloud.google.com/compute/docs/access/service-accounts). The same credential that is 
+used locally by `Spydra` to manage the cluster and submit jobs, is also by default forwarded to the Hadoop cluster when
+calling Dataproc. This means that access rights to resources need only be given to a single set of credentials.
 
 #### Storing Execution Data and Logs
 To make job execution data available after an ephemeral cluster was shut down, and to provide similar functionality to
