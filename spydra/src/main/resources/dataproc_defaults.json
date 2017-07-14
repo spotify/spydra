@@ -1,5 +1,6 @@
 {
   "cluster_type": "dataproc",
+  "region": "global",
   "heartbeat_interval_seconds": "60",
   "collector_timeout_minutes": "30",
   "history_timeout": 60,

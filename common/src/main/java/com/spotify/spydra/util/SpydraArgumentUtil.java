@@ -95,9 +95,18 @@ public class SpydraArgumentUtil {
       if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_PROJECT)) {
         throw new IllegalArgumentException("cluster.options.project needs to be set");
       }
-      if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_ZONE)
-          && arguments.defaultZones.isEmpty()) {
-        throw new IllegalArgumentException("Either cluster.options.zone or defaultZones needs to be set");
+
+      arguments.region.orElseThrow(() ->
+          new IllegalArgumentException("region needs to be set"));
+      if (arguments.getRegion().equals("global")) {
+        LOGGER.info("Consider omitting defaultZones and cluster.options.zone in your configuration "
+                    + "for the auto-zone selector to balance between zones automatically. "
+                    + "See https://cloud.google.com/dataproc/docs/concepts/auto-zone");
+        if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_ZONE)
+            && arguments.defaultZones.isEmpty()) {
+          throw new IllegalArgumentException(
+              "Either cluster.options.zone or defaultZones needs to be set");
+        }
       }
     }
 

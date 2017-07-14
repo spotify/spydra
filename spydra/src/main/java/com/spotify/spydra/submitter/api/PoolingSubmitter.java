@@ -94,7 +94,7 @@ public class PoolingSubmitter extends DynamicSubmitter {
         //TODO: TW do a weighted sample on metrics instead.
         Collections.shuffle(filteredClusters);
         Cluster cluster = filteredClusters.get(0);
-        mutateForCluster(arguments, cluster.clusterName);
+        mutateForCluster(arguments, cluster.clusterName, cluster.config.gceClusterConfig.zoneUri);
         return true;
       }
     } catch (IOException e) {
