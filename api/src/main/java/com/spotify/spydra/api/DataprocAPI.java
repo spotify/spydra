@@ -49,14 +49,14 @@ public class DataprocAPI {
     gcloud.dryRun(dryRun);
   }
 
-  public Optional<String> createCluster(SpydraArgument arguments) throws IOException {
+  public Optional<Cluster> createCluster(SpydraArgument arguments) throws IOException {
     boolean success = false;
     try {
-      Optional<String> zone = gcloud.createCluster(arguments.getCluster().getName(),
+      Optional<Cluster> cluster = gcloud.createCluster(arguments.getCluster().getName(),
           arguments.getRegion(),
           arguments.getCluster().getOptions());
-      success = zone.isPresent();
-      return zone;
+      success = cluster.isPresent();
+      return cluster;
     } finally {
       metrics.clusterCreation(arguments, success);
     }

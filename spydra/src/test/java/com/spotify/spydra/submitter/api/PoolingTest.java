@@ -106,7 +106,7 @@ public class PoolingTest {
       when(dataprocAPI.listClusters(arguments))
           .thenReturn(clusters);
       when(dataprocAPI.createCluster(arguments))
-          .thenReturn(Optional.of("zone"));
+          .thenReturn(Optional.of(new Cluster()));
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, never()).createCluster(arguments);
@@ -126,7 +126,7 @@ public class PoolingTest {
       when(dataprocAPI.listClusters(arguments))
           .thenReturn(clusters);
       when(dataprocAPI.createCluster(arguments))
-          .thenReturn(Optional.of("zone"));
+          .thenReturn(Optional.of(new Cluster()));
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, times(1)).createCluster(arguments);

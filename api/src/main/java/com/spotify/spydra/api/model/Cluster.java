@@ -20,6 +20,8 @@ package com.spotify.spydra.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -50,6 +52,12 @@ public class Cluster {
       public String zoneUri; // Even though this is an Uri-string, --zone takes it just fine
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class MasterConfig {
+      public List<String> instanceNames = Collections.emptyList();
+    }
+
+    public MasterConfig masterConfig = new MasterConfig();
     public GceClusterConfig gceClusterConfig = new GceClusterConfig();
   }
 
