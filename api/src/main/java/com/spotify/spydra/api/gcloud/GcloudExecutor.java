@@ -27,6 +27,7 @@ import com.spotify.spydra.api.process.ProcessHelper;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
 
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -57,20 +58,33 @@ public class GcloudExecutor {
     baseCommand = gcloudCommand;
   }
 
+  public Optional<String> createCluster(String name, String region, Map<String, String> args) throws IOException {
+    Map<String, String> createOptions = new HashMap<>(args);
+    createOptions.put(SpydraArgument.OPTION_REGION, region);
+    ImmutableList<String> command = ImmutableList.of("--format=yaml", "dataproc", "clusters", "create", name);
 
-  public boolean createCluster(String name, Map<String, String> args) throws IOException {
-    return execute(ImmutableList.of("dataproc", "clusters", "create", name), args, Collections.emptyList());
+    String yamlString = ProcessHelper.executeForOutput(buildCommand(command, createOptions, Collections.EMPTY_LIST));
+    Yaml yaml = new Yaml();
+    Map<String, Map<String, Map<String, Object>>> parsedYaml =
+        (Map<String, Map<String, Map<String, Object>>>) yaml.load(yamlString);
+    String zone = parsedYaml.get("config").get("gceClusterConfig").get("zoneUri").toString();
+
+    return Optional.of(zone);
   }
 
-  public boolean deleteCluster(String name, Map<String, String> args) throws IOException {
+  public boolean deleteCluster(String name, String region, Map<String, String> args) throws IOException {
+    Map<String, String> deleteOptions = new HashMap<>(args);
+    deleteOptions.put(SpydraArgument.OPTION_REGION, region);
     return execute(ImmutableList.of("dataproc", "clusters", "delete", name,
         createOption("async", "")),
-        args, Collections.emptyList());
+        deleteOptions, Collections.emptyList());
   }
 
-  public boolean submit(String type, Map<String, String> options, List<String> jobArgs)
+  public boolean submit(String type, String region, Map<String, String> options, List<String> jobArgs)
       throws IOException {
-    return execute(ImmutableList.of("dataproc", "jobs", "submit", type), options, jobArgs);
+    Map<String, String> submitOptions = new HashMap<>(options);
+    submitOptions.put(SpydraArgument.OPTION_REGION, region);
+    return execute(ImmutableList.of("dataproc", "jobs", "submit", type), submitOptions, jobArgs);
   }
 
   private ArrayList<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
@@ -100,13 +114,14 @@ public class GcloudExecutor {
     }
   }
 
-  public String getMasterNode(String project, String clusterName)
+  public String getMasterNode(String project, String region, String clusterName)
       throws IOException {
     ArrayList<String> command = Lists.newArrayList(
         "dataproc", "clusters", "describe", clusterName);
 
     Map<String, String> options = ImmutableMap.of(
-        SpydraArgument.OPTION_PROJECT, project);
+        SpydraArgument.OPTION_PROJECT, project,
+        SpydraArgument.OPTION_REGION, region);
 
     String yamlString = ProcessHelper.executeForOutput(buildCommand(command, options, Collections.EMPTY_LIST));
     Yaml yaml = new Yaml();
@@ -140,11 +155,12 @@ public class GcloudExecutor {
     this.dryRun = dryRun;
   }
 
-  public Collection<Cluster> listClusters(String project) throws IOException {
+  public Collection<Cluster> listClusters(String project, String region) throws IOException {
     List<String> command = Lists.newArrayList(
         "dataproc", "clusters", "list", "--format=json");
     Map<String, String> options = ImmutableMap.of(
-        SpydraArgument.OPTION_PROJECT, project);
+        SpydraArgument.OPTION_PROJECT, project,
+        SpydraArgument.OPTION_REGION, region);
 
     String jsonString = ProcessHelper.executeForOutput(buildCommand(command, options, Collections.EMPTY_LIST));
     Cluster[] clusters = JsonHelper.objectMapper()

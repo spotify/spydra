@@ -47,6 +47,7 @@ public class Cluster {
       }
 
       public Metadata metadata = new Metadata();
+      public String zoneUri; // Even though this is an Uri-string, --zone takes it just fine
     }
 
     public GceClusterConfig gceClusterConfig = new GceClusterConfig();

@@ -114,7 +114,8 @@ public class LifecycleIT {
 
     Dataproc.Projects.Regions.Clusters.List request =
         dataprocService.projects().regions().clusters().list(
-            arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT), "global");
+            arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT),
+            arguments.getRegion());
     ListClustersResponse response;
     do {
       response = request.execute();

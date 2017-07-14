@@ -23,6 +23,7 @@ import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.util.GcpUtils;
 
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -44,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_METADATA;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_PROJECT;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
 
 public class DynamicSubmitter extends Submitter {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSubmitter.class);
@@ -152,11 +154,11 @@ public class DynamicSubmitter extends Submitter {
     }
     randomizeZoneIfAbsent(createArguments);
 
-    boolean success = dataprocAPI.createCluster(createArguments);
-    if (success) {
-      mutateForCluster(arguments, name);
+    Optional<String> zone = dataprocAPI.createCluster(createArguments);
+    if (zone.isPresent()) {
+      mutateForCluster(arguments, name, zone.get());
     }
-    return success;
+    return zone.isPresent();
   }
 
   void randomizeZoneIfAbsent(SpydraArgument createArguments) {
@@ -167,7 +169,8 @@ public class DynamicSubmitter extends Submitter {
     }
   }
 
-  protected void mutateForCluster(SpydraArgument arguments, String name) {
+  protected void mutateForCluster(SpydraArgument arguments, String name, String zone) {
+    arguments.getCluster().getOptions().put(OPTION_ZONE, zone);
     arguments.getSubmit().getOptions().put(OPTION_CLUSTER, name);
     arguments.getSubmit().getOptions().put(OPTION_PROJECT,
         arguments.getCluster().getOptions().get(OPTION_PROJECT));

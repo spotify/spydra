@@ -1,8 +1,4 @@
 {
   "log_bucket": "spydra-integration-tests",
-  "cluster": {
-    "options": {
-      "zone": "europe-west1-d"
-    }
-  }
+  "region": "europe-west1"
 }

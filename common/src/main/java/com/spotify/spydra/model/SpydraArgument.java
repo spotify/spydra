@@ -35,6 +35,7 @@ public class SpydraArgument {
   public static final String OPTION_PROPERTIES = "properties";
   public static final String OPTION_FILES = "files";
   public static final String OPTION_PROJECT = "project";
+  public static final String OPTION_REGION = "region";
   public static final String OPTION_ZONE = "zone";
   public static final String OPTION_METADATA = "metadata";
   public static final String OPTION_CLUSTER = "cluster";
@@ -57,6 +58,7 @@ public class SpydraArgument {
   public Optional<String> clientId = Optional.empty();
   public Optional<String> logBucket = Optional.empty();
   public Optional<String> metricClass = Optional.empty();
+  public Optional<String> region = Optional.empty();
 
   // Optional Spydra arguments
   public Optional<ClusterType> clusterType = Optional.empty();
@@ -279,6 +281,12 @@ public class SpydraArgument {
       merged.defaultZones = first.defaultZones;
     }
 
+    if (second.region.isPresent()) {
+      merged.region = second.region;
+    } else {
+      merged.region = first.region;
+    }
+
     return merged;
   }
 
@@ -384,6 +392,10 @@ public class SpydraArgument {
     return metricClass.get();
   }
 
+  public String getRegion() {
+    return region.get();
+  }
+
   public ClusterType getClusterType() {
     return clusterType.get();
   }
@@ -443,6 +455,10 @@ public class SpydraArgument {
 
   public void setMetricClass(String metricClass) {
     this.metricClass = Optional.of(metricClass);
+  }
+
+  public void setRegion(String region) {
+    this.region = Optional.of(region);
   }
 
   public void setClusterType(ClusterType clusterType) {

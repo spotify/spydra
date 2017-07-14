@@ -28,6 +28,7 @@ import com.spotify.spydra.model.SpydraArgument;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Optional;
 
 public class DataprocAPI {
   private final Metrics metrics;
@@ -48,15 +49,17 @@ public class DataprocAPI {
     gcloud.dryRun(dryRun);
   }
 
-  public boolean createCluster(SpydraArgument arguments) throws IOException {
+  public Optional<String> createCluster(SpydraArgument arguments) throws IOException {
     boolean success = false;
     try {
-      success = gcloud.createCluster(arguments.getCluster().getName(),
+      Optional<String> zone = gcloud.createCluster(arguments.getCluster().getName(),
+          arguments.getRegion(),
           arguments.getCluster().getOptions());
+      success = zone.isPresent();
+      return zone;
     } finally {
       metrics.clusterCreation(arguments, success);
     }
-    return success;
   }
 
   public boolean deleteCluster(SpydraArgument arguments) throws IOException {
@@ -64,7 +67,7 @@ public class DataprocAPI {
         arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT));
     boolean success = false;
     try {
-      success = gcloud.deleteCluster(arguments.getCluster().getName(), args);
+      success = gcloud.deleteCluster(arguments.getCluster().getName(), arguments.getRegion(), args);
     } finally {
       metrics.clusterDeletion(arguments, success);
     }
@@ -74,7 +77,8 @@ public class DataprocAPI {
   public boolean submit(SpydraArgument arguments) throws IOException {
     boolean success = false;
     try {
-      success = gcloud.submit(arguments.getJobType(), arguments.getSubmit().getOptions(),
+      success = gcloud.submit(arguments.getJobType(), arguments.getRegion(),
+          arguments.getSubmit().getOptions(),
           arguments.getSubmit().getJobArgs());
     } finally {
       metrics.jobSubmission(arguments, "dataproc", success);
@@ -88,7 +92,8 @@ public class DataprocAPI {
         SpydraArgument.OPTION_PROJECT, arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT),
         SpydraArgument.OPTION_ZONE, arguments.getCluster().getOptions().get(SpydraArgument.OPTION_ZONE));
     String project = arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT);
-    String masterNode = gcloud.getMasterNode(project, arguments.getCluster().getName());
+    String masterNode = gcloud.getMasterNode(project, arguments.getRegion(),
+        arguments.getCluster().getName());
 
     boolean success = false;
     try {
@@ -100,6 +105,6 @@ public class DataprocAPI {
   }
 
   public Collection<Cluster> listClusters(SpydraArgument arguments) throws IOException {
-    return gcloud.listClusters(arguments.cluster.getOptions().get("project"));
+    return gcloud.listClusters(arguments.cluster.getOptions().get("project"), arguments.getRegion());
   }
 }
