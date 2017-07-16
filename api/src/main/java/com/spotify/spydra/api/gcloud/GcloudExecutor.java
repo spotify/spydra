@@ -29,7 +29,6 @@ import com.spotify.spydra.model.SpydraArgument;
 
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.util.ArrayList;
