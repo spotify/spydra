@@ -29,7 +29,6 @@ import com.spotify.spydra.model.SpydraArgument;
 
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,18 +57,16 @@ public class GcloudExecutor {
     baseCommand = gcloudCommand;
   }
 
-  public Optional<String> createCluster(String name, String region, Map<String, String> args) throws IOException {
+  public Optional<Cluster> createCluster(String name, String region, Map<String, String> args) throws IOException {
     Map<String, String> createOptions = new HashMap<>(args);
     createOptions.put(SpydraArgument.OPTION_REGION, region);
-    ImmutableList<String> command = ImmutableList.of("--format=yaml", "dataproc", "clusters", "create", name);
+    ImmutableList<String> command = ImmutableList.of("--format=json", "dataproc", "clusters", "create", name);
 
-    String yamlString = ProcessHelper.executeForOutput(buildCommand(command, createOptions, Collections.EMPTY_LIST));
-    Yaml yaml = new Yaml();
-    Map<String, Map<String, Map<String, Object>>> parsedYaml =
-        (Map<String, Map<String, Map<String, Object>>>) yaml.load(yamlString);
-    String zone = parsedYaml.get("config").get("gceClusterConfig").get("zoneUri").toString();
-
-    return Optional.of(zone);
+    String jsonString= ProcessHelper.executeForOutput(buildCommand(command, createOptions, Collections.EMPTY_LIST));
+    Cluster cluster = JsonHelper.objectMapper()
+        .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+        .readValue(jsonString, Cluster.class);
+    return Optional.of(cluster);
   }
 
   public boolean deleteCluster(String name, String region, Map<String, String> args) throws IOException {
@@ -117,19 +114,19 @@ public class GcloudExecutor {
   public String getMasterNode(String project, String region, String clusterName)
       throws IOException {
     ArrayList<String> command = Lists.newArrayList(
-        "dataproc", "clusters", "describe", clusterName);
+        "--format=json", "dataproc", "clusters", "describe", clusterName);
 
     Map<String, String> options = ImmutableMap.of(
         SpydraArgument.OPTION_PROJECT, project,
         SpydraArgument.OPTION_REGION, region);
 
-    String yamlString = ProcessHelper.executeForOutput(buildCommand(command, options, Collections.EMPTY_LIST));
-    Yaml yaml = new Yaml();
-    Map<String, Map<String, Map<String, Object>>> parsedYaml =
-        (Map<String, Map<String, Map<String, Object>>>) yaml.load(yamlString);
-    List<String> instances =
-        (List<String>) parsedYaml.get("config").get("masterConfig").get("instanceNames");
-    return instances.get(0);
+    String jsonString = ProcessHelper.executeForOutput(buildCommand(command, options, Collections.EMPTY_LIST));
+    Cluster cluster = JsonHelper.objectMapper()
+        .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+        .readValue(jsonString, Cluster.class);
+
+    // If we have a cluster we have a master
+    return cluster.config.masterConfig.instanceNames.get(0);
   }
 
   public boolean updateMetadata(

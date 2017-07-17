@@ -18,6 +18,7 @@
 package com.spotify.spydra.submitter.api;
 
 import com.spotify.spydra.api.DataprocAPI;
+import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
@@ -154,11 +155,11 @@ public class DynamicSubmitter extends Submitter {
     }
     randomizeZoneIfAbsent(createArguments);
 
-    Optional<String> zone = dataprocAPI.createCluster(createArguments);
-    if (zone.isPresent()) {
-      mutateForCluster(arguments, name, zone.get());
+    Optional<Cluster> cluster = dataprocAPI.createCluster(createArguments);
+    if (cluster.isPresent()) {
+      mutateForCluster(arguments, name, cluster.get().config.gceClusterConfig.zoneUri);
     }
-    return zone.isPresent();
+    return cluster.isPresent();
   }
 
   void randomizeZoneIfAbsent(SpydraArgument createArguments) {
