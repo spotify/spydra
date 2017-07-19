@@ -2,10 +2,10 @@
   "client_id": "client-unique-id-32b46a93-c36a-435b-ab94-73b6075dc338",
   "cluster_type": "dataproc",
   "log_bucket": "log-bucket",
+  "region": "europe-west1",
   "cluster": {
     "options": {
       "project": "some-project",
-      "zone": "europe-west1-d",
       "num-workers": "2",
       "worker-machine-type": "n1-standard-2",
       "master-machine-type": "n1-standard-4"

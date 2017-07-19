@@ -32,6 +32,10 @@
       "description": "bucket for storage of Hadoop logs and history information",
       "type": "string"
     },
+    "region": {
+      "description": "The region in which the cluster should be created. Replaces the zone option in cluster.",
+      "type": "string"
+    },
     "job_type": {
       "description": "type of job to execute (e.g. hadoop/spark/etc), see `gcloud dataproc jobs submit --help`",
       "type": "string"

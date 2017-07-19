@@ -149,14 +149,14 @@ the possible arguments for these commands. The basic structure looks as follows:
 
 ```json
 {
-  "client_id": "spydra-test",                  # Spydra client id. Usually left out as set by the frameworks during runtime.
+  "client_id": "spydra-test",                 # Spydra client id. Usually left out as set by the frameworks during runtime.
   "cluster_type": "dataproc",                 # Where to execute. Either dataproc or onpremise. Defaults to onpremise.
   "job_type": "hadoop",                       # Defaults to hadoop. For supported types see gcloud dataproc jobs submit --help
-  "log_bucket": "spydra-test-logs",            # The bucket where Hadoop logs and history information are stored.
+  "log_bucket": "spydra-test-logs",           # The bucket where Hadoop logs and history information are stored.
+  "region": "europe-west1",                   # The region in which the cluster is spun up
   "cluster": {                                # All cluster related configuration
     "options": {                              # Map supporting all options from the gcloud dataproc clusters create command
       "project": "spydra-test",
-      "zone": "europe-west1-d",
       "num-workers": "13",
       "worker-machine-type": "n1-standard-2", # The default machine type used by Dataproc is n1-standard-8.
       "master-machine-type": "n1-standard-4"
@@ -193,10 +193,10 @@ $ cat examples.json
   "client_id": "simple-spydra-test",
   "cluster_type": "dataproc",
   "log_bucket": "spydra-test-logs",
+  "region": "europe-west1",
   "cluster": {
     "options": {
-      "project": "spydra-test",
-      "zone": "europe-west1-d",
+      "project": "spydra-test"
     }
   },
   "submit": {
