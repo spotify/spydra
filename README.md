@@ -83,8 +83,7 @@ mechanism.
 
 ## Usage
 ### Installation
-`Spydra` is not yet being packaged so you will need to build the executable yourself. We will provide a prepackaged
-version in the near future.
+There's a pre-built [Spydra on maven central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.spotify.data.spydra%22%20a%3A%22spydra%22). This is built using the parameters from `.travis.yml`, the bucket `spydra-init-actions` is provided for by Spotify.
 
 ### Prerequisites
 To be able to use Dataproc and on-premise Hadoop, a few things need to be set up before using `Spydra`.
@@ -376,7 +375,7 @@ cannot be the same as the package root, so create a separate directory for this 
 Then execute the maven command:
 
 ```
-mvn clean deploy -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
+mvn clean package -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
 ```
 
 Executing the maven command above will run the integration tests, and create
