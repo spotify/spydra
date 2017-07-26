@@ -366,7 +366,7 @@ Replace the YOUR_GCS_LOG_BUCKET with a bucket you have in your GCP project for s
 Notice that the file name must be exactly *integration-test-config.json* as that is what the
 integration test will search for when it is run on the maven verify phase.
 
-### Build and Package
+### Build, Test and Package
 
 In the following command, replace YOUR_INIT_ACTION_BUCKET with the bucket you created
 when setting up the prerequisites and YOUR_TEST_CONFIG_DIR with a directory name containing
@@ -375,12 +375,12 @@ cannot be the same as the package root, so create a separate directory for this 
 Then execute the maven command:
 
 ```
-mvn clean package -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
+mvn clean verify -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
 ```
 
 Executing the maven command above will run the integration tests, and create
 a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`,
-which can be executed with `java -jar`.
+which can be executed with `java -jar`. Using `package` instead of `verify` can be used to run just unit-tests and package Spydra.
 
 ## Communications
 
