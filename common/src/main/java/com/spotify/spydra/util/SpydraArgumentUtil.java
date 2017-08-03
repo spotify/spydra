@@ -56,9 +56,9 @@ public class SpydraArgumentUtil {
       throws IOException, URISyntaxException {
 
     SpydraArgument configuration = loadArguments(BASE_CONFIGURATION_FILE_NAME);
-    boolean hasConfigurationInClasspath = configurationExists(SPYDRA_CONFIGURATION_FILE_NAME);
-    LOGGER.debug("Spydra configuration found in classpath?: {}", hasConfigurationInClasspath);
-    if (hasConfigurationInClasspath) {
+
+    if (configurationExists(SPYDRA_CONFIGURATION_FILE_NAME)) {
+      LOGGER.debug("Merge conf found from classpath: {}", SPYDRA_CONFIGURATION_FILE_NAME);
       configuration =
           SpydraArgument.merge(configuration, loadArguments(SPYDRA_CONFIGURATION_FILE_NAME));
     }
@@ -66,10 +66,12 @@ public class SpydraArgumentUtil {
     SpydraArgument mergedForChecking = SpydraArgument.merge(configuration, arguments);
     if (!mergedForChecking.getCluster().name.isPresent()
         && mergedForChecking.getClusterType() == DATAPROC) {
-      SpydraArgument defaultDataprocConfiguration = loadArguments(DEFAULT_DATAPROC_ARGUMENT_FILE_NAME);
-      configuration = SpydraArgument.merge(configuration, defaultDataprocConfiguration);
-
+      LOGGER.debug("Merge default Dataproc conf: {}", DEFAULT_DATAPROC_ARGUMENT_FILE_NAME);
+      SpydraArgument dataprocDefaultConf = loadArguments(DEFAULT_DATAPROC_ARGUMENT_FILE_NAME);
+      // Merging default Dataproc configuration here before merging the given arguments below.
+      configuration = SpydraArgument.merge(configuration, dataprocDefaultConf);
       if (userId != null) {
+        LOGGER.debug("Set Dataproc service account user ID: {}", userId);
         configuration.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId);
       }
     }
