@@ -354,11 +354,7 @@ it during the maven invocation.
 ```json
 {
   "log_bucket": "YOUR_GCS_LOG_BUCKET",
-  "cluster": {
-    "options": {
-      "zone": "europe-west1-d"
-    }
-  }
+  "region": "europe-west1"
 }
 ```
 
