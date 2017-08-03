@@ -31,8 +31,8 @@ public class LoggingMetrics extends Metrics {
   }
 
   @Override
-  public void clusterCreation(SpydraArgument arguments, boolean success) {
-    LOGGER.info("Cluster was created with success=" + success);
+  public void clusterCreation(SpydraArgument arguments, String zoneUri, boolean success) {
+    LOGGER.info("Cluster was created with success=" + success + " and zoneUri=" + zoneUri);
   }
 
   @Override
