@@ -366,6 +366,7 @@
               <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
               <useReleaseProfile>false</useReleaseProfile>
               <releaseProfiles>release</releaseProfiles>
+              <pushChanges>false</pushChanges>
             </configuration>
             <dependencies>
               <dependency>
@@ -374,6 +375,18 @@
                 <version>1.9.4</version>
               </dependency>
             </dependencies>
+          </plugin>
+
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.7</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
           </plugin>
 
         </plugins>
