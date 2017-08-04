@@ -10,7 +10,7 @@
   <groupId>com.spotify.data.spydra</groupId>
   <artifactId>spydra-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.3.4-SNAPSHOT</version>
+  <version>0.3.4</version>
 
   <prerequisites>
     <maven>3.2.2</maven>
