@@ -30,7 +30,15 @@ public abstract class Metrics {
     return user;
   }
 
-  public abstract void clusterCreation(SpydraArgument arguments, boolean success);
+  /**
+   * Emit cluster creation metric.
+   *
+   * @param arguments The Spydra arguments.
+   * @param zoneUri   The zone URI where the cluster was created after successful cluster creation.
+   *                  This can be null, in case the cluster creation failed.
+   * @param success   Whether the cluster creation was successful.
+   */
+  public abstract void clusterCreation(SpydraArgument arguments, String zoneUri, boolean success);
 
   public abstract void clusterDeletion(SpydraArgument arguments, boolean success);
 
