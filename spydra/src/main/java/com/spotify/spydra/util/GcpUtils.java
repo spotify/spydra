@@ -18,8 +18,10 @@
 package com.spotify.spydra.util;
 
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.spotify.spydra.model.SpydraArgument;
 
+import java.util.Optional;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
@@ -27,19 +29,31 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GcpUtils {
-  public static final String HADOOP_CONFIG_NAME = "spydra-default.xml";
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(GcpUtils.class);
+
+  private static final String HADOOP_CONFIG_NAME = "spydra-default.xml";
 
   public void configureCredentialFromEnvironment(Configuration configuration)
       throws IOException {
     String json = credentialJsonFromEnv();
-    configuration.setBoolean("fs.gs.auth.service.account.enable", true);
-    configuration.set("fs.gs.auth.service.account.json.keyfile", jsonCredentialPath());
-    configuration.set("fs.gs.project.id", projectFromJsonCredential(json));
+    Optional<String> projectId = projectFromJsonCredential(json);
+    if (projectId.isPresent()) {
+      LOGGER.info("Found service account credentials from: " + jsonCredentialPath());
+      configuration.setBoolean("fs.gs.auth.service.account.enable", true);
+      configuration.set("fs.gs.auth.service.account.json.keyfile", jsonCredentialPath());
+      configuration.set("fs.gs.project.id", projectId.get());
+    } else {
+      LOGGER.info("Given credentials seem not to be of service account in path: "
+                  + jsonCredentialPath());
+    }
   }
 
-  public String jsonCredentialPath() {
+  private String jsonCredentialPath() {
     return System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
   }
 
@@ -52,19 +66,29 @@ public class GcpUtils {
     return new String(Files.readAllBytes(Paths.get(jsonFile)));
   }
 
-  public String projectFromJsonCredential(String json) {
-    return JsonPath.read(json, "$.project_id");
+  public Optional<String> projectFromJsonCredential(String json) throws PathNotFoundException {
+    try {
+      return Optional.of(JsonPath.read(json, "$.project_id"));
+    } catch (PathNotFoundException ex) {
+      LOGGER.info("Could not parse project_id from credentials.");
+      return Optional.empty();
+    }
   }
 
-  public String userIdFromJsonCredential(String json) {
-    return JsonPath.read(json, "$.client_email");
+  public Optional<String> userIdFromJsonCredential(String json) {
+    try {
+      return Optional.of(JsonPath.read(json, "$.client_email"));
+    } catch (PathNotFoundException ex) {
+      LOGGER.info("Could not parse client_email from credentials.");
+      return Optional.empty();
+    }
   }
 
   public void configureClusterProjectFromCredential(SpydraArgument arguments)
       throws IOException {
     String json = credentialJsonFromEnv();
-    arguments.getCluster().getOptions()
-        .put(SpydraArgument.OPTION_PROJECT, projectFromJsonCredential(json));
+    projectFromJsonCredential(json)
+        .ifPresent(s -> arguments.getCluster().getOptions().put(SpydraArgument.OPTION_PROJECT, s));
   }
 
   public FileSystem fileSystemForUri(URI uri) throws IOException {

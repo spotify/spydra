@@ -36,6 +36,7 @@ import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
 
+import java.util.Optional;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,12 +101,13 @@ public class Runner {
     checkAndPrintHelp(args, parser);
 
     SpydraArgument userArguments = parser.parse(args);
-    String userId = userId(isOnPremiseInvocation(userArguments));
-    SpydraArgument finalArguments = SpydraArgumentUtil.mergeConfigurations(userArguments, userId);
+    Optional<String> userId = userId(isOnPremiseInvocation(userArguments));
+    SpydraArgument finalArguments =
+        SpydraArgumentUtil.mergeConfigurations(userArguments, userId.orElse(null));
     setDefaultClientIdIfRequired(finalArguments);
     finalArguments.replacePlaceholders();
 
-    MetricsFactory.initialize(finalArguments, userId);
+    userId.ifPresent(s -> MetricsFactory.initialize(finalArguments, s));
     Metrics metrics = MetricsFactory.getInstance();
 
     SpydraArgumentUtil.checkRequiredArguments(finalArguments, isOnPremiseInvocation(userArguments),
@@ -130,13 +132,11 @@ public class Runner {
     System.exit(status ? 0 : 1);
   }
 
-  private static String userId(boolean onPremiseInvocation) throws IOException {
+  private static Optional<String> userId(boolean onPremiseInvocation) throws IOException {
     if (onPremiseInvocation) {
-      String username = System.getenv("HADOOP_USER_NAME");
-      return username != null ? username : "unconfigured_user";
+      return Optional.ofNullable(System.getenv("HADOOP_USER_NAME"));
     } else {
-      String json = gcpUtils.credentialJsonFromEnv();
-      return gcpUtils.userIdFromJsonCredential(json);
+      return gcpUtils.userIdFromJsonCredential(gcpUtils.credentialJsonFromEnv());
     }
   }
 

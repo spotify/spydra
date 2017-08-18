@@ -42,6 +42,8 @@ public class SpydraArgumentUtil {
       throws IOException, URISyntaxException {
     ClassLoader classLoader = SpydraArgumentUtil.class.getClassLoader();
     try (InputStream is = classLoader.getResourceAsStream(fileName)) {
+      if (is == null)
+        throw new IOException("Failed to load arguments from " + fileName);
       String json = new String(IOUtils.toByteArray(is));
       return JsonHelper.fromString(json, SpydraArgument.class);
     }

@@ -34,6 +34,7 @@ import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
 
+import java.util.Optional;
 import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -72,8 +73,8 @@ public class LifecycleIT {
     arguments.setHeartbeatIntervalSeconds(INTERVAL);
     arguments.setClientId(CLIENT_ID);
     String json = gcpUtils.credentialJsonFromEnv();
-    String userId = gcpUtils.userIdFromJsonCredential(json);
-    arguments = SpydraArgumentUtil.mergeConfigurations(arguments, userId);
+    Optional<String> userId = gcpUtils.userIdFromJsonCredential(json);
+    arguments = SpydraArgumentUtil.mergeConfigurations(arguments, userId.orElse(null));
     arguments.replacePlaceholders();
 
     SpydraArgumentUtil.checkRequiredArguments(arguments, false, false);
