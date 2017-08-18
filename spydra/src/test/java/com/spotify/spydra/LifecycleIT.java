@@ -90,9 +90,11 @@ public class LifecycleIT {
 
     URI doneUri = URI.create(arguments.clusterProperties().getProperty(
         "mapred:mapreduce.jobhistory.done-dir"));
+    LOGGER.info("Checking that we have two files in: " + doneUri);
     assertEquals(2, getFileCount(doneUri));
     URI intermediateUri = URI.create(arguments.clusterProperties().getProperty(
         "mapred:mapreduce.jobhistory.intermediate-done-dir"));
+    LOGGER.info("Checking that we do not have any files in: " + intermediateUri);
     assertEquals(0, getFileCount(intermediateUri));
   }
 
