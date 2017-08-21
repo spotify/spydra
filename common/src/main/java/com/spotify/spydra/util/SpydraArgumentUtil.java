@@ -60,7 +60,7 @@ public class SpydraArgumentUtil {
     SpydraArgument configuration = loadArguments(BASE_CONFIGURATION_FILE_NAME);
 
     if (configurationExists(SPYDRA_CONFIGURATION_FILE_NAME)) {
-      LOGGER.debug("Merge conf found from classpath: {}", SPYDRA_CONFIGURATION_FILE_NAME);
+      LOGGER.info("Merge conf found from classpath: {}", SPYDRA_CONFIGURATION_FILE_NAME);
       configuration =
           SpydraArgument.merge(configuration, loadArguments(SPYDRA_CONFIGURATION_FILE_NAME));
     }
