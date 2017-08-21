@@ -385,7 +385,18 @@ mvn clean install -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-c
 
 Executing the maven command above will run the integration tests, and create
 a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`,
-which can be executed with `java -jar`. Using `package` instead of `verify` can be used to run just unit-tests and package Spydra.
+which can be executed with `java -jar`. Using `package` instead of `install` can be used 
+to run just unit-tests and package Spydra.
+
+If you want to copy the init-scripts into the defined init-action bucket, activate profile
+`install-init-scripts`:
+
+```
+mvn clean install -Pinstall-init-scripts -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
+```
+
+Do not run Maven `deploy` step, as it will try to upload created packages into the Spotify owned
+repositories, which will fail unless you have Spotify specific credentials.
 
 ## Communications
 

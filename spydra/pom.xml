@@ -191,43 +191,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <artifactId>exec-maven-plugin</artifactId>
-        <groupId>org.codehaus.mojo</groupId>
-        <version>1.5.0</version>
-        <executions>
-          <execution>
-            <id>upload-collector</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>gsutil</executable>
-              <arguments>
-                <argument>cp</argument>
-                <argument>${basedir}/target/classes/self-destruct.*</argument>
-                <argument>${versioned-init-action-uri}/</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>upload-autoscaler</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>gsutil</executable>
-              <arguments>
-                <argument>cp</argument>
-                <argument>${basedir}/target/classes/autoscaler.*</argument>
-                <argument>${versioned-init-action-uri}/</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
 
     <resources>
@@ -245,5 +208,52 @@
       </resource>
     </resources>
   </build>
+
+  <profiles>
+    <profile>
+      <id>install-init-scripts</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>exec-maven-plugin</artifactId>
+            <groupId>org.codehaus.mojo</groupId>
+            <version>1.5.0</version>
+            <executions>
+              <execution>
+                <id>upload-collector</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>gsutil</executable>
+                  <arguments>
+                    <argument>cp</argument>
+                    <argument>${basedir}/target/classes/self-destruct.*</argument>
+                    <argument>${versioned-init-action-uri}/</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>upload-autoscaler</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>gsutil</executable>
+                  <arguments>
+                    <argument>cp</argument>
+                    <argument>${basedir}/target/classes/autoscaler.*</argument>
+                    <argument>${versioned-init-action-uri}/</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
