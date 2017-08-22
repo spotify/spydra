@@ -122,7 +122,8 @@ public class SpydraArgumentUtil {
         if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_ZONE)
             && arguments.defaultZones.isEmpty()) {
           throw new IllegalArgumentException(
-              "Either cluster.options.zone or defaultZones needs to be set");
+              "Please define region, or optionally, cluster.options.zone or "
+              + "defaultZones in configuration.");
         }
       }
     }
