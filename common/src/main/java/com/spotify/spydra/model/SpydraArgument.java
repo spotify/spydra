@@ -189,6 +189,12 @@ public class SpydraArgument {
    * @return A set (instance) of merged Spydra arguments.
    */
   public static SpydraArgument merge(SpydraArgument first, SpydraArgument second) {
+    if (first == null) {
+      return second;
+    } else if (second == null) {
+      return first;
+    }
+
     SpydraArgument merged = new SpydraArgument();
 
     if (second.clientId.isPresent()) {

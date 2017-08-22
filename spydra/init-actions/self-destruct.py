@@ -52,6 +52,6 @@ if delta > expiry:
     region = metadata('instance/attributes/dataproc-region')
     project = metadata('project/project-id')
 
-    gcloud_command = [GCLOUD_PATH, "--project=" + project, "dataproc", "clusters", "delete", cluster, "--async",
-                      "--quiet"]
+    gcloud_command = [GCLOUD_PATH, "--project=" + project, "--region", region,
+                      "dataproc", "clusters", "delete", cluster, "--async", "--quiet"]
     subprocess.call(gcloud_command)

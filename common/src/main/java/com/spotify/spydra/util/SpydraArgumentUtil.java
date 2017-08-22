@@ -20,6 +20,7 @@ package com.spotify.spydra.util;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
 
+import java.util.Collection;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ public class SpydraArgumentUtil {
       throws IOException, URISyntaxException {
     ClassLoader classLoader = SpydraArgumentUtil.class.getClassLoader();
     try (InputStream is = classLoader.getResourceAsStream(fileName)) {
+      if (is == null)
+        throw new IOException("Failed to load arguments from " + fileName);
       String json = new String(IOUtils.toByteArray(is));
       return JsonHelper.fromString(json, SpydraArgument.class);
     }
@@ -52,31 +55,43 @@ public class SpydraArgumentUtil {
     return classLoader.getResource(fileName) != null;
   }
 
-  public static SpydraArgument mergeConfigurations(SpydraArgument arguments, String userId)
+  private static SpydraArgument mergeConfigsFromPath(String[] configFilesInClassPath,
+                                                     SpydraArgument arguments)
       throws IOException, URISyntaxException {
-
-    SpydraArgument configuration = loadArguments(BASE_CONFIGURATION_FILE_NAME);
-
-    if (configurationExists(SPYDRA_CONFIGURATION_FILE_NAME)) {
-      LOGGER.debug("Merge conf found from classpath: {}", SPYDRA_CONFIGURATION_FILE_NAME);
-      configuration =
-          SpydraArgument.merge(configuration, loadArguments(SPYDRA_CONFIGURATION_FILE_NAME));
-    }
-
-    SpydraArgument mergedForChecking = SpydraArgument.merge(configuration, arguments);
-    if (!mergedForChecking.getCluster().name.isPresent()
-        && mergedForChecking.getClusterType() == DATAPROC) {
-      LOGGER.debug("Merge default Dataproc conf: {}", DEFAULT_DATAPROC_ARGUMENT_FILE_NAME);
-      SpydraArgument dataprocDefaultConf = loadArguments(DEFAULT_DATAPROC_ARGUMENT_FILE_NAME);
-      // Merging default Dataproc configuration here before merging the given arguments below.
-      configuration = SpydraArgument.merge(configuration, dataprocDefaultConf);
-      if (userId != null) {
-        LOGGER.debug("Set Dataproc service account user ID: {}", userId);
-        configuration.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId);
+    SpydraArgument config = null;
+    for (String configFilePath : configFilesInClassPath) {
+      if (configurationExists(configFilePath)) {
+        LOGGER.debug("Merge conf found from classpath: {}", configFilePath);
+        config = SpydraArgument.merge(config, loadArguments(configFilePath));
       }
     }
+    config = SpydraArgument.merge(config, arguments);
+    return config;
+  }
 
-    return SpydraArgument.merge(configuration, arguments);
+  public static SpydraArgument mergeConfigurations(SpydraArgument arguments, String userId)
+      throws IOException, URISyntaxException {
+    SpydraArgument baseArgsWithGivenArgs = mergeConfigsFromPath(
+            new String[]{BASE_CONFIGURATION_FILE_NAME, SPYDRA_CONFIGURATION_FILE_NAME},
+            arguments);
+    boolean isDynamicDataprocCluster = !baseArgsWithGivenArgs.getCluster().name.isPresent()
+                                       && baseArgsWithGivenArgs.getClusterType() == DATAPROC;
+    SpydraArgument outputConfig;
+    if (isDynamicDataprocCluster) {
+      // Need to merge configs again, as values from SPYDRA_CONFIGURATION_FILE_NAME should
+      // overwrite values from DEFAULT_DATAPROC_ARGUMENT_FILE_NAME.
+      outputConfig = mergeConfigsFromPath(
+          new String[]{BASE_CONFIGURATION_FILE_NAME, DEFAULT_DATAPROC_ARGUMENT_FILE_NAME,
+                       SPYDRA_CONFIGURATION_FILE_NAME},
+          arguments);
+      if (userId != null) {
+        LOGGER.debug("Set Dataproc service account user ID: {}", userId);
+        outputConfig.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId);
+      }
+    } else {
+      outputConfig = baseArgsWithGivenArgs;
+    }
+    return outputConfig;
   }
 
   public static void checkRequiredArguments(SpydraArgument arguments, boolean isOnPremiseInvocation,
@@ -107,7 +122,8 @@ public class SpydraArgumentUtil {
         if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_ZONE)
             && arguments.defaultZones.isEmpty()) {
           throw new IllegalArgumentException(
-              "Either cluster.options.zone or defaultZones needs to be set");
+              "Please define region, or optionally, cluster.options.zone or "
+              + "defaultZones in configuration.");
         }
       }
     }

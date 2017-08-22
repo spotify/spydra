@@ -353,11 +353,20 @@ it during the maven invocation.
 ```json
 {
   "log_bucket": "YOUR_GCS_LOG_BUCKET",
-  "region": "europe-west1"
+  "region": "europe-west1",
+  "cluster": {
+    "options": {
+      "project": "YOUR_GCP_PROJECT_ID"
+    }
+  }
 }
 ```
 
 Replace the YOUR_GCS_LOG_BUCKET with a bucket you have in your GCP project for storing the logs.
+
+Replace the YOUR_GCP_PROJECT_ID with the project id you want to run the Spydra integration test in.
+If you are using a service account credentials including a project id, you do not need to specify
+the *project* parameter in *integration-test-config.json*.
 
 Notice that the file name must be exactly *integration-test-config.json* as that is what the
 integration test will search for when it is run on the maven verify phase.
@@ -371,12 +380,23 @@ cannot be the same as the package root, so create a separate directory for this 
 Then execute the maven command:
 
 ```
-mvn clean verify -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
+mvn clean install -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
 ```
 
 Executing the maven command above will run the integration tests, and create
 a spydra-VERSION-jar-with-dependencies.jar under spydra/target that packages `Spydra`,
-which can be executed with `java -jar`. Using `package` instead of `verify` can be used to run just unit-tests and package Spydra.
+which can be executed with `java -jar`. Using `package` instead of `install` can be used 
+to run just unit-tests and package Spydra.
+
+If you want to copy the init-scripts into the defined init-action bucket, activate profile
+`install-init-scripts`:
+
+```
+mvn clean install -Pinstall-init-scripts -Dinit-action-uri=gs://YOUR_INIT_ACTION_BUCKET/spydra -Dtest-configuration-dir=YOUR_TEST_CONFIG_DIR
+```
+
+Do not run Maven `deploy` step, as it will try to upload created packages into the Spotify owned
+repositories, which will fail unless you have Spotify specific credentials.
 
 ## Communications
 

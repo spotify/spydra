@@ -50,7 +50,8 @@ def cluster_metrics():
 
 
 def preemptable_worker_count():
-    gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "describe", cluster, "--format=json", "--quiet"]
+    gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "describe", cluster, "--region", region,
+                      "--format=json", "--quiet"]
     j = json.loads(subprocess.check_output(gcloud_command))
     if not 'secondaryWorkerConfig' in j['config']:
         return 0  # Has no secondary workers yet
@@ -58,7 +59,8 @@ def preemptable_worker_count():
 
 
 def worker_count():
-    gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "describe", cluster, "--format=json", "--quiet"]
+    gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "describe", cluster, "--region", region,
+                      "--format=json", "--quiet"]
     j = json.loads(subprocess.check_output(gcloud_command))
     if not 'workerConfig' in j['config']:
         return 0  # Has no secondary workers yet
@@ -66,7 +68,7 @@ def worker_count():
 
 
 def scale(cluster, worker_count):
-    gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "update", cluster,
+    gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "update", cluster, "--region", region,
                       "--num-preemptible-workers=" + str(worker_count), "--quiet"]
     print "Executing: " + str(gcloud_command)
     subprocess.call(gcloud_command)
@@ -76,6 +78,7 @@ autoscaler_max = int(metadata('instance/attributes/autoscaler-max'))
 factor = float(metadata('instance/attributes/autoscaler-factor'))
 downscale = metadata('instance/attributes/autoscaler-mode') == 'downscale'
 cluster = metadata('instance/attributes/dataproc-cluster-name')
+region = metadata('instance/attributes/dataproc-region')
 
 current_preemtable_count = preemptable_worker_count()
 current_worker_count = worker_count()

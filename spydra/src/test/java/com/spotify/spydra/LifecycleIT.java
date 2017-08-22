@@ -34,6 +34,7 @@ import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
 
+import java.util.Optional;
 import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -72,8 +73,8 @@ public class LifecycleIT {
     arguments.setHeartbeatIntervalSeconds(INTERVAL);
     arguments.setClientId(CLIENT_ID);
     String json = gcpUtils.credentialJsonFromEnv();
-    String userId = gcpUtils.userIdFromJsonCredential(json);
-    arguments = SpydraArgumentUtil.mergeConfigurations(arguments, userId);
+    Optional<String> userId = gcpUtils.userIdFromJsonCredential(json);
+    arguments = SpydraArgumentUtil.mergeConfigurations(arguments, userId.orElse(null));
     arguments.replacePlaceholders();
 
     SpydraArgumentUtil.checkRequiredArguments(arguments, false, false);
@@ -89,9 +90,11 @@ public class LifecycleIT {
 
     URI doneUri = URI.create(arguments.clusterProperties().getProperty(
         "mapred:mapreduce.jobhistory.done-dir"));
+    LOGGER.info("Checking that we have two files in: " + doneUri);
     assertEquals(2, getFileCount(doneUri));
     URI intermediateUri = URI.create(arguments.clusterProperties().getProperty(
         "mapred:mapreduce.jobhistory.intermediate-done-dir"));
+    LOGGER.info("Checking that we do not have any files in: " + intermediateUri);
     assertEquals(0, getFileCount(intermediateUri));
   }
 
