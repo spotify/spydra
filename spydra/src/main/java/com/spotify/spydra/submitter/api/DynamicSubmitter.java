@@ -185,6 +185,8 @@ public class DynamicSubmitter extends Submitter {
     list.add("autoscaler-factor=" + arguments.getAutoScaler().getFactor());
     list.add("autoscaler-mode="
         + (arguments.getAutoScaler().getDownscale() ? "downscale" : "upscale"));
+    list.add("autoscaler-downscale-timeout="
+        + arguments.getAutoScaler().getDownscaleTimeout());
     metadataArgument.cluster.getOptions()
         .put(SpydraArgument.OPTION_METADATA, StringUtils.join(list, ","));
     return SpydraArgument.merge(arguments, metadataArgument);

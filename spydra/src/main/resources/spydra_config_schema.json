@@ -103,6 +103,10 @@
         "downscale": {
           "description": "whether or not to enable downscaling",
           "type": "boolean"
+        },
+        "downscale_timeout": {
+          "description": "how long to wait in minutes for active jobs to finish before terminating nodes",
+          "type": "number"
         }
       }
     },

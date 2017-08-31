@@ -41,6 +41,7 @@ public class SpydraArgumentUtil {
 
   public static SpydraArgument loadArguments(String fileName)
       throws IOException, URISyntaxException {
+    System.out.println("REMOVE ME " + fileName);
     ClassLoader classLoader = SpydraArgumentUtil.class.getClassLoader();
     try (InputStream is = classLoader.getResourceAsStream(fileName)) {
       if (is == null)
@@ -165,6 +166,8 @@ public class SpydraArgumentUtil {
       autoScaler.factor.orElseThrow(() ->
           new IllegalArgumentException("auto_scaler.factor needs to be set"));
       autoScaler.downscale.orElseThrow(()
+          -> new IllegalArgumentException("auto_scaler.downscale needs to be set"));
+      autoScaler.downscaleTimeout.orElseThrow(()
           -> new IllegalArgumentException("auto_scaler.downscale needs to be set"));
     });
     arguments.pooling.ifPresent(pooling -> {
