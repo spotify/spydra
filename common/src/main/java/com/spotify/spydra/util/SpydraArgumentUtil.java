@@ -199,6 +199,8 @@ public class SpydraArgumentUtil {
           new IllegalArgumentException("auto_scaler.factor needs to be set"));
       autoScaler.downscale.orElseThrow(()
           -> new IllegalArgumentException("auto_scaler.downscale needs to be set"));
+      autoScaler.downscaleTimeout.orElseThrow(()
+          -> new IllegalArgumentException("auto_scaler.downscale_timeout needs to be set"));
     });
     arguments.pooling.ifPresent(pooling -> {
       pooling.limit.orElseThrow(() ->
