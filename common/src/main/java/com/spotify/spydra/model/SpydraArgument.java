@@ -124,7 +124,7 @@ public class SpydraArgument {
     public Optional<Integer> max = Optional.empty();
     public Optional<Double> factor = Optional.empty();
     public Optional<Boolean> downscale = Optional.empty();
-    public Optional<Integer> downscaleTimeout = Optional.of(10);
+    public Optional<Integer> downscaleTimeout = Optional.empty();
 
     public Integer getInterval() {
       return interval.get();
