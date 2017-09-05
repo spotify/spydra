@@ -51,16 +51,6 @@ public class PoolingSubmitter extends DynamicSubmitter {
           .isAfter(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
-    static boolean heartIsBeating(Cluster c, SpydraArgument arguments) {
-      Cluster.Config.GceClusterConfig.Metadata metadata = c.config.gceClusterConfig.metadata;
-      if (!metadata.heartbeat.isPresent()) {
-        return false;
-      }
-      ZonedDateTime heartbeat = metadata.heartbeat.get();
-      Integer collectorMinutes = arguments.getCollectorTimeoutMinutes();
-      return heartbeat.plusMinutes(collectorMinutes).isAfter(ZonedDateTime.now(ZoneOffset.UTC));
-    }
-
     public static boolean mayCreateMoreClusters(List<Cluster> filteredClusters,
         SpydraArgument arguments) {
       boolean may = filteredClusters.size() < arguments.getPooling().getLimit();
@@ -86,7 +76,6 @@ public class PoolingSubmitter extends DynamicSubmitter {
           .filter(Conditions::isSpydraCluster)
           .filter(Conditions::isRunning)
           .filter(c -> Conditions.isYoung(c, arguments))
-          .filter(c -> Conditions.heartIsBeating(c, arguments))
           .collect(Collectors.toList());
       if (Conditions.mayCreateMoreClusters(filteredClusters, arguments)) {
         return createNewCluster(arguments, dataprocAPI);

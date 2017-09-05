@@ -45,6 +45,8 @@ public class Cluster {
       @JsonIgnoreProperties(ignoreUnknown = true)
       public static class Metadata {
 
+        // This is the initial heartbeat of the cluster. It is not updated.
+        // Look at the MasterConfig.instanceNames[0] for updated heartbeats
         public Optional<ZonedDateTime> heartbeat = Optional.empty();
       }
 
