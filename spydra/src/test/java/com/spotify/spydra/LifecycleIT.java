@@ -64,26 +64,22 @@ public class LifecycleIT {
 
   @Test
   public void testLifecycle() throws Exception {
-    SpydraArgument arguments = SpydraArgumentUtil.loadArguments("integration-test-config.json");
-    gcpUtils.configureClusterProjectFromCredential(arguments);
-    arguments.setClusterType(ClusterType.DATAPROC);
-    arguments.getCluster().getOptions().put("num-workers", "3");
-    arguments.getSubmit().getOptions().put(SpydraArgument.OPTION_JAR, getExamplesJarPath());
+    SpydraArgument testArgs = SpydraArgumentUtil.loadArguments("integration-test-config.json");
+    SpydraArgument arguments = SpydraArgumentUtil
+        .dataprocConfiguration(CLIENT_ID, testArgs.getLogBucket(), testArgs.getRegion());
+    arguments.getCluster().numWorkers(3);
+    arguments.getSubmit().jar(getExamplesJarPath());
     arguments.getSubmit().setJobArgs(Lists.newArrayList("pi", "1", "1"));
     arguments.setHeartbeatIntervalSeconds(INTERVAL);
-    arguments.setClientId(CLIENT_ID);
-    String json = gcpUtils.credentialJsonFromEnv();
-    Optional<String> userId = gcpUtils.userIdFromJsonCredential(json);
-    arguments = SpydraArgumentUtil.mergeConfigurations(arguments, userId.orElse(null));
-    arguments.replacePlaceholders();
-
-    SpydraArgumentUtil.checkRequiredArguments(arguments, false, false);
 
     // TODO We should test the init action as well but the uploading before running the test is tricky
     // We could upload it manually to a test bucket here and set the right things
     arguments.getCluster().getOptions().remove(SpydraArgument.OPTION_INIT_ACTIONS);
 
-    Submitter submitter = new DynamicSubmitter();
+    // Merge to get all other custom test arguments
+    arguments = SpydraArgument.merge(arguments, testArgs);
+
+    Submitter submitter = Submitter.getSubmitter(arguments);
     assertTrue("job wasn't successful", submitter.executeJob(arguments));
 
     assertTrue(isClusterCollected(arguments));

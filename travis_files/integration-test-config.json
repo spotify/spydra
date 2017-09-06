@@ -1,4 +1,1 @@
-{
-  "log_bucket": "spydra-integration-tests",
-  "region": "europe-west1"
-}
+integration-test-config.json

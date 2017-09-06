@@ -41,6 +41,11 @@ public class SpydraArgument {
   public static final String OPTION_CLUSTER = "cluster";
   public static final String OPTION_INIT_ACTIONS = "initialization-actions";
   public static final String OPTION_SCOPES = "scopes";
+  public static final String OPTION_NETWORK = "network";
+  public static final String OPTION_SUBNET = "subnet";
+  public static final String OPTION_WORKER_MACHINE_TYPE = "worker-machine-type";
+  public static final String OPTION_MASTER_MACHINE_TYPE = "master-machine-type";
+  public static final String OPTION_NUM_WORKERS = "num-workers";
   public static final String OPTION_LABELS = "labels";
   public static final String OPTION_TAGS = "tags";
   public static final String OPTION_SERVICE_ACCOUNT = "service-account";
@@ -94,9 +99,39 @@ public class SpydraArgument {
     }
 
     public void setOptions(Map<String, String> options) {
-      this.options = options;
+      this.options.putAll(options);
     }
-  }
+
+    // Below are convenience functions when using this from the Java API.
+
+    public void network(String network) {
+      this.options.put(OPTION_NETWORK, network);
+    }
+
+    public void subnet(String subnet) {
+      this.options.put(OPTION_SUBNET, subnet);
+    }
+
+    public void zone(String zone) {
+      this.options.put(OPTION_ZONE, zone);
+    }
+
+    public void workerMachineType(String workerMachineType) {
+      this.options.put(OPTION_WORKER_MACHINE_TYPE, workerMachineType);
+    }
+
+    public void masterMachineType(String workerMachineType) {
+      this.options.put(OPTION_MASTER_MACHINE_TYPE, workerMachineType);
+    }
+
+    public void numWorkers(Integer numWorkers) {
+      this.options.put(OPTION_NUM_WORKERS, numWorkers.toString());
+    }
+
+    public void project(String project) {
+      this.options.put(OPTION_PROJECT, project);
+    }
+ }
 
   public class Submit {
     public Map<String, String> options = new HashMap<>();
@@ -111,11 +146,39 @@ public class SpydraArgument {
     }
 
     public void setOptions(Map<String, String> options) {
-      this.options = options;
+      this.options.putAll(options);
     }
 
     public void setJobArgs(List<String> jobArgs) {
       this.jobArgs = Optional.of(jobArgs);
+    }
+
+    // Below are convenience functions when using this from the Java API.
+
+    public void jar(String mainJar) {
+      this.options.put(OPTION_JAR, mainJar);
+    }
+
+    void addJarToJars(String jar) {
+      this.options.merge(OPTION_JARS, jar, (oldJars, newJar) -> oldJars + "," + newJar);
+    }
+
+    public void jars(Iterable<String> jars) {
+      jars.forEach(this::addJarToJars);
+    }
+
+    public void mainClass(String mainClass) {
+      options.put(OPTION_CLASS, mainClass);
+    }
+
+    public void addFile(String file) {
+      options.merge(OPTION_FILES, file, (oldFiles, newFile) -> oldFiles + "," + newFile);
+    }
+
+    public void addProperty(String propertyKey, String propertyValue) {
+      String property = propertyKey + "=" + propertyValue;
+      options.merge(OPTION_PROPERTIES, property,
+          (oldProperties, newProperty) -> oldProperties + "," + newProperty);
     }
   }
 
@@ -439,6 +502,13 @@ public class SpydraArgument {
     return pooling.get();
   }
 
+  public void setPooling(Integer limit, Duration maxAge) {
+    Pooling pooling = new Pooling();
+    pooling.setLimit(limit);
+    pooling.setMaxAge(maxAge);
+    this.pooling = Optional.of(pooling);
+  }
+
   public void setPooling(Pooling pooling) {
     this.pooling = Optional.of(pooling);
   }
@@ -497,6 +567,19 @@ public class SpydraArgument {
 
   public void setAutoScaler(AutoScaler autoScaler) {
     this.autoScaler = Optional.of(autoScaler);
+  }
+
+  public void setAutoScaler(Double factor, Integer interval, Integer max) {
+    setAutoScaler(factor, interval, max, false);
+  }
+
+  public void setAutoScaler(Double factor, Integer interval, Integer max, Boolean downscale) {
+    AutoScaler autoScaler = new AutoScaler();
+    autoScaler.setFactor(factor);
+    autoScaler.setInterval(interval);
+    autoScaler.setMax(max);
+    autoScaler.setDownscale(downscale);
+    setAutoScaler(autoScaler);
   }
 
   public void setCollectorTimeoutMinutes(Integer collectorTimeoutMinutes) {

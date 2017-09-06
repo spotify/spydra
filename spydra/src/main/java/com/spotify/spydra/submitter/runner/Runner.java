@@ -30,8 +30,6 @@ import com.spotify.spydra.historytools.commands.RunJHSCommand;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
-import com.spotify.spydra.submitter.api.DynamicSubmitter;
-import com.spotify.spydra.submitter.api.PoolingSubmitter;
 import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
@@ -42,13 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-
-import static com.spotify.spydra.model.ClusterType.DATAPROC;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 
 public class Runner {
   private static final Logger LOGGER = LoggerFactory.getLogger(Runner.class);
@@ -101,28 +94,16 @@ public class Runner {
     checkAndPrintHelp(args, parser);
 
     SpydraArgument userArguments = parser.parse(args);
-    Optional<String> userId = userId(isOnPremiseInvocation(userArguments));
+    Optional<String> userId = userId(SpydraArgumentUtil.isOnPremiseInvocation(userArguments));
     SpydraArgument finalArguments =
         SpydraArgumentUtil.mergeConfigurations(userArguments, userId.orElse(null));
-    setDefaultClientIdIfRequired(finalArguments);
+    SpydraArgumentUtil.setDefaultClientIdIfRequired(finalArguments);
     finalArguments.replacePlaceholders();
 
     userId.ifPresent(s -> MetricsFactory.initialize(finalArguments, s));
     Metrics metrics = MetricsFactory.getInstance();
 
-    SpydraArgumentUtil.checkRequiredArguments(finalArguments, isOnPremiseInvocation(userArguments),
-        isStaticInvocation(userArguments));
-
-    Submitter submitter; // TODO: TW These if's are getting out of hand. Make it prettier
-    if (isStaticInvocation(userArguments) || isOnPremiseInvocation(userArguments)) {
-      submitter = new Submitter();
-    } else {
-      if (finalArguments.isPoolingEnabled()) {
-        submitter = new PoolingSubmitter();
-      } else {
-        submitter = new DynamicSubmitter();
-      }
-    }
+    Submitter submitter = Submitter.getSubmitter(finalArguments);
 
     LOGGER.info("Executing submission command");
     boolean status = submitter.executeJob(finalArguments);
@@ -137,24 +118,6 @@ public class Runner {
       return Optional.ofNullable(System.getenv("HADOOP_USER_NAME"));
     } else {
       return gcpUtils.userIdFromJsonCredential(gcpUtils.credentialJsonFromEnv());
-    }
-  }
-
-  static boolean isStaticInvocation(SpydraArgument arguments) {
-    return arguments.getSubmit().getOptions().containsKey(OPTION_CLUSTER);
-  }
-
-  static boolean isOnPremiseInvocation(SpydraArgument arguments) {
-    if (!arguments.clusterType.isPresent()) {
-      return true;
-    }
-    return arguments.getClusterType() != DATAPROC;
-  }
-
-  private static void setDefaultClientIdIfRequired(SpydraArgument arguments)
-      throws UnknownHostException {
-    if (!arguments.clientId.isPresent()) {
-      arguments.setClientId(InetAddress.getLocalHost().getHostName());
     }
   }
 

@@ -17,10 +17,14 @@
 
 package com.spotify.spydra.util;
 
+import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +34,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import static com.spotify.spydra.model.ClusterType.DATAPROC;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
 
 public class SpydraArgumentUtil {
@@ -92,6 +97,34 @@ public class SpydraArgumentUtil {
       outputConfig = baseArgsWithGivenArgs;
     }
     return outputConfig;
+  }
+
+  public static SpydraArgument dataprocConfiguration(String clientId, String logBucket,
+                                                            String region)
+      throws IOException, URISyntaxException {
+    SpydraArgument base = new SpydraArgument();
+    base.setClusterType(ClusterType.DATAPROC);
+    base.setClientId(clientId);
+    base.setLogBucket(logBucket);
+    base.setRegion(region);
+    SpydraArgument defaults = mergeConfigsFromPath(
+        new String[]{BASE_CONFIGURATION_FILE_NAME, DEFAULT_DATAPROC_ARGUMENT_FILE_NAME,
+                     SPYDRA_CONFIGURATION_FILE_NAME},
+        base);
+    GcpUtils gcpUtils = new GcpUtils();
+    String credential = gcpUtils.credentialJsonFromEnv();
+    gcpUtils.userIdFromJsonCredential(credential)
+        .orElseThrow(() -> new IllegalArgumentException("No usable credential available."));
+    gcpUtils.configureClusterProjectFromCredential(defaults);
+    defaults.replacePlaceholders();
+    return defaults;
+  }
+
+  public static void setDefaultClientIdIfRequired(SpydraArgument arguments)
+      throws UnknownHostException {
+    if (!arguments.clientId.isPresent()) {
+      arguments.setClientId(InetAddress.getLocalHost().getHostName());
+    }
   }
 
   public static void checkRequiredArguments(SpydraArgument arguments, boolean isOnPremiseInvocation,
@@ -173,5 +206,16 @@ public class SpydraArgumentUtil {
       pooling.maxAge.orElseThrow(() ->
           new IllegalArgumentException("pooling.max_age needs to be set"));
     });
+  }
+
+  public static boolean isOnPremiseInvocation(SpydraArgument arguments) {
+    if (!arguments.clusterType.isPresent()) {
+      return true;
+    }
+    return arguments.getClusterType() != DATAPROC;
+  }
+
+  public static boolean isStaticInvocation(SpydraArgument arguments) {
+    return arguments.getSubmit().getOptions().containsKey(OPTION_CLUSTER);
   }
 }
