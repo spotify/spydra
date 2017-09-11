@@ -23,6 +23,7 @@ import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.submitter.executor.Executor;
 import com.spotify.spydra.submitter.executor.ExecutorFactory;
 
+import com.spotify.spydra.util.SpydraArgumentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,25 @@ public class Submitter {
   private static final Logger LOGGER = LoggerFactory.getLogger(Submitter.class);
 
   private final Metrics metrics = MetricsFactory.getInstance();
+
+  public static Submitter getSubmitter(SpydraArgument arguments) {
+    SpydraArgumentUtil.checkRequiredArguments(arguments, SpydraArgumentUtil
+            .isOnPremiseInvocation(arguments),
+        SpydraArgumentUtil.isStaticInvocation(arguments));
+
+    Submitter submitter; // TODO: TW These if's are getting out of hand. Make it prettier
+    if (SpydraArgumentUtil.isStaticInvocation(arguments) || SpydraArgumentUtil
+        .isOnPremiseInvocation(arguments)) {
+      submitter = new Submitter();
+    } else {
+      if (arguments.isPoolingEnabled()) {
+        submitter = new PoolingSubmitter();
+      } else {
+        submitter = new DynamicSubmitter();
+      }
+    }
+    return submitter;
+  }
 
   public boolean executeJob(SpydraArgument arguments) {
     try {

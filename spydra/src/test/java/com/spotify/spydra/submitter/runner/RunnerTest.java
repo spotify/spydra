@@ -20,6 +20,7 @@ package com.spotify.spydra.submitter.runner;
 import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.SpydraArgument;
 
+import com.spotify.spydra.util.SpydraArgumentUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -30,13 +31,13 @@ public class RunnerTest {
   public void testIsStaticInvocation() {
     SpydraArgument arguments = new SpydraArgument();
     arguments.submit.options.put(SpydraArgument.OPTION_CLUSTER, "my_cluster");
-    assertTrue(Runner.isStaticInvocation(arguments));
+    assertTrue(SpydraArgumentUtil.isStaticInvocation(arguments));
   }
 
   @Test
   public void testIsOnPremiseInvocation() {
     SpydraArgument arguments = new SpydraArgument();
     arguments.setClusterType(ClusterType.ON_PREMISE);
-    assertTrue(Runner.isOnPremiseInvocation(arguments));
+    assertTrue(SpydraArgumentUtil.isOnPremiseInvocation(arguments));
   }
 }
