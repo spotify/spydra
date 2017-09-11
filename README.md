@@ -360,20 +360,14 @@ it during the maven invocation.
 ```json
 {
   "log_bucket": "YOUR_GCS_LOG_BUCKET",
-  "region": "europe-west1",
-  "cluster": {
-    "options": {
-      "project": "YOUR_GCP_PROJECT_ID"
-    }
-  }
+  "region": "europe-west1"
 }
 ```
 
 Replace the YOUR_GCS_LOG_BUCKET with a bucket you have in your GCP project for storing the logs.
 
-Replace the YOUR_GCP_PROJECT_ID with the project id you want to run the Spydra integration test in.
-If you are using a service account credentials including a project id, you do not need to specify
-the *project* parameter in *integration-test-config.json*.
+The project will be taken from the service account credentials, you do not need to specify
+the *project* parameter in *integration-test-config.json* (or elsewhere).
 
 Notice that the file name must be exactly *integration-test-config.json* as that is what the
 integration test will search for when it is run on the maven verify phase.
