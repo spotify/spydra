@@ -68,9 +68,7 @@ as well as dumping them.
 `Spydra` has an **experimental** autoscaler which can be executed on the cluster. It monitors the current resource
 utilization on the cluster and scales the cluster according to a user defined utilization factor and maximum worker count
 by adding [preemptible VMs](https://cloud.google.com/dataproc/docs/concepts/preemptible-vms). Note that the use of 
-preemptible VMs might negatively impact performance as nodes might be shut down any time. Downscaling is optional
-and highly experimental as it does not consider the current workload of the workers to be shut down and might trigger
-job restarts.
+preemptible VMs might negatively impact performance as nodes might be shut down any time.
 
 The autoscaler is being installed on the cluster using a Dataproc [initialization-action](https://cloud.google.com/dataproc/docs/concepts/init-actions).
 
@@ -213,14 +211,19 @@ $ spydra submit --spydra-json example.json
 ```
 
 ##### Cluster Autoscaling (Experimental)
-The `Spydra` autoscaler provides automatic sizing for `Spydra` clusters by adding enough preemptable worker
+The `Spydra` autoscaler provides automatic sizing for `Spydra` clusters by adding enough preemptible worker
 nodes until a user supplied percentage of containers is running in parallel on the cluster.
 It enables cluster sizes to automatically adjust to growing resource needs over time and removes
 the need to come up with a good size when scheduling a job executed on `Spydra`.
-The autoscaler has two modes, upscale only and downscale. Downscale will remove nodes when the cluster
-is not fully utilized. When doing so, it does currently not do this gracefully meaning that running
-containers might be killed, possibly causing container retries or even application retries.
-Downscale should currently only be used for experimental purposes.
+The autoscaler has two modes, upscale only and downscale.
+
+Downscale will remove nodes when the cluster is not fully utilized. After
+choosing to downscale, it will wait for the `downscale_timeout` to allow active
+jobs to complete before terminating nodes. Note that though nodes may not have
+active YARN containers running, active jobs may be storing intermediate
+"shuffle" data on them. See [Dataproc Graceful
+Downscale](https://cloud.google.com/dataproc/docs/concepts/scaling-clusters#using_graceful_decommissioning)
+for more information.
 
 To enable autoscaling, add an autoscaler section similar to the one below to your `Spydra` configuration.
 
@@ -232,7 +235,11 @@ To enable autoscaling, add an autoscaler section similar to the one below to you
     "interval": "2",        # Execution interval of the autoscaler in minutes
     "max": "20",            # Maximum number of workers
     "factor": "0.3",        # Percentage of YARN containers that should be running at any point in time 0.0 to 1.0.
-    "downscale": "false"    # Whether or not to downscale. Highly experimental! Please check our notes on downscaling!
+    "downscale": "false",    # Whether or not to downscale.
+    # If downscale is enabled, how long in minutes to wait for active jobs to finish
+    # before terminating nodes and potentially interrupting those jobs.
+    # Note that the autoscaler will not be able to add nodes during this interval.
+    "downscale_timeout": "10",
   }
 }
 ```

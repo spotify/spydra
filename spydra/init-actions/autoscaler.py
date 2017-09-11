@@ -49,7 +49,14 @@ def cluster_metrics():
     return json.loads(requests.get(RM_URL).text)['clusterMetrics']
 
 
-def preemptable_worker_count():
+autoscaler_max = int(metadata('instance/attributes/autoscaler-max'))
+factor = float(metadata('instance/attributes/autoscaler-factor'))
+downscale = metadata('instance/attributes/autoscaler-mode') == 'downscale'
+downscale_timeout_minutes = metadata('instance/attributes/autoscaler-downscale-timeout')
+cluster = metadata('instance/attributes/dataproc-cluster-name')
+region = metadata('instance/attributes/dataproc-region')
+
+def preemptible_worker_count():
     gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "describe", cluster, "--region", region,
                       "--format=json", "--quiet"]
     j = json.loads(subprocess.check_output(gcloud_command))
@@ -68,19 +75,14 @@ def worker_count():
 
 
 def scale(cluster, worker_count):
-    gcloud_command = [GCLOUD_PATH, "dataproc", "clusters", "update", cluster, "--region", region,
+    gcloud_command = [GCLOUD_PATH, "beta", "dataproc", "clusters", "update", cluster, "--region", region,
+                      "--graceful-decommission-timeout={}m".format(downscale_timeout_minutes),
                       "--num-preemptible-workers=" + str(worker_count), "--quiet"]
     print "Executing: " + str(gcloud_command)
     subprocess.call(gcloud_command)
 
 
-autoscaler_max = int(metadata('instance/attributes/autoscaler-max'))
-factor = float(metadata('instance/attributes/autoscaler-factor'))
-downscale = metadata('instance/attributes/autoscaler-mode') == 'downscale'
-cluster = metadata('instance/attributes/dataproc-cluster-name')
-region = metadata('instance/attributes/dataproc-region')
-
-current_preemtable_count = preemptable_worker_count()
+current_preemptible_count = preemptible_worker_count()
 current_worker_count = worker_count()
 metrics = cluster_metrics()
 active_nodes = int(metrics['activeNodes'])
@@ -104,11 +106,11 @@ if containers_pending == 0:
 else:
     current_factor = total_containers / float(containers_pending)
 nodes_required = int(math.ceil((((containers_allocated + containers_pending) * factor)) / containers_per_node))
-preemptable_nodes_required = nodes_required - current_worker_count
-preemptable_nodes_required = min(autoscaler_max, preemptable_nodes_required)
-preemptable_nodes_required = max(0, preemptable_nodes_required)
+preemptible_nodes_required = nodes_required - current_worker_count
+preemptible_nodes_required = min(autoscaler_max, preemptible_nodes_required)
+preemptible_nodes_required = max(0, preemptible_nodes_required)
 
-if current_preemtable_count == preemptable_nodes_required:
+if current_preemptible_count == preemptible_nodes_required:
     sys.exit(0)
 
 if current_factor > factor and not downscale:
@@ -119,5 +121,5 @@ if current_factor == factor:
     print "Perfectly sized, continue"
     sys.exit(0)
 
-print "Decided to scale. Current factor is %s. Requiring %s nodes." % (current_factor, preemptable_nodes_required)
-scale(cluster, preemptable_nodes_required)
+print "Decided to scale. Current factor is %s. Requiring %s nodes." % (current_factor, preemptible_nodes_required)
+scale(cluster, preemptible_nodes_required)
