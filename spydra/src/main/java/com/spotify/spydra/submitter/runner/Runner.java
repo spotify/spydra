@@ -95,8 +95,10 @@ public class Runner {
 
     SpydraArgument userArguments = parser.parse(args);
     Optional<String> userId = userId(SpydraArgumentUtil.isOnPremiseInvocation(userArguments));
+    userId.orElseThrow(() -> new IllegalArgumentException(
+        "No valid credentials (service account) were available to forward to the cluster."));
     SpydraArgument finalArguments =
-        SpydraArgumentUtil.mergeConfigurations(userArguments, userId.orElse(null));
+        SpydraArgumentUtil.mergeConfigurations(userArguments, userId.get());
     SpydraArgumentUtil.setDefaultClientIdIfRequired(finalArguments);
     finalArguments.replacePlaceholders();
 

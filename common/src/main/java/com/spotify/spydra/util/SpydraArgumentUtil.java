@@ -89,10 +89,8 @@ public class SpydraArgumentUtil {
           new String[]{BASE_CONFIGURATION_FILE_NAME, DEFAULT_DATAPROC_ARGUMENT_FILE_NAME,
                        SPYDRA_CONFIGURATION_FILE_NAME},
           arguments);
-      if (userId != null) {
-        LOGGER.debug("Set Dataproc service account user ID: {}", userId);
-        outputConfig.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId);
-      }
+      LOGGER.debug("Set Dataproc service account user ID: {}", userId);
+      outputConfig.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId);
     } else {
       outputConfig = baseArgsWithGivenArgs;
     }
