@@ -187,6 +187,7 @@ public class SpydraArgument {
     public Optional<Integer> max = Optional.empty();
     public Optional<Double> factor = Optional.empty();
     public Optional<Boolean> downscale = Optional.empty();
+    public Optional<Integer> downscaleTimeout = Optional.empty();
 
     public Integer getInterval() {
       return interval.get();
@@ -218,6 +219,14 @@ public class SpydraArgument {
 
     public void setDownscale(Boolean downscale) {
       this.downscale = Optional.of(downscale);
+    }
+
+    public Integer getDownscaleTimeout() {
+      return downscaleTimeout.get();
+    }
+
+    public void setDownscaleTimeout(Integer downscaleTimeout) {
+      this.downscaleTimeout = Optional.of(downscaleTimeout);
     }
   }
 
@@ -570,15 +579,17 @@ public class SpydraArgument {
   }
 
   public void setAutoScaler(Double factor, Integer interval, Integer max) {
-    setAutoScaler(factor, interval, max, false);
+    setAutoScaler(factor, interval, max, Optional.empty());
   }
 
-  public void setAutoScaler(Double factor, Integer interval, Integer max, Boolean downscale) {
+  public void setAutoScaler(Double factor, Integer interval, Integer max,
+                            Optional<Integer> downscaleTimeout) {
     AutoScaler autoScaler = new AutoScaler();
     autoScaler.setFactor(factor);
     autoScaler.setInterval(interval);
     autoScaler.setMax(max);
-    autoScaler.setDownscale(downscale);
+    autoScaler.setDownscale(downscaleTimeout.isPresent());
+    downscaleTimeout.ifPresent(autoScaler::setDownscaleTimeout);
     setAutoScaler(autoScaler);
   }
 
