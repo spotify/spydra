@@ -166,14 +166,6 @@ public class PoolingTest {
     }
 
     @Test
-    public void heartIsBeating() throws Exception {
-      SpydraArgument arguments = new SpydraArgument();
-      arguments.setCollectorTimeoutMinutes(30);
-      assertFalse(PoolingSubmitter.Conditions.heartIsBeating(ancientCluster(), arguments));
-      assertTrue(PoolingSubmitter.Conditions.heartIsBeating(perfectCluster(), arguments));
-    }
-
-    @Test
     public void mayCreateMoreClusters() throws Exception {
       ImmutableList<Cluster> clusters =
           ImmutableList.of(perfectCluster(), perfectCluster());
