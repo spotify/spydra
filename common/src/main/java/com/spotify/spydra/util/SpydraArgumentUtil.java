@@ -112,7 +112,8 @@ public class SpydraArgumentUtil {
     GcpUtils gcpUtils = new GcpUtils();
     String credential = gcpUtils.credentialJsonFromEnv();
     gcpUtils.userIdFromJsonCredential(credential)
-        .orElseThrow(() -> new IllegalArgumentException("No usable credential available."));
+        .orElseThrow(() -> new IllegalArgumentException(
+            "No valid credentials (service account) were available to forward to the cluster."));
     gcpUtils.configureClusterProjectFromCredential(defaults);
     defaults.replacePlaceholders();
     return defaults;
