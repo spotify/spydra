@@ -579,15 +579,17 @@ public class SpydraArgument {
   }
 
   public void setAutoScaler(Double factor, Integer interval, Integer max) {
-    setAutoScaler(factor, interval, max, false);
+    setAutoScaler(factor, interval, max, Optional.empty());
   }
 
-  public void setAutoScaler(Double factor, Integer interval, Integer max, Boolean downscale) {
+  public void setAutoScaler(Double factor, Integer interval, Integer max,
+                            Optional<Integer> downscaleTimeout) {
     AutoScaler autoScaler = new AutoScaler();
     autoScaler.setFactor(factor);
     autoScaler.setInterval(interval);
     autoScaler.setMax(max);
-    autoScaler.setDownscale(downscale);
+    autoScaler.setDownscale(downscaleTimeout.isPresent());
+    downscaleTimeout.ifPresent(autoScaler::setDownscaleTimeout);
     setAutoScaler(autoScaler);
   }
 
