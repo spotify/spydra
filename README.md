@@ -97,7 +97,7 @@ To be able to use Dataproc and on-premise Hadoop, a few things need to be set up
 * [gcloud](https://cloud.google.com/sdk/gcloud/) needs to be installed
 * `gcloud` needs to be [authenticated using the service account](https://cloud.google.com/sdk/gcloud/reference/auth/)
 * The environment variable [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials)
-  needs to point to the location of the service account JSON key
+  needs to point to the location of the service account JSON key. This cannot be a user credential.
 * [hadoop jar](https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-common/CommandsManual.html#jar)
   needs to be installed and configured to submit to your cluster
 
