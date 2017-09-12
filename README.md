@@ -239,7 +239,7 @@ To enable autoscaling, add an autoscaler section similar to the one below to you
     # If downscale is enabled, how long in minutes to wait for active jobs to finish
     # before terminating nodes and potentially interrupting those jobs.
     # Note that the autoscaler will not be able to add nodes during this interval.
-    "downscale_timeout": "10",
+    "downscale_timeout": "10"
   }
 }
 ```
