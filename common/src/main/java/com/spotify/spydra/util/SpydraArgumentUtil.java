@@ -17,6 +17,7 @@
 
 package com.spotify.spydra.util;
 
+import com.google.common.base.Throwables;
 import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
@@ -124,6 +125,21 @@ public class SpydraArgumentUtil {
     if (!arguments.clientId.isPresent()) {
       arguments.setClientId(InetAddress.getLocalHost().getHostName());
     }
+  }
+
+  public static void setProjectFromCredentialsIfNotSet(SpydraArgument arguments) throws IOException {
+    arguments.getCluster().getOptions().computeIfAbsent(SpydraArgument.OPTION_PROJECT,
+        (key) -> {
+          GcpUtils gcpUtils = new GcpUtils();
+          try {
+            return gcpUtils.projectFromJsonCredential(gcpUtils.credentialJsonFromEnv())
+                .orElseThrow(() -> new IOException(
+                    "No credential available from the credentials found from environment."));
+          } catch (IOException ex) {
+            Throwables.propagate(ex);
+            return null;
+          }
+        });
   }
 
   public static void checkRequiredArguments(SpydraArgument arguments, boolean isOnPremiseInvocation,
