@@ -98,6 +98,7 @@ public class Runner {
     SpydraArgument finalArguments =
         SpydraArgumentUtil.mergeConfigurations(userArguments, userId);
     SpydraArgumentUtil.setDefaultClientIdIfRequired(finalArguments);
+    SpydraArgumentUtil.setProjectFromCredentialsIfNotSet(finalArguments);
     finalArguments.replacePlaceholders();
 
     MetricsFactory.initialize(finalArguments, userId);
