@@ -44,10 +44,12 @@ public class Submitter {
         .isOnPremiseInvocation(arguments)) {
       submitter = new Submitter();
     } else {
+      String account =
+          arguments.getCluster().getOptions().get(SpydraArgument.OPTION_SERVICE_ACCOUNT);
       if (arguments.isPoolingEnabled()) {
-        submitter = new PoolingSubmitter();
+        submitter = new PoolingSubmitter(account);
       } else {
-        submitter = new DynamicSubmitter();
+        submitter = new DynamicSubmitter(account);
       }
     }
     return submitter;

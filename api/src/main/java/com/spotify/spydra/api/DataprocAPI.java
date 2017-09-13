@@ -39,6 +39,11 @@ public class DataprocAPI {
     metrics = MetricsFactory.getInstance();
   }
 
+  public DataprocAPI(String account) {
+    gcloud = new GcloudExecutor(account);
+    metrics = MetricsFactory.getInstance();
+  }
+
   @VisibleForTesting
   DataprocAPI(GcloudExecutor gcloud, Metrics metrics) {
     this.gcloud = gcloud;
