@@ -94,15 +94,13 @@ public class Runner {
     checkAndPrintHelp(args, parser);
 
     SpydraArgument userArguments = parser.parse(args);
-    Optional<String> userId = userId(SpydraArgumentUtil.isOnPremiseInvocation(userArguments));
-    userId.orElseThrow(() -> new IllegalArgumentException(
-        "No valid credentials (service account) were available to forward to the cluster."));
+    String userId = userId(SpydraArgumentUtil.isOnPremiseInvocation(userArguments));
     SpydraArgument finalArguments =
-        SpydraArgumentUtil.mergeConfigurations(userArguments, userId.get());
+        SpydraArgumentUtil.mergeConfigurations(userArguments, userId);
     SpydraArgumentUtil.setDefaultClientIdIfRequired(finalArguments);
     finalArguments.replacePlaceholders();
 
-    userId.ifPresent(s -> MetricsFactory.initialize(finalArguments, s));
+    MetricsFactory.initialize(finalArguments, userId);
     Metrics metrics = MetricsFactory.getInstance();
 
     Submitter submitter = Submitter.getSubmitter(finalArguments);
@@ -115,11 +113,13 @@ public class Runner {
     System.exit(status ? 0 : 1);
   }
 
-  private static Optional<String> userId(boolean onPremiseInvocation) throws IOException {
+  private static String userId(boolean onPremiseInvocation) throws IOException {
     if (onPremiseInvocation) {
-      return Optional.ofNullable(System.getenv("HADOOP_USER_NAME"));
+      return Optional.ofNullable(System.getenv("HADOOP_USER_NAME")).orElse("onpremise");
     } else {
-      return gcpUtils.userIdFromJsonCredential(gcpUtils.credentialJsonFromEnv());
+      return gcpUtils.userIdFromJsonCredential(gcpUtils.credentialJsonFromEnv()).orElseThrow(
+          () -> new IllegalArgumentException(
+              "No valid credentials (service account) were available to forward to the cluster."));
     }
   }
 
