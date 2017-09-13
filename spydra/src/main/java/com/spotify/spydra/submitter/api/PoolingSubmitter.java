@@ -36,6 +36,14 @@ public class PoolingSubmitter extends DynamicSubmitter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSubmitter.class);
 
+  public PoolingSubmitter() {
+    super();
+  }
+
+  public PoolingSubmitter(String account) {
+    super(account);
+  }
+
   static final class Conditions {
 
     static boolean isSpydraCluster(Cluster c) {

@@ -79,6 +79,8 @@ public class LifecycleIT {
     // Merge to get all other custom test arguments
     arguments = SpydraArgument.merge(arguments, testArgs);
 
+    LOGGER.debug("Using following service account to run gcloud commands locally: " +
+        arguments.getCluster().getOptions().get(SpydraArgument.OPTION_SERVICE_ACCOUNT));
     Submitter submitter = Submitter.getSubmitter(arguments);
     assertTrue("job wasn't successful", submitter.executeJob(arguments));
 

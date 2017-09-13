@@ -64,6 +64,10 @@ public class DynamicSubmitter extends Submitter {
     this(new DataprocAPI(), new GcpUtils());
   }
 
+  public DynamicSubmitter(String account) {
+    this(new DataprocAPI(account), new GcpUtils());
+  }
+
   public DynamicSubmitter(DataprocAPI dataprocAPI, GcpUtils gcpUtils) {
     this.dataprocAPI = dataprocAPI;
     this.gcpUtils = gcpUtils;

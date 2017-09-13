@@ -75,13 +75,19 @@ public class GcpUtils {
     }
   }
 
-  public Optional<String> userIdFromJsonCredential(String json) {
+  private Optional<String> userIdFromJsonCredential(String json) {
     try {
       return Optional.of(JsonPath.read(json, "$.client_email"));
     } catch (PathNotFoundException ex) {
       LOGGER.info("Could not parse client_email from credentials.");
       return Optional.empty();
     }
+  }
+
+  public String userIdFromJsonCredentialInEnv() throws IOException {
+    return userIdFromJsonCredential(credentialJsonFromEnv()).orElseThrow(
+        () -> new IllegalArgumentException(
+          "No valid credentials (service account) were available to forward to the cluster."));
   }
 
   public void configureClusterProjectFromCredential(SpydraArgument arguments)

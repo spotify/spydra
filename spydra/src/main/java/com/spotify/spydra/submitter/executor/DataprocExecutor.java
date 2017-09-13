@@ -17,6 +17,8 @@
 
 package com.spotify.spydra.submitter.executor;
 
+import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
+
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.model.SpydraArgument;
 
@@ -26,7 +28,8 @@ public class DataprocExecutor implements Executor {
 
   @Override
   public boolean submit(SpydraArgument arguments) throws IOException {
-    DataprocAPI dataprocAPI = new DataprocAPI();
+    DataprocAPI dataprocAPI =
+        new DataprocAPI(arguments.getCluster().getOptions().get(OPTION_SERVICE_ACCOUNT));
     dataprocAPI.dryRun(arguments.isDryRun());
     return dataprocAPI.submit(arguments);
   }

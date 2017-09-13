@@ -46,15 +46,18 @@ public class GcloudExecutor {
   private static final String DEFAULT_GCLOUD_COMMAND = "gcloud";
 
   private final String baseCommand;
+  private final String account;
 
   private boolean dryRun = false;
 
   public GcloudExecutor() {
-    this(DEFAULT_GCLOUD_COMMAND);
+    this.baseCommand = DEFAULT_GCLOUD_COMMAND;
+    this.account = null;
   }
 
-  public GcloudExecutor(String gcloudCommand) {
-    baseCommand = gcloudCommand;
+  public GcloudExecutor(String account) {
+    this.baseCommand = DEFAULT_GCLOUD_COMMAND;
+    this.account = account;
   }
 
   public Optional<Cluster> createCluster(String name, String region, Map<String, String> args) throws IOException {
@@ -87,7 +90,10 @@ public class GcloudExecutor {
   private ArrayList<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
 
     ArrayList<String> command = Lists.newArrayList(this.baseCommand);
-
+    if (account != null && !account.isEmpty()) {
+      command.add("--account");
+      command.add(account);
+    }
     command.addAll(commands);
     command.add(createOption("quiet", ""));
     options.entrySet().forEach(entry -> command.add(createOption(entry.getKey(), entry.getValue())));

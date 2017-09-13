@@ -118,9 +118,7 @@ public class Runner {
     if (onPremiseInvocation) {
       return Optional.ofNullable(System.getenv("HADOOP_USER_NAME")).orElse("onpremise");
     } else {
-      return gcpUtils.userIdFromJsonCredential(gcpUtils.credentialJsonFromEnv()).orElseThrow(
-          () -> new IllegalArgumentException(
-              "No valid credentials (service account) were available to forward to the cluster."));
+      return gcpUtils.userIdFromJsonCredentialInEnv();
     }
   }
 
