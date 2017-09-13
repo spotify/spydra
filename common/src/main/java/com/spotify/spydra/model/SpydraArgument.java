@@ -52,6 +52,7 @@ public class SpydraArgument {
   public static final String OPTION_JOB_ID = "id";
 
   public static final String JOB_TYPE_HADOOP = "hadoop";
+  public static final String JOB_TYPE_PYSPARK = "pyspark";
 
   public static final String CLIENT_ID_PROPERTIES_PLACEHOLDER = "${CLIENT_ID}";
   public static final String LOG_BUCKET_PROPERTIES_PLACEHOLDER = "${LOG_BUCKET}";
@@ -136,6 +137,7 @@ public class SpydraArgument {
   public class Submit {
     public Map<String, String> options = new HashMap<>();
     public Optional<List<String>> jobArgs = Optional.empty();
+    public Optional<String> pyFile = Optional.empty();
 
     public Map<String, String> getOptions() {
       return options;
@@ -345,6 +347,12 @@ public class SpydraArgument {
       merged.submit.jobArgs = second.submit.jobArgs;
     } else {
       merged.submit.jobArgs = first.submit.jobArgs;
+    }
+
+    if (second.submit.pyFile.isPresent()) {
+      merged.submit.pyFile = second.submit.pyFile;
+    } else {
+      merged.submit.pyFile = first.submit.pyFile;
     }
 
     if (second.pooling.isPresent()) {

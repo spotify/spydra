@@ -86,7 +86,9 @@ public class DataprocAPI {
   public boolean submit(SpydraArgument arguments) throws IOException {
     boolean success = false;
     try {
-      success = gcloud.submit(arguments.getJobType(), arguments.getRegion(),
+      success = gcloud.submit(arguments.getJobType(),
+          arguments.submit.pyFile,
+          arguments.getRegion(),
           arguments.getSubmit().getOptions(),
           arguments.getSubmit().getJobArgs());
     } finally {

@@ -80,11 +80,19 @@ public class GcloudExecutor {
         deleteOptions, Collections.emptyList());
   }
 
-  public boolean submit(String type, String region, Map<String, String> options, List<String> jobArgs)
+  public boolean submit(String type, Optional<String> pyFile, String region, Map<String, String> options, List<String> jobArgs)
       throws IOException {
     Map<String, String> submitOptions = new HashMap<>(options);
     submitOptions.put(SpydraArgument.OPTION_REGION, region);
-    return execute(ImmutableList.of("dataproc", "jobs", "submit", type), submitOptions, jobArgs);
+    List<String> submitCommand = Lists.newArrayList("dataproc", "jobs", "submit", type);
+    if (type.equals(SpydraArgument.JOB_TYPE_PYSPARK)) {
+      // JOB_TYPE_PYSPARK is special, it has a positional argument :|
+      submitCommand.add(pyFile.orElseThrow(() -> new IllegalArgumentException(
+          "Somehow pyFile was not set when running a pyspark job. " +
+          "This should've been caught in SpydraArgumentUtil#checkRequiredArguments already!"
+      )));
+    }
+    return execute(submitCommand, submitOptions, jobArgs);
   }
 
   private ArrayList<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
