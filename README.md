@@ -321,7 +321,7 @@ This is useful for processing/exploration with further tools in the shell.
 The client id used when executing the job, the Hadoop application id, and the log bucket is required
 for running *dump-logs* command.
 
-```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-logs --clientid=MY_CLIENT_ID --username=HADOOP_USERNAME --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
+```java -jar spydra/target/spydra-VERSION-jar-with-dependencies.jar dump-logs --clientid=MY_CLIENT_ID --username=HADOOP_USER_NAME --log-bucket=LOG_BUCKET --application=APPLICATION_ID```
 
 #### Retrieving History Data
 The history files can be dumped as in regular Hadoop using the *dump-history* command.
