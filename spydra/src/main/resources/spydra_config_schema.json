@@ -120,7 +120,7 @@
         },
         "max_age": {
           "description": "A java.time.Duration for the maximum age of a cluster",
-          "type": "boolean"
+          "type": "string"
         }
       }
     },
