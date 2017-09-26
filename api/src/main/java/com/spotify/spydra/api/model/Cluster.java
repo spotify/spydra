@@ -30,6 +30,9 @@ public class Cluster {
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Status {
 
+    public static final String ERROR = "ERROR";
+    public static final String CREATING = "CREATING";
+    public static final String RUNNING = "RUNNING";
     public String state;
     public ZonedDateTime stateStartTime;
   }
