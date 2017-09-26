@@ -18,7 +18,7 @@ set -e
 
 INTERVAL=$(/usr/share/google/get_metadata_value attributes/collector-timeout || echo -1)
 ROLE=$(/usr/share/google/get_metadata_value attributes/dataproc-role)
-if [[ "${ROLE}" == 'Master' ]]; then
+if [[ "${ROLE}" == 'Master' || $HOSTNAME =~ .*0 ]]; then
   gsutil cp ${versioned-init-action-uri}/self-destruct.py /usr/local/bin/self-destruct
   chmod +x /usr/local/bin/self-destruct
   crontab -l | { cat; echo "* * * * * /usr/local/bin/self-destruct ${INTERVAL}"; } | crontab -
