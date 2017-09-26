@@ -240,7 +240,7 @@ public class DynamicSubmitter extends Submitter {
     try {
       waitForHistoryToBeMoved(arguments);
     } finally {
-      return arguments.isPoolingEnabled() || dataprocAPI.deleteCluster(arguments);
+      return dataprocAPI.deleteCluster(arguments);
     }
   }
 }
