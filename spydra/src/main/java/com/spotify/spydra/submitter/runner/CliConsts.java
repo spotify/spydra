@@ -33,4 +33,5 @@ public class CliConsts {
   public final static String USERNAME_OPTION_NAME = "username";
   public final static String LOG_BUCKET_OPTION_NAME = "log-bucket";
   public final static String JOBNAME_OPTION_NAME = "job-name";
+  public final static String LABELS_OPTION_NAME = "labels";
 }
