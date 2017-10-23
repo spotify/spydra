@@ -18,7 +18,6 @@
 package com.spotify.spydra.historytools.commands;
 
 import com.google.auto.value.AutoValue;
-
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 @AutoValue

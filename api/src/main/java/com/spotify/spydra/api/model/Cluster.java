@@ -18,7 +18,6 @@
 package com.spotify.spydra.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;

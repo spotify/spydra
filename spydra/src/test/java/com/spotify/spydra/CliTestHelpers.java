@@ -17,13 +17,11 @@
 
 package com.spotify.spydra;
 
-import com.google.common.base.Joiner;
-
-import com.spotify.spydra.submitter.runner.CliParser;
-
-import java.util.List;
-
 import static org.junit.Assert.assertTrue;
+
+import com.google.common.base.Joiner;
+import com.spotify.spydra.submitter.runner.CliParser;
+import java.util.List;
 
 public class CliTestHelpers {
   public static <T> void ensureAllThrow(CliParser<T> parser, List<String[]> argsList, Class exceptionCls) {

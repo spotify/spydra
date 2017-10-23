@@ -20,10 +20,6 @@ package com.spotify.spydra.submitter.api;
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -31,6 +27,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PoolingSubmitter extends DynamicSubmitter {
 

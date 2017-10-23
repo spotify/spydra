@@ -17,6 +17,9 @@
 
 package com.spotify.spydra;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -26,15 +29,16 @@ import com.google.api.services.dataproc.Dataproc;
 import com.google.api.services.dataproc.model.Cluster;
 import com.google.api.services.dataproc.model.ListClustersResponse;
 import com.google.common.collect.Lists;
-
-import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.SpydraArgument;
-import com.spotify.spydra.submitter.api.DynamicSubmitter;
 import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
-
-import java.util.Optional;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.UUID;
 import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -43,16 +47,6 @@ import org.apache.hadoop.fs.RemoteIterator;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class LifecycleIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(LifecycleIT.class);

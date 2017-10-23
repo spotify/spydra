@@ -17,12 +17,11 @@
 
 package com.spotify.spydra.historytools;
 
+import java.io.IOException;
+import java.util.Iterator;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Iterator;
 
 /**
  * Simple adaptor for Hadoop's RemoteIterator to the Iterator interface to be able to

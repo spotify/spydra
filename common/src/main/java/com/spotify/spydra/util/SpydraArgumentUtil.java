@@ -17,26 +17,22 @@
 
 package com.spotify.spydra.util;
 
+import static com.spotify.spydra.model.ClusterType.DATAPROC;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
+
 import com.google.common.base.Throwables;
 import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.util.Collection;
-import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-
-import static com.spotify.spydra.model.ClusterType.DATAPROC;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
 
 public class SpydraArgumentUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpydraArgumentUtil.class);
