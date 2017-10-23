@@ -17,19 +17,14 @@
 
 package com.spotify.spydra.api.gcloud;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.api.process.ProcessHelper;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
-
-import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +33,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Optional;
 import jdk.nashorn.tools.Shell;
+import org.apache.commons.lang3.StringUtils;
 
 public class GcloudExecutor {
 

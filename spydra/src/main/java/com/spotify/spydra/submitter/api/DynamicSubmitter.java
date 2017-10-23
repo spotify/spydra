@@ -17,36 +17,34 @@
 
 package com.spotify.spydra.submitter.api;
 
+import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_METADATA;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_PROJECT;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
+
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.util.GcpUtils;
-
-import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_METADATA;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_PROJECT;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DynamicSubmitter extends Submitter {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSubmitter.class);

@@ -17,22 +17,20 @@
 
 package com.spotify.spydra.submitter.runner;
 
+import static java.lang.Integer.min;
+
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-
-import static java.lang.Integer.min;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.StringUtils;
 
 public class SubmissionCliParser implements CliParser<SpydraArgument> {
   final static String CMD_NAME = "submit";
@@ -52,6 +50,9 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
             ", overwrites the configured ones if set"));
     options.addOption(CliHelper.createSingleOption(CliConsts.JOBNAME_OPTION_NAME,
         "job name, used as dataproc job id"));
+    options.addOption(CliHelper.createMultiOption(CliConsts.LABELS_OPTION_NAME,
+        "labels to apply to the cluster and/or job, can occur multiple times" +
+            " to add additional labels"));
   }
 
   public SpydraArgument parse(String[] args) throws IOException {
@@ -86,6 +87,14 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
     if (cmdLine.hasOption(CliConsts.JOBNAME_OPTION_NAME)) {
       spydraArgument.getSubmit().getOptions().put(SpydraArgument.OPTION_JOB_ID,
           sanitizeJobId(cmdLine.getOptionValue(CliConsts.JOBNAME_OPTION_NAME)));
+    }
+
+    if (cmdLine.hasOption(CliConsts.LABELS_OPTION_NAME)) {
+      String labels = StringUtils.join(cmdLine.getOptionValues(CliConsts.LABELS_OPTION_NAME), ",");
+      spydraArgument.getSubmit().getOptions().compute(SpydraArgument.OPTION_LABELS,
+          (key, existingLabels) -> (existingLabels == null) ? labels : existingLabels + ',' + labels);
+      spydraArgument.getCluster().getOptions().compute(SpydraArgument.OPTION_LABELS,
+          (key, existingLabels) -> (existingLabels == null) ? labels : existingLabels + ',' + labels);
     }
 
     if (spydraArgument.jobType.isPresent()) {

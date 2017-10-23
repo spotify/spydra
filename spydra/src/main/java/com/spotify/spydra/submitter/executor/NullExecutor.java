@@ -18,7 +18,6 @@
 package com.spotify.spydra.submitter.executor;
 
 import com.spotify.spydra.model.SpydraArgument;
-
 import java.io.IOException;
 
 /**

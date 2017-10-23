@@ -17,13 +17,12 @@
 
 package com.spotify.spydra.submitter.runner;
 
+import static org.junit.Assert.assertTrue;
+
 import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.SpydraArgument;
-
 import com.spotify.spydra.util.SpydraArgumentUtil;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class RunnerTest {
 

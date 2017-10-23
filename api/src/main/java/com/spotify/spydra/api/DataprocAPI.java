@@ -19,13 +19,11 @@ package com.spotify.spydra.api;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-
 import com.spotify.spydra.api.gcloud.GcloudExecutor;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;

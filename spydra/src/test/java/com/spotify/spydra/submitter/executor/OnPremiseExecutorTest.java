@@ -17,18 +17,16 @@
 
 package com.spotify.spydra.submitter.executor;
 
-import com.spotify.spydra.model.SpydraArgument;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLASS;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_JAR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import com.spotify.spydra.model.SpydraArgument;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
 
 public class OnPremiseExecutorTest {
 

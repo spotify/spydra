@@ -21,7 +21,6 @@ import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
 
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.model.SpydraArgument;
-
 import java.io.IOException;
 
 public class DataprocExecutor implements Executor {

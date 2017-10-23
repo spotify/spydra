@@ -18,7 +18,6 @@
 package com.spotify.spydra.submitter.runner;
 
 import com.google.common.base.Joiner;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.MissingOptionException;

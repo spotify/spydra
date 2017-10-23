@@ -17,17 +17,16 @@
 
 package com.spotify.spydra.model;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
 import java.io.IOException;
 import java.io.InputStream;
-
-import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
-import static com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE;
 
 public class JsonHelper {
   protected static final ObjectMapper OBJECT_MAPPER = objectMapper();

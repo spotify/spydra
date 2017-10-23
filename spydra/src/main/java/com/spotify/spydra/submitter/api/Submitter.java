@@ -22,12 +22,10 @@ import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.submitter.executor.Executor;
 import com.spotify.spydra.submitter.executor.ExecutorFactory;
-
 import com.spotify.spydra.util.SpydraArgumentUtil;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class Submitter {
   private static final Logger LOGGER = LoggerFactory.getLogger(Submitter.class);
