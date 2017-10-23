@@ -20,11 +20,18 @@ package com.spotify.spydra.submitter.runner;
 import static com.spotify.spydra.submitter.runner.CliConsts.JOBNAME_OPTION_NAME;
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.collect.ImmutableMap;
+import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
+import java.io.File;
 import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class SubmissionCliParserTest {
+
+  public @Rule TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   public SpydraArgument testJobNameParameter(String providedId) throws IOException {
     SubmissionCliParser submissionCliParser = new SubmissionCliParser();
@@ -57,4 +64,25 @@ public class SubmissionCliParserTest {
     assertEquals(88, fixed_id.length());
   }
 
+  @Test
+  public void testMultipleSpydraJson() throws IOException {
+    File jsonFile1 = temporaryFolder.newFile("spydra1.json");
+    File jsonFile2 = temporaryFolder.newFile("spydra2.json");
+    JsonHelper.objectMapper().writeValue(jsonFile1, ImmutableMap.of(
+        "cluster", ImmutableMap.of("options", ImmutableMap.of("labels", "ck1=cv1")),
+        "submit", ImmutableMap.of("options", ImmutableMap.of("labels", "sk1=sv1"))
+    ));
+    JsonHelper.objectMapper().writeValue(jsonFile2, ImmutableMap.of(
+        "cluster", ImmutableMap.of("options", ImmutableMap.of("labels", "ck2=cv2")),
+        "submit", ImmutableMap.of("options", ImmutableMap.of("labels", "sk2=sv2"))
+    ));
+    SubmissionCliParser parser = new SubmissionCliParser();
+    String[] args = {
+        "--spydra-json", jsonFile1.toString(),
+        "--spydra-json", jsonFile2.toString(),
+    };
+    SpydraArgument argument = parser.parse(args);
+    assertEquals("ck1=cv1,ck2=cv2", argument.cluster.options.get("labels"));
+    assertEquals("sk1=sv1,sk2=sv2", argument.submit.options.get("labels"));
+  }
 }
