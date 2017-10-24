@@ -17,18 +17,15 @@
 
 package com.spotify.spydra.historytools;
 
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertEquals;
 
+import com.google.common.collect.Lists;
 import com.spotify.spydra.CliTestHelpers;
 import com.spotify.spydra.historytools.commands.DumpLogsCommand;
 import com.spotify.spydra.submitter.runner.CliConsts;
 import com.spotify.spydra.submitter.runner.CliParser;
-
-import org.junit.Test;
-
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class DumpLogsCliParserTest {
 

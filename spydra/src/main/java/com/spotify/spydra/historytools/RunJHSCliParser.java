@@ -21,7 +21,6 @@ import com.spotify.spydra.historytools.commands.RunJHSCommand;
 import com.spotify.spydra.submitter.runner.CliConsts;
 import com.spotify.spydra.submitter.runner.CliHelper;
 import com.spotify.spydra.submitter.runner.CliParser;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;

@@ -17,14 +17,12 @@
 
 package com.spotify.spydra.submitter.runner;
 
-import com.spotify.spydra.model.SpydraArgument;
-
-import org.junit.Test;
-
-import java.io.IOException;
-
 import static com.spotify.spydra.submitter.runner.CliConsts.JOBNAME_OPTION_NAME;
 import static org.junit.Assert.assertEquals;
+
+import com.spotify.spydra.model.SpydraArgument;
+import java.io.IOException;
+import org.junit.Test;
 
 public class SubmissionCliParserTest {
 

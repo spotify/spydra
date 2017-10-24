@@ -19,7 +19,6 @@ package com.spotify.spydra.submitter.runner;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-
 import com.spotify.spydra.historytools.DumpHistoryCliParser;
 import com.spotify.spydra.historytools.DumpLogsCliParser;
 import com.spotify.spydra.historytools.HistoryLogUtils;
@@ -33,15 +32,13 @@ import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
-
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Optional;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Arrays;
 
 public class Runner {
   private static final Logger LOGGER = LoggerFactory.getLogger(Runner.class);

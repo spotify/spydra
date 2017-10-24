@@ -17,28 +17,24 @@
 
 package com.spotify.spydra.submitter.executor;
 
-import com.google.common.annotations.VisibleForTesting;
-
-import com.spotify.spydra.api.process.ProcessHelper;
-import com.spotify.spydra.metrics.Metrics;
-import com.spotify.spydra.metrics.MetricsFactory;
-import com.spotify.spydra.model.SpydraArgument;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import jdk.nashorn.tools.Shell;
-
 import static com.spotify.spydra.model.SpydraArgument.JOB_TYPE_HADOOP;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLASS;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_JAR;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_PROPERTIES;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.spotify.spydra.api.process.ProcessHelper;
+import com.spotify.spydra.metrics.Metrics;
+import com.spotify.spydra.metrics.MetricsFactory;
+import com.spotify.spydra.model.SpydraArgument;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import jdk.nashorn.tools.Shell;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OnPremiseExecutor implements Executor {
   private final Metrics metrics;

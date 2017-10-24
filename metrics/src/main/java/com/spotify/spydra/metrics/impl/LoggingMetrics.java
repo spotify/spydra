@@ -19,7 +19,6 @@ package com.spotify.spydra.metrics.impl;
 
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.model.SpydraArgument;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

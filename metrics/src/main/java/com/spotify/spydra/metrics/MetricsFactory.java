@@ -18,15 +18,12 @@
 package com.spotify.spydra.metrics;
 
 import com.google.common.base.Throwables;
-
 import com.spotify.spydra.metrics.impl.LoggingMetrics;
 import com.spotify.spydra.model.SpydraArgument;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetricsFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(MetricsFactory.class);

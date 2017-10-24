@@ -1,12 +1,10 @@
 package com.spotify.spydra.submitter.api;
 
-import com.google.common.collect.ImmutableList;
-
-import com.spotify.spydra.model.SpydraArgument;
-
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import com.google.common.collect.ImmutableList;
+import com.spotify.spydra.model.SpydraArgument;
+import org.junit.Test;
 
 /**
  * Created by TwN on 2017-04-20.

@@ -17,22 +17,20 @@
 
 package com.spotify.spydra.submitter.runner;
 
+import static java.lang.Integer.min;
+
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-
-import static java.lang.Integer.min;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.StringUtils;
 
 public class SubmissionCliParser implements CliParser<SpydraArgument> {
   final static String CMD_NAME = "submit";

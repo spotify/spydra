@@ -17,22 +17,6 @@
 
 package com.spotify.spydra.submitter.api;
 
-import com.google.common.collect.ImmutableList;
-
-import com.spotify.spydra.api.DataprocAPI;
-import com.spotify.spydra.api.model.Cluster;
-import com.spotify.spydra.model.SpydraArgument;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-
-import java.time.Duration;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -41,6 +25,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
+import com.google.common.collect.ImmutableList;
+import com.spotify.spydra.api.DataprocAPI;
+import com.spotify.spydra.api.model.Cluster;
+import com.spotify.spydra.model.SpydraArgument;
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
 public class PoolingTest {
