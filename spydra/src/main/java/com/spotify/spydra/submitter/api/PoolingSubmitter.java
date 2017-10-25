@@ -49,7 +49,7 @@ public class PoolingSubmitter extends DynamicSubmitter {
     }
 
     static boolean isRunning(Cluster c) {
-      return c.status.state.equals("RUNNING");
+      return c.status.state.equals(Cluster.Status.RUNNING);
     }
 
     static boolean isYoung(Cluster c, SpydraArgument arguments) {
@@ -103,9 +103,15 @@ public class PoolingSubmitter extends DynamicSubmitter {
   @Override
   public boolean releaseCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
-    // If we're pooling clusters the cluster will live long enough for history to be collected,
-    // so just return immediately.
-    return arguments.isPoolingEnabled() || super.releaseCluster(arguments, dataprocAPI);
-    // TW: Or just return true statically?
+    boolean shouldCollect;
+    // If we're pooling clusters the cluster will live long enough for history to be collected
+    shouldCollect = !arguments.isPoolingEnabled();
+
+    // Check if the cluster is healthy, if it's not it might not be able to self-destruct.
+    shouldCollect = shouldCollect || dataprocAPI.listClusters(arguments).stream()
+        .filter(cluster -> cluster.clusterName.equals(arguments.getCluster().getName()))
+        .findAny().map(cluster -> cluster.status.state.equals(Cluster.Status.ERROR)).orElse(false);
+
+    return !shouldCollect || super.releaseCluster(arguments, dataprocAPI);
   }
 }

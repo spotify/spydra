@@ -23,7 +23,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
@@ -41,12 +40,14 @@ import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
 public class PoolingTest {
+  private static final String spydraClusterName = "spydra-uuid";
+  private static final String nonSpydraClusterName = "not-a-spydra-cluster";
 
   static Cluster perfectCluster() {
     Cluster cluster = new Cluster();
-    cluster.clusterName = "spydra-uuid";
+    cluster.clusterName = spydraClusterName;
     Cluster.Status status = new Cluster.Status();
-    status.state = "RUNNING";
+    status.state = Cluster.Status.RUNNING;
     status.stateStartTime = ZonedDateTime.now(ZoneOffset.UTC);
     cluster.status = status;
     cluster.config.gceClusterConfig.metadata.heartbeat =
@@ -56,16 +57,16 @@ public class PoolingTest {
 
   static Cluster nonSpydraCluster() {
     Cluster cluster = new Cluster();
-    cluster.clusterName = "not-a-spydra-cluster";
+    cluster.clusterName = nonSpydraClusterName;
     Cluster.Status status = new Cluster.Status();
-    status.state = "RUNNING";
+    status.state = Cluster.Status.RUNNING;
     status.stateStartTime = ZonedDateTime.now(ZoneOffset.UTC);
     return cluster;
   }
 
   static Cluster creatingCluster() {
     Cluster cluster = perfectCluster();
-    cluster.status.state = "CREATING";
+    cluster.status.state = Cluster.Status.CREATING;
     return cluster;
   }
 
@@ -73,6 +74,12 @@ public class PoolingTest {
     Cluster cluster = perfectCluster();
     cluster.config.gceClusterConfig.metadata.heartbeat =
         Optional.of(cluster.status.stateStartTime.minusMinutes(30));
+    return cluster;
+  }
+
+  static Cluster errorCluster() {
+    Cluster cluster = perfectCluster();
+    cluster.status.state = Cluster.Status.ERROR;
     return cluster;
   }
 
@@ -103,7 +110,7 @@ public class PoolingTest {
       when(dataprocAPI.listClusters(arguments))
           .thenReturn(clusters);
       when(dataprocAPI.createCluster(arguments))
-          .thenReturn(Optional.of(new Cluster()));
+          .thenReturn(Optional.of(perfectCluster()));
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, never()).createCluster(arguments);
@@ -123,7 +130,7 @@ public class PoolingTest {
       when(dataprocAPI.listClusters(arguments))
           .thenReturn(clusters);
       when(dataprocAPI.createCluster(arguments))
-          .thenReturn(Optional.of(new Cluster()));
+          .thenReturn(Optional.of(perfectCluster()));
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, times(1)).createCluster(arguments);
@@ -132,10 +139,24 @@ public class PoolingTest {
     @Test
     public void releaseCluster() throws Exception {
       arguments.setPooling(new SpydraArgument.Pooling());
+      arguments.cluster.setName(spydraClusterName);
 
-      // When pooling, expect an always true response to a release.
-      assertTrue(poolingSubmitter.releaseCluster(arguments, dataprocAPI));
-      verifyZeroInteractions(dataprocAPI);
+      when(dataprocAPI.listClusters(arguments)).thenReturn(ImmutableList.of(perfectCluster()));
+      assertTrue("A healthy cluster should be kept without problems.", poolingSubmitter.releaseCluster(arguments, dataprocAPI));
+      verify(dataprocAPI).listClusters(arguments);
+      verify(dataprocAPI, never()).deleteCluster(arguments);
+    }
+
+    @Test
+    public void releaseErrorCluster() throws Exception {
+      arguments.setPooling(new SpydraArgument.Pooling());
+      arguments.cluster.setName(spydraClusterName);
+
+      when(dataprocAPI.listClusters(arguments)).thenReturn(ImmutableList.of(errorCluster()));
+      when(dataprocAPI.deleteCluster(arguments)).thenReturn(true);
+      assertTrue("A broken cluster should be collected without problems.", poolingSubmitter.releaseCluster(arguments, dataprocAPI));
+      verify(dataprocAPI).listClusters(arguments);
+      verify(dataprocAPI).deleteCluster(arguments);
     }
   }
 
