@@ -174,7 +174,7 @@ public class SpydraArgumentUtil {
       }
       if (arguments.getJobType() == SpydraArgument.JOB_TYPE_PYSPARK) {
         arguments.submit.pyFile.orElseThrow(
-            () -> new IllegalArgumentException("pyspark jobs require the submit.pyfile ot be set"));
+            () -> new IllegalArgumentException("pyspark jobs require the submit.py file to be set"));
       }
     }
 
