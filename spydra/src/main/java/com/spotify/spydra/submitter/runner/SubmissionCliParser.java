@@ -21,7 +21,7 @@ import static java.lang.Integer.min;
 
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,8 +39,9 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
   public SubmissionCliParser() {
     options.addOption("n", SpydraArgument.OPTION_DRYRUN, false,
         "Do a dry run without executing anything");
-    options.addOption(CliHelper.createSingleOption(CliConsts.SPYDRA_JSON_OPTION_NAME,
-        "path to the spydra configuration json"));
+    options.addOption(CliHelper.createMultiOption(CliConsts.SPYDRA_JSON_OPTION_NAME,
+        "path to the spydra configuration json file, can occur multiple times" +
+            ", file contents are merged"));
     options.addOption(CliHelper.createSingleOption(CliConsts.CLIENT_ID_OPTION_NAME,
         "client id, overwrites the configured one if set"));
     options.addOption(CliHelper.createSingleOption(CliConsts.JAR_OPTION_NAME,
@@ -58,13 +59,13 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
 
     cmdLine = CliHelper.tryParse(parser, options, args);
 
-    SpydraArgument spydraArgument;
+    SpydraArgument spydraArgument = new SpydraArgument();
     if (cmdLine.hasOption(CliConsts.SPYDRA_JSON_OPTION_NAME)) {
-      FileInputStream f = new FileInputStream(cmdLine.getOptionValue(
-          CliConsts.SPYDRA_JSON_OPTION_NAME));
-      spydraArgument = JsonHelper.fromStream(f, SpydraArgument.class);
-    } else {
-      spydraArgument = new SpydraArgument();
+      String[] files = cmdLine.getOptionValues(CliConsts.SPYDRA_JSON_OPTION_NAME);
+      for (String file : files) {
+        spydraArgument = SpydraArgument.merge(spydraArgument,
+            JsonHelper.objectMapper().readValue(new File(file), SpydraArgument.class));
+      }
     }
 
     if (cmdLine.hasOption(CliConsts.JAR_OPTION_NAME)) {
