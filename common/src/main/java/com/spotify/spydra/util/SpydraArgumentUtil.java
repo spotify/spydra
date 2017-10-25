@@ -168,6 +168,10 @@ public class SpydraArgumentUtil {
               + "defaultZones in configuration.");
         }
       }
+      if (arguments.getJobType() == SpydraArgument.JOB_TYPE_PYSPARK) {
+        arguments.submit.pyFile.orElseThrow(
+            () -> new IllegalArgumentException("pyspark jobs require the submit.py file to be set"));
+      }
     }
 
     if (isStaticInvocation) {

@@ -81,6 +81,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "py_file": {
+          "description": "The main .py file to run as the driver.",
+          "type": "string"
         }
       }
     },
