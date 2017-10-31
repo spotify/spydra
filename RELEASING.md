@@ -12,7 +12,7 @@ use the Maven release plugin to update the versions.
    * Have credentials json file available that you want to use for running the integration tests.
    * Run the integration tests:
     ```bash
-    env GOOGLE_APPLICATION_CREDENTIALS=/path/to/key/my-gcp-credentials-key.json mvn clean install
+    env GOOGLE_APPLICATION_CREDENTIALS=/path/to/key/my-gcp-credentials-key.json mvn clean verify
     ```
 
 2) After you have confirmed the integration tests run successfully, run Maven prepare:
