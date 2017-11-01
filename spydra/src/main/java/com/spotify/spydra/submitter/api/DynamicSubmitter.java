@@ -55,7 +55,7 @@ public class DynamicSubmitter extends Submitter {
   private final static String METADATA_KEY = "heartbeat";
   private final static String COLLECTOR_INTERVAL_KEY = "collector-timeout";
 
-  private final static String SPYDRA_CLUSTER_LABEL = "spydra-cluster";
+  public final static String SPYDRA_CLUSTER_LABEL = "spydra-cluster";
 
   private final DataprocAPI dataprocAPI;
   private final GcpUtils gcpUtils;

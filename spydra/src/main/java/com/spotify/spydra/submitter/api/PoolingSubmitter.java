@@ -17,6 +17,10 @@
 
 package com.spotify.spydra.submitter.api;
 
+import static com.spotify.spydra.model.SpydraArgument.OPTIONS_FILTER_LABEL_PREFIX;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
@@ -26,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +38,9 @@ import org.slf4j.LoggerFactory;
 public class PoolingSubmitter extends DynamicSubmitter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSubmitter.class);
+
+  @VisibleForTesting
+  static final String POOLED_CLUSTER_CLIENTID_LABEL = "spydra-cluster-pool-id";
 
   public PoolingSubmitter() {
     super();
@@ -43,15 +51,6 @@ public class PoolingSubmitter extends DynamicSubmitter {
   }
 
   static final class Conditions {
-
-    static boolean isSpydraCluster(Cluster c) {
-      return c.clusterName.startsWith("spydra-");
-    }
-
-    static boolean isRunning(Cluster c) {
-      return c.status.state.equals(Cluster.Status.RUNNING);
-    }
-
     static boolean isYoung(Cluster c, SpydraArgument arguments) {
       return c.status.stateStartTime.plus(arguments.getPooling().getMaxAge())
           .isAfter(ZonedDateTime.now(ZoneOffset.UTC));
@@ -75,16 +74,22 @@ public class PoolingSubmitter extends DynamicSubmitter {
   public boolean acquireCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
     try {
-      Collection<Cluster> clusters = dataprocAPI.listClusters(arguments);
+      //Have API filter on clusters that are active, are spydra clusters, and belong to the right pool
+      Map<String, String> clusterFilter = ImmutableMap.of(
+          "status.state", "ACTIVE",
+          OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "",
+          OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, arguments.getClientId()
+      );
+      Collection<Cluster> clusters = dataprocAPI.listClusters(arguments, clusterFilter);
       LOGGER.info(
-          String.format("Found %d clusters, finding suitable cluster to pool on", clusters.size()));
+          String.format("Found %d clusters in pool, finding suitable cluster to pool on", clusters.size()));
       List<Cluster> filteredClusters = clusters.stream()
-          .filter(Conditions::isSpydraCluster)
-          .filter(Conditions::isRunning)
           .filter(c -> Conditions.isYoung(c, arguments))
           .collect(Collectors.toList());
+      LOGGER.info(
+          String.format("After filtering conditions, %d cluster(s) remain", filteredClusters.size()));
       if (Conditions.mayCreateMoreClusters(filteredClusters, arguments)) {
-        return createNewCluster(arguments, dataprocAPI);
+        return newPooledCluster(arguments, dataprocAPI);
       } else {
         //TODO: TW do a weighted sample on metrics instead.
         Collections.shuffle(filteredClusters);
@@ -97,8 +102,17 @@ public class PoolingSubmitter extends DynamicSubmitter {
     }
 
     // All has failed us - try to create a cluster the good 'ol fashioned way.
+    return newPooledCluster(arguments, dataprocAPI);
+  }
+
+  private boolean newPooledCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
+      throws IOException {
+    // Label the pooled cluster with the client id. Unknown client ids all end up in their own pool.
+    arguments.addOption(arguments.cluster.options, SpydraArgument.OPTION_LABELS,
+        POOLED_CLUSTER_CLIENTID_LABEL + "=" + arguments.getClientId());
     return super.acquireCluster(arguments, dataprocAPI);
   }
+
 
   @Override
   public boolean releaseCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
@@ -107,11 +121,15 @@ public class PoolingSubmitter extends DynamicSubmitter {
     // If we're pooling clusters the cluster will live long enough for history to be collected
     shouldCollect = !arguments.isPoolingEnabled();
 
-    // Check if the cluster is healthy, if it's not it might not be able to self-destruct.
-    shouldCollect = shouldCollect || dataprocAPI.listClusters(arguments).stream()
-        .filter(cluster -> cluster.clusterName.equals(arguments.getCluster().getName()))
-        .findAny().map(cluster -> cluster.status.state.equals(Cluster.Status.ERROR)).orElse(false);
-
+    Map<String, String> clusterFilter = ImmutableMap.of(
+            "status.state", "ERROR",
+            "cluster.clusterName", arguments.getCluster().getName(),
+            OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "",
+            OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, arguments.getClientId()
+    );
+    shouldCollect = shouldCollect || dataprocAPI.listClusters(arguments, clusterFilter).stream()
+            .findAny().map(cluster -> cluster.status.state.equals(Cluster.Status.ERROR)).orElse(false);
+    
     return !shouldCollect || super.releaseCluster(arguments, dataprocAPI);
   }
 }
