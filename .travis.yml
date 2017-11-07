@@ -10,8 +10,6 @@ cache:
 
 env:
   global:
-    - INIT_ACTIONS_BUCKET=spydra-init-actions
-    - CONFIG_DIR=travis_files
     - PATH=$PATH:${HOME}/google-cloud-sdk/bin
     # CI_DEPLOY_USERNAME
     - secure: aatnyQCO8F79sc2IvA6efAew2oilalgBgh5Q8nhpdorf+UlfLeFBlqiImU6EmFBbwgBgwZRQLARKQkpe3wcqLVoacf2YDKPmbBgFtph2Mmdy4uyNRD6EShyW9FiHThWN6iy5CYd9XI8sWiDW7GmD1pP9+SKdBA4G7JHzFcYap6ZiOnTz2BZ7oJndKRgLMFBLU+bGFsIAHchk4KoQFk0W1OGkDY/otasMmUQ56tHKsGJaAzcCF6Xr5qdprTgUIK+fUmL3QgNKseUxTE6QGQGQOGLCrGVQ7cMOsweTJUo/k88eliqEkee6BrH847NP+KrJ79gy4hOf8xDdCrjOquruz91EOPXIEGodKJlznHBUXdpT1VwltJ9Iv6c6DbOcZkMKv2xHc+yHo/D5NRxg0Zy1drTYu25hTOJCw/mvY5gPZiqLivoMIJLAD33LUU5c6F09ROE7SNAUYRIzrsNVcg9Mcyv1uz34sOlj58+GaN3Rzj3/D9d2CcJe0l29pxesYk4IbJ6ofM6Pp5FwYVtk2TuSmkeXoYU0YWLUZN1KxM5JCMjOTCUVRxEfrYPOb338O/PBQ7j7anpPAoXMG98Gr7EOGwqEDRyr91nBvRjRSAVcVtWRFJ5khZWqbUBkv/isI9Af4e8rPUgsb7SzW/QmRWPwYCcBP/un3B+v8dbim4aDtJU=
@@ -24,12 +22,10 @@ env:
 
 before_install:
   # Decrypt the secrets (only non pull-requests)
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_44004b20f94b_key -iv $encrypted_44004b20f94b_iv -in ${CONFIG_DIR}/secrets.tar.enc -out ${CONFIG_DIR}/secrets.tar -d; fi
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then tar xvf ${CONFIG_DIR}/secrets.tar --directory ${CONFIG_DIR}; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_44004b20f94b_key -iv $encrypted_44004b20f94b_iv -in travis_files/secrets.tar.enc -out travis_files/secrets.tar -d; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then tar xvf travis_files/secrets.tar --directory travis_files; fi
   # Import the FOSS signing key
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then gpg --fast-import ${CONFIG_DIR}/spydra_sign_keys; fi
-  # The integration test configuration must be in absolute path, thus using mktemp
-  - export INTEGRATION_TEST_CONFIG_DIR=$(mktemp -d) && cp ${CONFIG_DIR}/*.json ${INTEGRATION_TEST_CONFIG_DIR}
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then gpg --fast-import travis_files/spydra_sign_keys; fi
   - export GOOGLE_APPLICATION_CREDENTIALS=${INTEGRATION_TEST_CONFIG_DIR}/spydra_foss_ci.json
   # If the SDK is not already cached, download it and install it into path
   - gcloud version || true
@@ -47,9 +43,9 @@ install: true
 
 script:
   # Run on pull requests (encrypted data not available for pull requests)
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dmaven.javadoc.skip=true -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dmaven.javadoc.skip=true; fi'
   # Run on merges to master
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -P release,install-init-scripts --settings=${CONFIG_DIR}/settings.xml -Dinit-action-uri=gs://${INIT_ACTIONS_BUCKET}/spydra -Dtest-configuration-dir=${INTEGRATION_TEST_CONFIG_DIR}; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -P release,install-init-scripts --settings=travis_files/settings.xml; fi'
 
 notifications:
   email: false
