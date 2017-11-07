@@ -97,7 +97,7 @@ public class PoolingTest {
     }
 
     @Test
-    public void acquirePooledCluster() throws Exception {
+    public void acquireAndReleasePooledCluster() throws Exception {
       ImmutableList<Cluster> clusters =
           ImmutableList.of(perfectCluster(), perfectCluster(), nonSpydraCluster());
 
@@ -114,6 +114,10 @@ public class PoolingTest {
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, never()).createCluster(arguments);
+
+      poolingSubmitter.releaseCluster(arguments, dataprocAPI);
+      verify(dataprocAPI, never()).deleteCluster(arguments);
+
     }
 
     @Test
