@@ -26,7 +26,7 @@ before_install:
   - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then tar xvf travis_files/secrets.tar --directory travis_files; fi
   # Import the FOSS signing key
   - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then gpg --fast-import travis_files/spydra_sign_keys; fi
-  - export GOOGLE_APPLICATION_CREDENTIALS=${INTEGRATION_TEST_CONFIG_DIR}/spydra_foss_ci.json
+  - export GOOGLE_APPLICATION_CREDENTIALS=travis_files/spydra_foss_ci.json
   # If the SDK is not already cached, download it and install it into path
   - gcloud version || true
   - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
