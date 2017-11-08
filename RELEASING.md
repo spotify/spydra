@@ -10,6 +10,7 @@ use the Maven release plugin to update the versions.
 
 1) Run the integration tests locally with whatever GCP project you have at hand with credentials.
    * Have credentials json file available that you want to use for running the integration tests.
+   * Ensure `gcloud` knows of this credential
    * Run the integration tests:
     ```bash
     env GOOGLE_APPLICATION_CREDENTIALS=/path/to/key/my-gcp-credentials-key.json mvn clean verify
