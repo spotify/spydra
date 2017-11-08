@@ -115,7 +115,7 @@ public class PoolingTest {
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, never()).createCluster(arguments);
 
-      poolingSubmitter.releaseCluster(arguments, dataprocAPI);
+      assertTrue("A healthy cluster should be kept without problems.", poolingSubmitter.releaseCluster(arguments, dataprocAPI));
       verify(dataprocAPI, never()).deleteCluster(arguments);
 
     }
