@@ -173,6 +173,7 @@ public class DynamicSubmitter extends Submitter {
   }
 
   protected void mutateForCluster(SpydraArgument arguments, String name, String zone) {
+    arguments.getCluster().setName(name);
     arguments.getCluster().getOptions().put(OPTION_ZONE, zone);
     arguments.getSubmit().getOptions().put(OPTION_CLUSTER, name);
     arguments.getSubmit().getOptions().put(OPTION_PROJECT,
