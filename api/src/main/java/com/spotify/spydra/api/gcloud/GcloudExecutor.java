@@ -60,13 +60,19 @@ public class GcloudExecutor {
   public Optional<Cluster> createCluster(String name, String region, Map<String, String> args) throws IOException {
     Map<String, String> createOptions = new HashMap<>(args);
     createOptions.put(SpydraArgument.OPTION_REGION, region);
-    ImmutableList<String> command = ImmutableList.of("--format=json", "dataproc", "clusters", "create", name);
-
-    String jsonString= ProcessHelper.executeForOutput(buildCommand(command, createOptions, Collections.EMPTY_LIST));
-    Cluster cluster = JsonHelper.objectMapper()
-        .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-        .readValue(jsonString, Cluster.class);
-    return Optional.of(cluster);
+    List<String> command = ImmutableList.of("--format=json", "dataproc", "clusters", "create", name);
+    StringBuilder outputBuilder = new StringBuilder();
+    boolean success = ProcessHelper.executeForOutput(
+        buildCommand(command, createOptions, Collections.emptyList()),
+        outputBuilder);
+    if (success) {
+      String output = outputBuilder.toString();
+      Cluster cluster = JsonHelper.objectMapper()
+          .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+          .readValue(output, Cluster.class);
+      return Optional.of(cluster);
+    }
+    return Optional.empty();
   }
 
   public boolean deleteCluster(String name, String region, Map<String, String> args) throws IOException {
@@ -130,13 +136,19 @@ public class GcloudExecutor {
         SpydraArgument.OPTION_PROJECT, project,
         SpydraArgument.OPTION_REGION, region);
 
-    String jsonString = ProcessHelper.executeForOutput(buildCommand(command, options, Collections.EMPTY_LIST));
-    Cluster cluster = JsonHelper.objectMapper()
-        .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-        .readValue(jsonString, Cluster.class);
-
-    // If we have a cluster we have a master
-    return cluster.config.masterConfig.instanceNames.get(0);
+    StringBuilder outputBuilder = new StringBuilder();
+    boolean success = ProcessHelper.executeForOutput(
+        buildCommand(command, options, Collections.emptyList()),
+        outputBuilder);
+    if (success) {
+      Cluster cluster = JsonHelper.objectMapper()
+          .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+          .readValue(outputBuilder.toString(), Cluster.class);
+      // If we have a cluster we have a master
+      return cluster.config.masterConfig.instanceNames.get(0);
+    } else {
+      throw new IOException("Failed to get master node name.");
+    }
   }
 
   public boolean updateMetadata(
@@ -181,10 +193,18 @@ public class GcloudExecutor {
       options.put(SpydraArgument.OPTIONS_FILTER, filterItems.toString());
     }
 
-    String jsonString = ProcessHelper.executeForOutput(buildCommand(command, options, Collections.EMPTY_LIST));
-    Cluster[] clusters = JsonHelper.objectMapper()
-        .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-        .readValue(jsonString, Cluster[].class);
-    return Arrays.asList(clusters);
+    StringBuilder outputBuilder = new StringBuilder();
+    boolean success = ProcessHelper.executeForOutput(
+        buildCommand(command, options, Collections.emptyList()),
+        outputBuilder
+    );
+    if (success) {
+      Cluster[] clusters = JsonHelper.objectMapper()
+          .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+          .readValue(outputBuilder.toString(), Cluster[].class);
+      return Arrays.asList(clusters);
+    } else {
+      throw new IOException("Failed to list clusters. Gcloud call failed.");
+    }
   }
 }

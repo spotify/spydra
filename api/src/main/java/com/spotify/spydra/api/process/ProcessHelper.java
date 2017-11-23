@@ -45,7 +45,8 @@ public class ProcessHelper {
     return p.exitValue();
   }
 
-  public static String executeForOutput(List<String> command) throws IOException {
+  public static boolean executeForOutput(List<String> command, StringBuilder outputBuilder)
+      throws IOException {
     LOGGER.debug("Executing command: " + StringUtils.join(command, " "));
     ProcessBuilder pb = new ProcessBuilder(command)
         .redirectError(ProcessBuilder.Redirect.INHERIT)
@@ -54,13 +55,12 @@ public class ProcessHelper {
     Process p = pb.start();
     try {
       BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      StringBuilder builder = new StringBuilder();
       String line;
       while ((line = in.readLine()) != null) {
-        builder.append(line + System.getProperty("line.separator"));
+        outputBuilder.append(line + System.getProperty("line.separator"));
       }
-      p.waitFor();
-      return builder.toString();
+      int exitCode = p.waitFor();
+      return exitCode == 0;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       p.destroy();
