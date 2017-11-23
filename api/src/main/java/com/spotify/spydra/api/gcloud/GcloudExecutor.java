@@ -92,9 +92,9 @@ public class GcloudExecutor {
     return execute(submitCommand, submitOptions, jobArgs);
   }
 
-  private ArrayList<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
+  private List<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
 
-    ArrayList<String> command = Lists.newArrayList(this.baseCommand);
+    List<String> command = Lists.newArrayList(this.baseCommand);
     if (account != null && !account.isEmpty()) {
       command.add("--account");
       command.add(account);
@@ -112,8 +112,7 @@ public class GcloudExecutor {
 
   private boolean execute(List<String> commands, Map<String, String> options, List<String> jobArgs)
       throws IOException {
-    ArrayList<String> command = buildCommand(commands, options, jobArgs);
-
+    List<String> command = buildCommand(commands, options, jobArgs);
     if (this.dryRun) {
       System.out.println(StringUtils.join(command, StringUtils.SPACE));
       return true;
@@ -124,7 +123,7 @@ public class GcloudExecutor {
 
   public String getMasterNode(String project, String region, String clusterName)
       throws IOException {
-    ArrayList<String> command = Lists.newArrayList(
+    List<String> command = Lists.newArrayList(
         "--format=json", "dataproc", "clusters", "describe", clusterName);
 
     Map<String, String> options = ImmutableMap.of(
