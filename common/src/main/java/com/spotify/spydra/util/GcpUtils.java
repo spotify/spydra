@@ -17,14 +17,26 @@
 
 package com.spotify.spydra.util;
 
+import com.google.api.gax.paging.Page;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.spotify.spydra.model.SpydraArgument;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
@@ -35,6 +47,8 @@ public class GcpUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(GcpUtils.class);
 
   private static final String HADOOP_CONFIG_NAME = "spydra-default.xml";
+
+  public static Storage storage;
 
   public void configureCredentialFromEnvironment(Configuration configuration)
       throws IOException {
@@ -100,5 +114,52 @@ public class GcpUtils {
     configuration.addResource(HADOOP_CONFIG_NAME);
     configureCredentialFromEnvironment(configuration);
     return FileSystem.get(uri, configuration);
+  }
+
+  public void configureStorageFromEnvironment()
+          throws IOException {
+    String json = credentialJsonFromEnv();
+    Optional<String> projectId = projectFromJsonCredential(json);
+    if (projectId.isPresent()) {
+      storage = StorageOptions.newBuilder()
+            .setCredentials(ServiceAccountCredentials.fromStream(new FileInputStream(jsonCredentialPath())))
+            .setProjectId(projectId.get())
+            .build()
+            .getService();
+    } else {
+      LOGGER.info("Unable to initiate storage. Check the credentials in path: "
+              + jsonCredentialPath());
+    }
+  }
+
+  public Bucket checkBucket(String bucketName) {
+    return Objects.requireNonNull(storage.get(bucketName, Storage.BucketGetOption.fields()),
+            "No such bucket");
+  }
+
+  public Bucket createBucket(String bucketName) {
+    Bucket bucket = storage.create(BucketInfo.newBuilder(bucketName)
+            .setLocation("europe-west1")
+            .build());
+    return bucket;
+  }
+
+  public Blob createBlob(String bucketName, String blobName) {
+    BlobId blobId = BlobId.of(bucketName, blobName);
+    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/plain").build();
+    Blob blob = storage.create(blobInfo);
+    return blob;
+  }
+
+  public Page<Blob> listBucket(String bucketName, String directory) {
+    Bucket bucket = Objects.requireNonNull(storage.get(bucketName, Storage.BucketGetOption.fields()),
+            "Please provide bucket name.");
+    Page<Blob> blobs = bucket.list(Storage.BlobListOption.prefix(directory));
+    return blobs;
+  }
+
+  public long getCount(String bucketName, String directory) {
+    Iterable bucketIterator = listBucket(bucketName, directory).iterateAll();
+    return StreamSupport.stream(bucketIterator.spliterator(), false).count();
   }
 }

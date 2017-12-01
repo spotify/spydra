@@ -41,8 +41,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,9 +211,14 @@ public class DynamicSubmitter extends Submitter {
     String path = arguments.clusterProperties()
         .getProperty("mapred:mapreduce.jobhistory.intermediate-done-dir");
     URI uri = URI.create(path);
-    FileSystem fs = gcpUtils.fileSystemForUri(uri);
+    String bucketName = uri.getHost();
+    String directory = uri.getPath();
+    if (directory != null && directory.length() > 0) {
+      directory = directory.substring(1, directory.length()); //remove leading slash from the path
+    }
     LOGGER.info("Waiting for history files to be moved to its final location");
-    while (fs.getContentSummary(new Path(uri)).getFileCount() != 0) {
+    gcpUtils.configureStorageFromEnvironment();
+    while (gcpUtils.getCount(bucketName, directory+"/") <= 1) { //directory itself counts as one
       LOGGER.info("Not yet moved files were encountered. Sleeping 1 second.");
       try {
         long now = System.currentTimeMillis();
