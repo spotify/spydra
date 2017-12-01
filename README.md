@@ -302,6 +302,8 @@ To enable cluster pooling add a pooling section similar to the one below to your
      instead of getting the correct filesystem for a given URI. It can also lead to the Crunch
      output committer working very slowly while copying all files from HDFS to GCS in a
      last non-distributed step.
+   * As we overwrite some default mapreduce memory parameters to optimize for typical workload
+     avoid using the smallest instances like n1-standard-1 (4GB RAM) or otherwise adjust accordingly.
 
 #### Running an Embedded JobHistoryServer
 The *run-jhs* is designed for an interactive exploration of the job execution. This command spawns an embedded 
