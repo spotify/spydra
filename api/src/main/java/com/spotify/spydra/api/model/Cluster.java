@@ -20,7 +20,9 @@ package com.spotify.spydra.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -68,6 +70,9 @@ public class Cluster {
   public Config config = new Config();
 
   public String clusterName;
+
+  public Map<String, String> labels;
+
   //TODO: TW Look at the `metrics` for the cluster
   //TODO: TW look at labels to see if it is a spydra created cluster?
 }

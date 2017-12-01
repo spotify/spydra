@@ -53,6 +53,8 @@ public class DynamicSubmitter extends Submitter {
   private final static String METADATA_KEY = "heartbeat";
   private final static String COLLECTOR_INTERVAL_KEY = "collector-timeout";
 
+  public final static String SPYDRA_CLUSTER_LABEL = "spydra-cluster";
+
   private final DataprocAPI dataprocAPI;
   private final GcpUtils gcpUtils;
 
@@ -153,6 +155,9 @@ public class DynamicSubmitter extends Submitter {
     } else {
       createArguments = arguments;
     }
+
+    arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS, SPYDRA_CLUSTER_LABEL + "=1");
+
     randomizeZoneIfAbsent(createArguments);
 
     Optional<Cluster> cluster = dataprocAPI.createCluster(createArguments);

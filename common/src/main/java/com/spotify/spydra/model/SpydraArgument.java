@@ -49,6 +49,9 @@ public class SpydraArgument {
   public static final String OPTION_TAGS = "tags";
   public static final String OPTION_SERVICE_ACCOUNT = "service-account";
   public static final String OPTION_JOB_ID = "id";
+  public static final String OPTIONS_FILTER = "filter";
+  public static final String OPTIONS_FILTER_LABEL_PREFIX = "labels.";
+
 
   public static final String JOB_TYPE_HADOOP = "hadoop";
   public static final String JOB_TYPE_PYSPARK = "pyspark";

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import jdk.nashorn.tools.Shell;
 import org.apache.commons.lang3.StringUtils;
 
@@ -162,12 +163,24 @@ public class GcloudExecutor {
     this.dryRun = dryRun;
   }
 
-  public Collection<Cluster> listClusters(String project, String region) throws IOException {
+  public Collection<Cluster> listClusters(String project, String region, Map<String,String> filters) throws IOException {
     List<String> command = Lists.newArrayList(
         "dataproc", "clusters", "list", "--format=json");
-    Map<String, String> options = ImmutableMap.of(
-        SpydraArgument.OPTION_PROJECT, project,
-        SpydraArgument.OPTION_REGION, region);
+    Map<String, String> options = new HashMap<>();
+    options.put(SpydraArgument.OPTION_PROJECT, project);
+    options.put(SpydraArgument.OPTION_REGION, region);
+
+    if(filters != null && !filters.isEmpty()) {
+      StringJoiner filterItems = new StringJoiner(" AND ");
+      filters.forEach((key, value) -> {
+        //Allows for label filters to not specify a value to match "anything" (just check if exists)
+        if(value == null || value.isEmpty()) {
+          value = "*";
+        }
+        filterItems.add(String.format("%s = %s", key, value));
+      });
+      options.put(SpydraArgument.OPTIONS_FILTER, filterItems.toString());
+    }
 
     String jsonString = ProcessHelper.executeForOutput(buildCommand(command, options, Collections.EMPTY_LIST));
     Cluster[] clusters = JsonHelper.objectMapper()
