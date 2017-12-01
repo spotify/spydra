@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -82,6 +83,9 @@ public class PoolingSubmitter extends DynamicSubmitter {
           .filter(Conditions::isSpydraCluster)
           .filter(Conditions::isRunning)
           .filter(c -> Conditions.isYoung(c, arguments))
+          // Sort and limit to eventually over time arrive at the limit
+          .sorted(Comparator.comparing(c -> c.clusterName))
+          .limit(arguments.getPooling().getLimit())
           .collect(Collectors.toList());
       if (Conditions.mayCreateMoreClusters(filteredClusters, arguments)) {
         return createNewCluster(arguments, dataprocAPI);
