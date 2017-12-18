@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class LifecycleIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(LifecycleIT.class);
 
-  private final static int INTERVAL = 30 * 1000;
+  private final static int INTERVAL = 30;
   private final static String CLIENT_ID = UUID.randomUUID().toString();
 
   private final static GcpUtils gcpUtils = new GcpUtils();
