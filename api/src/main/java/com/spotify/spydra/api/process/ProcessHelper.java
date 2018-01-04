@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import jdk.nashorn.tools.Shell;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +58,11 @@ public class ProcessHelper {
       BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
       String line;
       while ((line = in.readLine()) != null) {
-        outputBuilder.append(line + System.getProperty("line.separator"));
+        String lineWithSep = line + System.getProperty("line.separator");
+        outputBuilder.append(lineWithSep);
       }
       int exitCode = p.waitFor();
-      return exitCode == 0;
+      return exitCode == Shell.SUCCESS;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       p.destroy();
