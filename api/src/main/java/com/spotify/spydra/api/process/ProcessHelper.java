@@ -50,19 +50,25 @@ public class ProcessHelper {
       throws IOException {
     LOGGER.debug("Executing command: " + StringUtils.join(command, " "));
     ProcessBuilder pb = new ProcessBuilder(command)
-        .redirectError(ProcessBuilder.Redirect.INHERIT)
+        .redirectError(ProcessBuilder.Redirect.PIPE)
         .redirectOutput(ProcessBuilder.Redirect.PIPE);
 
     Process p = pb.start();
     try {
-      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      int exitCode = p.waitFor();
+      boolean success = exitCode == Shell.SUCCESS;
+      BufferedReader in;
+      if (success) {
+        in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      } else {
+        in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+      }
       String line;
       while ((line = in.readLine()) != null) {
         String lineWithSep = line + System.getProperty("line.separator");
         outputBuilder.append(lineWithSep);
       }
-      int exitCode = p.waitFor();
-      return exitCode == Shell.SUCCESS;
+      return success;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       p.destroy();
