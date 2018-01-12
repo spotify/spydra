@@ -28,12 +28,14 @@ import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.util.GcpUtils;
+
 import java.io.IOException;
 import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -185,7 +187,7 @@ public class DynamicSubmitter extends Submitter {
 
   private SpydraArgument configureAutoScaler(SpydraArgument arguments) {
     SpydraArgument metadataArgument = new SpydraArgument();
-    ArrayList<String> list = new ArrayList<>();
+    List<String> list = new ArrayList<>();
     list.add("autoscaler-interval=" + arguments.getAutoScaler().getInterval());
     list.add("autoscaler-max=" + arguments.getAutoScaler().getMax());
     list.add("autoscaler-factor=" + arguments.getAutoScaler().getFactor());

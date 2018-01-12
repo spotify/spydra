@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import jdk.nashorn.tools.Shell;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,22 +46,29 @@ public class ProcessHelper {
     return p.exitValue();
   }
 
-  public static String executeForOutput(List<String> command) throws IOException {
+  public static boolean executeForOutput(List<String> command, StringBuilder outputBuilder)
+      throws IOException {
     LOGGER.debug("Executing command: " + StringUtils.join(command, " "));
     ProcessBuilder pb = new ProcessBuilder(command)
-        .redirectError(ProcessBuilder.Redirect.INHERIT)
+        .redirectError(ProcessBuilder.Redirect.PIPE)
         .redirectOutput(ProcessBuilder.Redirect.PIPE);
 
     Process p = pb.start();
     try {
-      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      StringBuilder builder = new StringBuilder();
+      int exitCode = p.waitFor();
+      boolean success = exitCode == Shell.SUCCESS;
+      BufferedReader in;
+      if (success) {
+        in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      } else {
+        in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+      }
       String line;
       while ((line = in.readLine()) != null) {
-        builder.append(line + System.getProperty("line.separator"));
+        String lineWithSep = line + System.getProperty("line.separator");
+        outputBuilder.append(lineWithSep);
       }
-      p.waitFor();
-      return builder.toString();
+      return success;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       p.destroy();

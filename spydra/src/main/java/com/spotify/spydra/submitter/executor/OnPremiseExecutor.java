@@ -44,7 +44,7 @@ public class OnPremiseExecutor implements Executor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OnPremiseExecutor.class);
 
-  private ArrayList<String> command = new ArrayList<>();
+  private List<String> command = new ArrayList<>();
 
   public OnPremiseExecutor() {
     metrics = MetricsFactory.getInstance();
@@ -56,7 +56,7 @@ public class OnPremiseExecutor implements Executor {
   }
 
   @VisibleForTesting
-  ArrayList<String> getCommand(SpydraArgument arguments) {
+  List<String> getCommand(SpydraArgument arguments) {
     addBaseCommand();
 
     if (arguments.getSubmit().getOptions().containsKey(OPTION_JAR)) {
@@ -101,7 +101,7 @@ public class OnPremiseExecutor implements Executor {
       throw new IllegalArgumentException("Default executor does only supports Hadoop jobs");
     }
 
-    ArrayList<String> command = getCommand(arguments);
+    List<String> command = getCommand(arguments);
     String fullCommand = StringUtils.join(command, StringUtils.SPACE);
     LOGGER.info("Executing command {}", fullCommand);
     boolean result = false;
@@ -114,7 +114,7 @@ public class OnPremiseExecutor implements Executor {
       }
     } finally {
       metrics.jobSubmission(arguments, "on-premise", result);
-      return result;
     }
+    return result;
   }
 }
