@@ -46,6 +46,8 @@ public abstract class Metrics {
 
   public abstract void metadataUpdate(SpydraArgument arguments, String key, boolean success);
 
+  public abstract void metadataRemoval(SpydraArgument arguments, String key, boolean success);
+
   public abstract void fatalError(SpydraArgument argument, Throwable throwable);
 
   public abstract void executionResult(SpydraArgument argument, boolean success);

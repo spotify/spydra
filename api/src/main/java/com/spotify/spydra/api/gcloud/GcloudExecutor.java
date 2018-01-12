@@ -19,7 +19,6 @@ package com.spotify.spydra.api.gcloud;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.api.process.ProcessHelper;
@@ -135,40 +134,24 @@ public class GcloudExecutor {
     }
   }
 
-  public String getMasterNode(String project, String region, String clusterName)
-      throws IOException {
-    List<String> command = Lists.newArrayList(
-        "--format=json", "dataproc", "clusters", "describe", clusterName);
-
-    Map<String, String> options = ImmutableMap.of(
-        SpydraArgument.OPTION_PROJECT, project,
-        SpydraArgument.OPTION_REGION, region);
-
-    StringBuilder outputBuilder = new StringBuilder();
-    boolean success = ProcessHelper.executeForOutput(
-        buildCommand(command, options, Collections.emptyList()),
-        outputBuilder);
-    String output = outputBuilder.toString();
-    if (success) {
-      Cluster cluster = JsonHelper.objectMapper()
-          .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-          .readValue(output, Cluster.class);
-      // If we have a cluster we have a master
-      return cluster.config.masterConfig.instanceNames.get(0);
-    } else {
-      LOGGER.error("Dataproc get cluster master node call failed. Command line output:");
-      LOGGER.error(output);
-      throw new IOException("Failed to get master node name.");
-    }
-  }
-
   public boolean updateMetadata(
-      String node, Map<String, String> options, String key, String value) throws IOException {
+      final Map<String, String> options, final String key, final String value) throws IOException {
     List<String> command = Lists.newArrayList(
-        "compute", "instances", "add-metadata", node);
+        "compute", "project-info", "add-metadata");
     Map<String, String> metadataOptions = new HashMap<>(options);
 
     metadataOptions.put(SpydraArgument.OPTION_METADATA, key + "=" + value);
+
+    return execute(command, metadataOptions, Collections.EMPTY_LIST);
+  }
+
+  public boolean removeMetadata(
+      final Map<String, String> options, final String key) throws IOException {
+    List<String> command = Lists.newArrayList(
+        "compute", "project-info", "remove-metadata");
+    Map<String, String> metadataOptions = new HashMap<>(options);
+
+    metadataOptions.put(SpydraArgument.OPTION_METADATA_KEYS, key);
 
     return execute(command, metadataOptions, Collections.EMPTY_LIST);
   }

@@ -88,7 +88,7 @@ public class DynamicSubmitter extends Submitter {
       while (!Thread.interrupted()) {
         try {
           if (!arguments.isDryRun()) {
-            dataprocAPI.updateMasterMetadata(arguments, METADATA_KEY, nowUtc());
+            dataprocAPI.updateProjectMetadata(arguments, getMetadataKey(arguments), nowUtc());
           } else {
             LOGGER.info("Dry-run: Not updating metadata");
           }
@@ -108,6 +108,10 @@ public class DynamicSubmitter extends Submitter {
     return utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"));
   }
 
+  private String getMetadataKey(final SpydraArgument arguments) {
+    return arguments.getCluster().getName() + "-" + METADATA_KEY;
+  }
+
   @Override
   public boolean executeJob(SpydraArgument argument) {
 
@@ -115,16 +119,17 @@ public class DynamicSubmitter extends Submitter {
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     try {
-      SpydraArgument.addOption(argument.getCluster().getOptions(),
-          OPTION_METADATA, METADATA_KEY + "=" + nowUtc());
+      argument.getCluster().setName(generateName());
+      dataprocAPI.updateProjectMetadata(argument, getMetadataKey(argument), nowUtc());
+      executor.submit(new Heartbeater(argument, dataprocAPI));
+
       SpydraArgument.addOption(argument.getCluster().getOptions(),
           OPTION_METADATA, COLLECTOR_INTERVAL_KEY + "=" + argument.getCollectorTimeoutMinutes());
       if (!acquireCluster(argument, dataprocAPI)) {
         return false;
       }
-      executor.submit(new Heartbeater(argument, dataprocAPI));
       return super.executeJob(argument);
-    } catch (IOException e) {
+    } catch (Exception e) {
       LOGGER.error("Failed to create cluster", e);
       metrics.fatalError(argument, e);
       return false;
@@ -139,6 +144,11 @@ public class DynamicSubmitter extends Submitter {
       } catch (IOException e) {
         LOGGER.warn("Failed to release cluster", e);
       }
+      try {
+        dataprocAPI.removeProjectMetadata(argument, getMetadataKey(argument));
+      } catch (IOException e) {
+         LOGGER.warn("Failed to remove heartbeat metadata", e);
+      }
     }
   }
 
@@ -149,8 +159,6 @@ public class DynamicSubmitter extends Submitter {
 
   boolean createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
-    String name = generateName();
-    arguments.getCluster().setName(name);
     SpydraArgument createArguments;
     if (arguments.autoScaler.isPresent()) {
       createArguments = configureAutoScaler(arguments);
@@ -158,13 +166,15 @@ public class DynamicSubmitter extends Submitter {
       createArguments = arguments;
     }
 
-    arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS, SPYDRA_CLUSTER_LABEL + "=1");
+    arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS,
+        SPYDRA_CLUSTER_LABEL + "=1");
 
     randomizeZoneIfAbsent(createArguments);
 
     Optional<Cluster> cluster = dataprocAPI.createCluster(createArguments);
     if (cluster.isPresent()) {
-      mutateForCluster(arguments, name, cluster.get().config.gceClusterConfig.zoneUri);
+      mutateForCluster(arguments, arguments.getCluster().getName(),
+          cluster.get().config.gceClusterConfig.zoneUri);
     }
     return cluster.isPresent();
   }

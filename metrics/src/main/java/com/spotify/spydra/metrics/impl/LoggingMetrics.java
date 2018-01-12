@@ -46,7 +46,12 @@ public class LoggingMetrics extends Metrics {
 
   @Override
   public void metadataUpdate(SpydraArgument arguments, String key, boolean success) {
-    LOGGER.info("Metadata with key " + key + "was updated with success=" + success);
+    LOGGER.info("Metadata with key " + key + " was updated with success=" + success);
+  }
+
+  @Override
+  public void metadataRemoval(SpydraArgument arguments, String key, boolean success) {
+    LOGGER.info("Metadata with key " + key + " was removed with success=" + success);
   }
 
   @Override

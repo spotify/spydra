@@ -42,17 +42,29 @@ def metadata(m):
         return r.text
 
 
-timestamp = metadata('instance/attributes/heartbeat')
+def remove_metadata():
+    key = '{}-heartbeat'.format(cluster)
+    command = [GCLOUD_PATH, "--project=" + project, "compute",
+               "project-info", "remove-metadata", "--keys=" + key]
+    subprocess.call(command)
+
+
+def delete_cluster():
+    region = metadata('instance/attributes/dataproc-region')
+    gcloud_command = [GCLOUD_PATH, "--project=" + project, "dataproc",
+                      "clusters", "delete", "--region=" + region, cluster,
+                      "--async", "--quiet"]
+    subprocess.call(gcloud_command)
+
+
+cluster = metadata('instance/attributes/dataproc-cluster-name')
+timestamp = metadata('project/attributes/{}-heartbeat'.format(cluster))
 update_time = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
 delta = datetime.datetime.utcnow() - update_time
 expiry = datetime.timedelta(minutes=int(sys.argv[1]))
 
 if delta > expiry:
-    cluster = metadata('instance/attributes/dataproc-cluster-name')
-    region = metadata('instance/attributes/dataproc-region')
     project = metadata('project/project-id')
 
-    gcloud_command = [GCLOUD_PATH, "--project=" + project, "dataproc",
-                      "clusters", "delete", "--region="+ region, cluster,
-                      "--async", "--quiet"]
-    subprocess.call(gcloud_command)
+    remove_metadata()
+    delete_cluster()

@@ -96,20 +96,30 @@ public class DataprocAPI {
     return success;
   }
 
-  public boolean updateMasterMetadata(SpydraArgument arguments, String key, String value)
-      throws IOException {
-    ImmutableMap<String, String> args = ImmutableMap.of(
-        SpydraArgument.OPTION_PROJECT, arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT),
-        SpydraArgument.OPTION_ZONE, arguments.getCluster().getOptions().get(SpydraArgument.OPTION_ZONE));
+  public boolean updateProjectMetadata(
+      final SpydraArgument arguments, final String key, final String value) throws IOException {
     String project = arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT);
-    String masterNode = gcloud.getMasterNode(project, arguments.getRegion(),
-        arguments.getCluster().getName());
+    ImmutableMap<String, String> args = ImmutableMap.of(SpydraArgument.OPTION_PROJECT, project);
 
     boolean success = false;
     try {
-      success = gcloud.updateMetadata(masterNode, args, key, value);
+      success = gcloud.updateMetadata(args, key, value);
     } finally {
       metrics.metadataUpdate(arguments, key, success);
+    }
+    return success;
+  }
+
+  public boolean removeProjectMetadata(final SpydraArgument arguments, final String key)
+      throws IOException {
+    String project = arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT);
+    ImmutableMap<String, String> args = ImmutableMap.of(SpydraArgument.OPTION_PROJECT, project);
+
+    boolean success = false;
+    try {
+      success = gcloud.removeMetadata(args, key);
+    } finally {
+      metrics.metadataRemoval(arguments, key, success);
     }
     return success;
   }
