@@ -50,6 +50,11 @@ public class LoggingMetrics extends Metrics {
   }
 
   @Override
+  public void metadataRemoval(SpydraArgument arguments, String key, boolean success) {
+    LOGGER.info("Metadata with key " + key + "was removed with success=" + success);
+  }
+
+  @Override
   public void fatalError(SpydraArgument argument, Throwable throwable) {
     LOGGER.info("Fatal error was caught" + throwable.getCause());
   }

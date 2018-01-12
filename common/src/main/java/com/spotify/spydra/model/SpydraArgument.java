@@ -37,6 +37,7 @@ public class SpydraArgument {
   public static final String OPTION_REGION = "region";
   public static final String OPTION_ZONE = "zone";
   public static final String OPTION_METADATA = "metadata";
+  public static final String OPTION_METADATA_KEYS = "keys";
   public static final String OPTION_CLUSTER = "cluster";
   public static final String OPTION_INIT_ACTIONS = "initialization-actions";
   public static final String OPTION_SCOPES = "scopes";
