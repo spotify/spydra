@@ -119,6 +119,7 @@ public class DynamicSubmitter extends Submitter {
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     try {
+      argument.getCluster().setName(generateName());
       dataprocAPI.updateProjectMetadata(argument, getMetadataKey(argument), nowUtc());
       executor.submit(new Heartbeater(argument, dataprocAPI));
 
@@ -158,8 +159,6 @@ public class DynamicSubmitter extends Submitter {
 
   boolean createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
-    String name = generateName();
-    arguments.getCluster().setName(name);
     SpydraArgument createArguments;
     if (arguments.autoScaler.isPresent()) {
       createArguments = configureAutoScaler(arguments);
@@ -167,13 +166,15 @@ public class DynamicSubmitter extends Submitter {
       createArguments = arguments;
     }
 
-    arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS, SPYDRA_CLUSTER_LABEL + "=1");
+    arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS,
+        SPYDRA_CLUSTER_LABEL + "=1");
 
     randomizeZoneIfAbsent(createArguments);
 
     Optional<Cluster> cluster = dataprocAPI.createCluster(createArguments);
     if (cluster.isPresent()) {
-      mutateForCluster(arguments, name, cluster.get().config.gceClusterConfig.zoneUri);
+      mutateForCluster(arguments, arguments.getCluster().getName(),
+          cluster.get().config.gceClusterConfig.zoneUri);
     }
     return cluster.isPresent();
   }

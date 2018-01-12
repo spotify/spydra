@@ -114,6 +114,7 @@ public class PoolingSubmitter extends DynamicSubmitter {
     // Label the pooled cluster with the client id. Unknown client ids all end up in their own pool.
     arguments.addOption(arguments.cluster.options, SpydraArgument.OPTION_LABELS,
         POOLED_CLUSTER_CLIENTID_LABEL + "=" + arguments.getClientId());
+    arguments.getCluster().setName(generateName());
     return super.acquireCluster(arguments, dataprocAPI);
   }
 
