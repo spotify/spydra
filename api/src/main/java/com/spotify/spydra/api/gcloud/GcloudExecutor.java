@@ -134,28 +134,6 @@ public class GcloudExecutor {
     }
   }
 
-  public boolean updateMetadata(
-      final Map<String, String> options, final String key, final String value) throws IOException {
-    List<String> command = Lists.newArrayList(
-        "compute", "project-info", "add-metadata");
-    Map<String, String> metadataOptions = new HashMap<>(options);
-
-    metadataOptions.put(SpydraArgument.OPTION_METADATA, key + "=" + value);
-
-    return execute(command, metadataOptions, Collections.EMPTY_LIST);
-  }
-
-  public boolean removeMetadata(
-      final Map<String, String> options, final String key) throws IOException {
-    List<String> command = Lists.newArrayList(
-        "compute", "project-info", "remove-metadata");
-    Map<String, String> metadataOptions = new HashMap<>(options);
-
-    metadataOptions.put(SpydraArgument.OPTION_METADATA_KEYS, key);
-
-    return execute(command, metadataOptions, Collections.EMPTY_LIST);
-  }
-
   private static String createOption(String optionName, String optionValue) {
     if (optionValue.length() > 0) {
       return "--" + optionName + "=" + optionValue;

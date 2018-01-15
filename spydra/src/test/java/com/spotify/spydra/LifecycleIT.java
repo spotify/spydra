@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 public class LifecycleIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(LifecycleIT.class);
 
-  private final static int INTERVAL = 30;
   private final static String CLIENT_ID = UUID.randomUUID().toString();
 
   private final static GcpUtils gcpUtils = new GcpUtils();
@@ -64,7 +63,6 @@ public class LifecycleIT {
     arguments.getCluster().numWorkers(3);
     arguments.getSubmit().jar(getExamplesJarPath());
     arguments.getSubmit().setJobArgs(Lists.newArrayList("pi", "1", "1"));
-    arguments.setHeartbeatIntervalSeconds(INTERVAL);
 
     // TODO We should test the init action as well but the uploading before running the test is tricky
     // We could upload it manually to a test bucket here and set the right things

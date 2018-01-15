@@ -37,7 +37,6 @@ public class SpydraArgument {
   public static final String OPTION_REGION = "region";
   public static final String OPTION_ZONE = "zone";
   public static final String OPTION_METADATA = "metadata";
-  public static final String OPTION_METADATA_KEYS = "keys";
   public static final String OPTION_CLUSTER = "cluster";
   public static final String OPTION_INIT_ACTIONS = "initialization-actions";
   public static final String OPTION_SCOPES = "scopes";
@@ -71,8 +70,6 @@ public class SpydraArgument {
 
   // Optional Spydra arguments
   public Optional<ClusterType> clusterType = Optional.empty();
-  public Optional<Integer> heartbeatIntervalSeconds = Optional.empty();
-  public Optional<Integer> collectorTimeoutMinutes = Optional.empty();
   public Optional<Integer> historyTimeout = Optional.empty();
   public Optional<Boolean> dryRun = Optional.of(false);
   public Optional<AutoScaler> autoScaler = Optional.empty();
@@ -298,18 +295,6 @@ public class SpydraArgument {
       merged.clusterType = first.clusterType;
     }
 
-    if (second.heartbeatIntervalSeconds.isPresent()) {
-      merged.heartbeatIntervalSeconds = second.heartbeatIntervalSeconds;
-    } else {
-      merged.heartbeatIntervalSeconds = first.heartbeatIntervalSeconds;
-    }
-
-    if (second.collectorTimeoutMinutes.isPresent()) {
-      merged.collectorTimeoutMinutes = second.collectorTimeoutMinutes;
-    } else {
-      merged.collectorTimeoutMinutes = first.collectorTimeoutMinutes;
-    }
-
     if (second.historyTimeout.isPresent()) {
       merged.historyTimeout = second.historyTimeout;
     } else {
@@ -489,10 +474,6 @@ public class SpydraArgument {
     return clusterType.get();
   }
 
-  public Integer getHeartbeatIntervalSeconds() {
-    return heartbeatIntervalSeconds.get();
-  }
-
   public Integer getHistoryTimeout() {
     return historyTimeout.get();
   }
@@ -537,10 +518,6 @@ public class SpydraArgument {
     return pooling.isPresent();
   }
 
-  public Integer getCollectorTimeoutMinutes() {
-    return collectorTimeoutMinutes.get();
-  }
-
   public void setClientId(String clientId) {
     this.clientId = Optional.of(clientId);
   }
@@ -559,10 +536,6 @@ public class SpydraArgument {
 
   public void setClusterType(ClusterType clusterType) {
     this.clusterType = Optional.of(clusterType);
-  }
-
-  public void setHeartbeatIntervalSeconds(Integer heartbeatIntervalSeconds) {
-    this.heartbeatIntervalSeconds = Optional.of(heartbeatIntervalSeconds);
   }
 
   public void setHistoryTimeout(Integer historyTimeout) {
@@ -604,7 +577,4 @@ public class SpydraArgument {
     setAutoScaler(autoScaler);
   }
 
-  public void setCollectorTimeoutMinutes(Integer collectorTimeoutMinutes) {
-    this.collectorTimeoutMinutes = Optional.of(collectorTimeoutMinutes);
-  }
 }

@@ -145,10 +145,6 @@ public class SpydraArgumentUtil {
           new IllegalArgumentException("client_id needs to be set"));
       arguments.logBucket.orElseThrow(() ->
           new IllegalArgumentException("log_bucket needs to be set"));
-      arguments.heartbeatIntervalSeconds.orElseThrow(() ->
-          new IllegalArgumentException("heartbeat_interval_seconds needs to be set"));
-      arguments.collectorTimeoutMinutes.orElseThrow(() ->
-          new IllegalArgumentException("collector_timeout_minutes needs to be set"));
       arguments.historyTimeout.orElseThrow(() ->
           new IllegalArgumentException("history_timeout needs to be set"));
       if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_PROJECT)) {
