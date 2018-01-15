@@ -19,6 +19,7 @@ package com.spotify.spydra.util;
 
 import static com.spotify.spydra.model.ClusterType.DATAPROC;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_MAX_IDLE;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
 
 import com.google.common.base.Throwables;
@@ -149,6 +150,9 @@ public class SpydraArgumentUtil {
           new IllegalArgumentException("history_timeout needs to be set"));
       if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_PROJECT)) {
         throw new IllegalArgumentException("cluster.options.project needs to be set");
+      }
+      if (!arguments.getCluster().getOptions().containsKey(OPTION_MAX_IDLE)) {
+        throw new IllegalArgumentException("cluster.options.max-idle needs to be set");
       }
 
       arguments.region.orElseThrow(() ->

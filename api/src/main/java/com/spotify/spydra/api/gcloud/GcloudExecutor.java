@@ -64,7 +64,7 @@ public class GcloudExecutor {
       throws IOException {
     Map<String, String> createOptions = new HashMap<>(args);
     createOptions.put(SpydraArgument.OPTION_REGION, region);
-    List<String> command = ImmutableList.of("--format=json", "dataproc", "clusters", "create", name);
+    List<String> command = ImmutableList.of("--format=json", "beta", "dataproc", "clusters", "create", name);
     StringBuilder outputBuilder = new StringBuilder();
     boolean success = ProcessHelper.executeForOutput(
         buildCommand(command, createOptions, Collections.emptyList()),
