@@ -16,14 +16,6 @@
       "description": "a unique ID of spydra client",
       "type": "string"
     },
-    "heartbeat_interval_seconds": {
-      "description": "frequency of heartbeats in seconds",
-      "type": "number"
-    },
-    "collector_timeout_minutes": {
-      "description": "timeout after which a cluster is being deleted if no heartbeats were received",
-      "type": "number"
-    },
     "history_timeout": {
       "description": "time in seconds to wait for job history to be moved",
       "type": "number"

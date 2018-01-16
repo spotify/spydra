@@ -18,7 +18,6 @@
 package com.spotify.spydra.submitter.api;
 
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_METADATA;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_PROJECT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
 
@@ -31,16 +30,11 @@ import com.spotify.spydra.util.GcpUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -52,8 +46,6 @@ public class DynamicSubmitter extends Submitter {
   private final Metrics metrics = MetricsFactory.getInstance();
 
   private final static String DEFAULT_CLUSTER_PREFIX = "spydra";
-  private final static String METADATA_KEY = "heartbeat";
-  private final static String COLLECTOR_INTERVAL_KEY = "collector-timeout";
 
   public final static String SPYDRA_CLUSTER_LABEL = "spydra-cluster";
 
@@ -74,57 +66,13 @@ public class DynamicSubmitter extends Submitter {
 
   }
 
-  class Heartbeater implements Runnable {
-    private final SpydraArgument arguments;
-    private final DataprocAPI dataprocAPI;
-
-    public Heartbeater(SpydraArgument arguments, DataprocAPI dataprocAPI) {
-      this.arguments = arguments;
-      this.dataprocAPI = dataprocAPI;
-    }
-
-    @Override
-    public void run() {
-      while (!Thread.interrupted()) {
-        try {
-          if (!arguments.isDryRun()) {
-            dataprocAPI.updateProjectMetadata(arguments, getMetadataKey(arguments), nowUtc());
-          } else {
-            LOGGER.info("Dry-run: Not updating metadata");
-          }
-          Thread.sleep(TimeUnit.SECONDS.toMillis(this.arguments.getHeartbeatIntervalSeconds()));
-        } catch (IOException e) {
-          LOGGER.error("Failed to update liveness metadata", e);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-      }
-    }
-  }
-
-  static String nowUtc() {
-    // TODO Should really use a standard format
-    ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
-    return utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"));
-  }
-
-  private String getMetadataKey(final SpydraArgument arguments) {
-    return arguments.getCluster().getName() + "-" + METADATA_KEY;
-  }
-
   @Override
   public boolean executeJob(SpydraArgument argument) {
 
     dataprocAPI.dryRun(argument.isDryRun());
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
     try {
       argument.getCluster().setName(generateName());
-      dataprocAPI.updateProjectMetadata(argument, getMetadataKey(argument), nowUtc());
-      executor.submit(new Heartbeater(argument, dataprocAPI));
-
-      SpydraArgument.addOption(argument.getCluster().getOptions(),
-          OPTION_METADATA, COLLECTOR_INTERVAL_KEY + "=" + argument.getCollectorTimeoutMinutes());
       if (!acquireCluster(argument, dataprocAPI)) {
         return false;
       }
@@ -134,20 +82,10 @@ public class DynamicSubmitter extends Submitter {
       metrics.fatalError(argument, e);
       return false;
     } finally {
-      executor.shutdownNow();
-      try {
-        executor.awaitTermination(argument.getHeartbeatIntervalSeconds(), TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-      }
       try {
         releaseCluster(argument, dataprocAPI);
       } catch (IOException e) {
         LOGGER.warn("Failed to release cluster", e);
-      }
-      try {
-        dataprocAPI.removeProjectMetadata(argument, getMetadataKey(argument));
-      } catch (IOException e) {
-         LOGGER.warn("Failed to remove heartbeat metadata", e);
       }
     }
   }

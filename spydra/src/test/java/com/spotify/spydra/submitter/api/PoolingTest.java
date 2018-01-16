@@ -120,7 +120,6 @@ public class PoolingTest {
       pooling.setMaxAge(Duration.ofMinutes(30));
       arguments.setClientId(clientId);
       arguments.setPooling(pooling);
-      arguments.setCollectorTimeoutMinutes(10);
 
       when(dataprocAPI.listClusters(eq(arguments), anyMap()))
           .thenReturn(clusters);
@@ -146,7 +145,6 @@ public class PoolingTest {
       pooling.setMaxAge(Duration.ofMinutes(30));
       arguments.setClientId(clientId);
       arguments.setPooling(pooling);
-      arguments.setCollectorTimeoutMinutes(10);
 
       when(dataprocAPI.listClusters(eq(arguments), anyMap()))
           .thenReturn(clusters);
@@ -167,7 +165,6 @@ public class PoolingTest {
       pooling.setLimit(3); // 2 perfectly suited clusters above, so room for 1 more!
       pooling.setMaxAge(Duration.ofMinutes(30));
       arguments.setPooling(pooling);
-      arguments.setCollectorTimeoutMinutes(10);
       arguments.setClientId(clientId);
 
       when(dataprocAPI.listClusters(eq(arguments), anyMap()))

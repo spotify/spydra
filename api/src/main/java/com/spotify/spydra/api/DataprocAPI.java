@@ -96,34 +96,6 @@ public class DataprocAPI {
     return success;
   }
 
-  public boolean updateProjectMetadata(
-      final SpydraArgument arguments, final String key, final String value) throws IOException {
-    String project = arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT);
-    ImmutableMap<String, String> args = ImmutableMap.of(SpydraArgument.OPTION_PROJECT, project);
-
-    boolean success = false;
-    try {
-      success = gcloud.updateMetadata(args, key, value);
-    } finally {
-      metrics.metadataUpdate(arguments, key, success);
-    }
-    return success;
-  }
-
-  public boolean removeProjectMetadata(final SpydraArgument arguments, final String key)
-      throws IOException {
-    String project = arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT);
-    ImmutableMap<String, String> args = ImmutableMap.of(SpydraArgument.OPTION_PROJECT, project);
-
-    boolean success = false;
-    try {
-      success = gcloud.removeMetadata(args, key);
-    } finally {
-      metrics.metadataRemoval(arguments, key, success);
-    }
-    return success;
-  }
-
   public Collection<Cluster> listClusters(SpydraArgument arguments, Map<String, String> filters) throws IOException {
     return gcloud.listClusters(arguments.cluster.getOptions().get("project"), arguments.getRegion(), filters);
   }

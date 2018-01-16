@@ -1,13 +1,12 @@
 {
   "cluster_type": "dataproc",
   "region": "global",
-  "heartbeat_interval_seconds": "60",
-  "collector_timeout_minutes": "30",
   "history_timeout": 60,
   "cluster": {
     "options": {
       "scopes": "cloud-platform",
-      "initialization-actions": "${versioned-init-action-uri}/self-destruct.sh,${versioned-init-action-uri}/autoscaler.sh",
+      "max-idle": "30m",
+      "initialization-actions": "${versioned-init-action-uri}/autoscaler.sh",
       "properties": "mapred:mapreduce.jobhistory.done-dir=gs://${LOG_BUCKET}/history/${CLIENT_ID}/done,mapred:mapreduce.jobhistory.intermediate-done-dir=gs://${LOG_BUCKET}/history/${CLIENT_ID}/${UUID}/done_intermediate,mapred:mapreduce.jobhistory.move.interval-ms=1000,mapred:mapreduce.output.fileoutputformat.compress=true,mapred:mapreduce.map.output.compress=true,mapred:mapreduce.output.fileoutputformat.compress.type=BLOCK,core:fs.gs.parent.timestamp.update.substrings.includes=gs://${LOG_BUCKET}/history,yarn:yarn.log-aggregation-enable=true,yarn:yarn.nodemanager.remote-app-log-dir=gs://${LOG_BUCKET}/logs/${CLIENT_ID},yarn:yarn.log-aggregation.retain-seconds=-1,core:fs.gs.implicit.directory.repair=false"
     }
   },

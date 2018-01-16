@@ -64,7 +64,7 @@ public class GcloudExecutor {
       throws IOException {
     Map<String, String> createOptions = new HashMap<>(args);
     createOptions.put(SpydraArgument.OPTION_REGION, region);
-    List<String> command = ImmutableList.of("--format=json", "dataproc", "clusters", "create", name);
+    List<String> command = ImmutableList.of("--format=json", "beta", "dataproc", "clusters", "create", name);
     StringBuilder outputBuilder = new StringBuilder();
     boolean success = ProcessHelper.executeForOutput(
         buildCommand(command, createOptions, Collections.emptyList()),
@@ -132,28 +132,6 @@ public class GcloudExecutor {
     } else {
       return ProcessHelper.executeCommand(command) == Shell.SUCCESS;
     }
-  }
-
-  public boolean updateMetadata(
-      final Map<String, String> options, final String key, final String value) throws IOException {
-    List<String> command = Lists.newArrayList(
-        "compute", "project-info", "add-metadata");
-    Map<String, String> metadataOptions = new HashMap<>(options);
-
-    metadataOptions.put(SpydraArgument.OPTION_METADATA, key + "=" + value);
-
-    return execute(command, metadataOptions, Collections.EMPTY_LIST);
-  }
-
-  public boolean removeMetadata(
-      final Map<String, String> options, final String key) throws IOException {
-    List<String> command = Lists.newArrayList(
-        "compute", "project-info", "remove-metadata");
-    Map<String, String> metadataOptions = new HashMap<>(options);
-
-    metadataOptions.put(SpydraArgument.OPTION_METADATA_KEYS, key);
-
-    return execute(command, metadataOptions, Collections.EMPTY_LIST);
   }
 
   private static String createOption(String optionName, String optionValue) {
