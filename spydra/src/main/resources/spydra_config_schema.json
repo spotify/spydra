@@ -32,15 +32,6 @@
       "description": "type of job to execute (e.g. hadoop/spark/etc), see `gcloud dataproc jobs submit --help`",
       "type": "string"
     },
-    "default_zones": {
-      "description": "Zones to be chosen from randomly if not specified",
-      "type": "array",
-      "minItems": 0,
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
-    },
     "cluster": {
       "description": "options for cluster creation",
       "type": "object",

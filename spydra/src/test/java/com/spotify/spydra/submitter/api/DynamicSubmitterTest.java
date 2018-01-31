@@ -37,15 +37,6 @@ public class DynamicSubmitterTest {
 
 
   @Test
-  public void randomizeZoneIfAbsent() throws Exception {
-    String expected = "default_zone";
-    arguments.defaultZones = ImmutableList.of(expected);
-
-    dynamicSubmitter.randomizeZoneIfAbsent(arguments);
-    assertEquals(expected, arguments.cluster.getOptions().get("zone"));
-  }
-
-  @Test
   public void releaseErrorCluster() throws Exception {
     ImmutableList<Cluster> clusters =
             ImmutableList.of(PoolingTest.errorCluster(clientId), PoolingTest.errorCluster(clientId));

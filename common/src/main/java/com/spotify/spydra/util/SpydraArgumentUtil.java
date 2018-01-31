@@ -158,15 +158,13 @@ public class SpydraArgumentUtil {
       arguments.region.orElseThrow(() ->
           new IllegalArgumentException("region needs to be set"));
       if (arguments.getRegion().equals("global")) {
-        LOGGER.info("Consider omitting defaultZones and cluster.options.zone in your configuration "
-                    + "for the auto-zone selector to balance between zones automatically. "
-                    + "See https://cloud.google.com/dataproc/docs/concepts/auto-zone");
-        if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_ZONE)
-            && arguments.defaultZones.isEmpty()) {
+        if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_ZONE)) {
           throw new IllegalArgumentException(
-              "Please define region, or optionally, cluster.options.zone or "
-              + "defaultZones in configuration.");
+              "Please define region other than global, or optionally, cluster.options.zone in configuration.");
         }
+        LOGGER.info("Consider specifying region and omitting cluster.options.zone in your configuration "
+                + "for the auto-zone selector to balance between zones automatically. "
+                + "See https://cloud.google.com/dataproc/docs/concepts/auto-zone");
       }
       if (arguments.getJobType() == SpydraArgument.JOB_TYPE_PYSPARK) {
         arguments.submit.pyFile.orElseThrow(
