@@ -61,15 +61,4 @@ public class SpydraArgumentTest {
     Assert.assertTrue(mergedValue.contains("foo2=bar2"));
   }
 
-  @Test
-  public void testDefaultZoneIsNotLostMerging() {
-    String expected = "default_zone";
-    SpydraArgument first = new SpydraArgument();
-    SpydraArgument second = new SpydraArgument();
-    second.defaultZones = ImmutableList.of(expected);
-    SpydraArgument merged = SpydraArgument.merge(first, second);
-
-    Assert.assertFalse(merged.defaultZones.isEmpty());
-    Assert.assertEquals(ImmutableList.of(expected), merged.defaultZones);
-  }
 }

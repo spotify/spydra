@@ -107,22 +107,12 @@ public class DynamicSubmitter extends Submitter {
     arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS,
         SPYDRA_CLUSTER_LABEL + "=1");
 
-    randomizeZoneIfAbsent(createArguments);
-
     Optional<Cluster> cluster = dataprocAPI.createCluster(createArguments);
     if (cluster.isPresent()) {
       mutateForCluster(arguments, arguments.getCluster().getName(),
           cluster.get().config.gceClusterConfig.zoneUri);
     }
     return cluster.isPresent();
-  }
-
-  void randomizeZoneIfAbsent(SpydraArgument createArguments) {
-    if (createArguments.defaultZones.size() > 0) {
-      createArguments.cluster.getOptions().computeIfAbsent(SpydraArgument.OPTION_ZONE,
-          (e) -> createArguments.defaultZones
-              .get(new Random().nextInt(createArguments.defaultZones.size())));
-    }
   }
 
   protected void mutateForCluster(SpydraArgument arguments, String name, String zone) {

@@ -75,7 +75,6 @@ public class SpydraArgument {
   public Optional<Boolean> dryRun = Optional.of(false);
   public Optional<AutoScaler> autoScaler = Optional.empty();
   public Optional<Pooling> pooling = Optional.empty();
-  public List<String> defaultZones = Collections.emptyList();
 
   // Dataproc arguments
   public Cluster cluster = new Cluster();
@@ -348,12 +347,6 @@ public class SpydraArgument {
       merged.pooling = second.pooling;
     } else {
       merged.pooling = first.pooling;
-    }
-
-    if (!second.defaultZones.isEmpty()) {
-      merged.defaultZones = second.defaultZones;
-    } else {
-      merged.defaultZones = first.defaultZones;
     }
 
     if (second.region.isPresent()) {
