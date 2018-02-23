@@ -51,6 +51,8 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
             ", overwrites the configured ones if set"));
     options.addOption(CliHelper.createSingleOption(CliConsts.JOBNAME_OPTION_NAME,
         "job name, used as dataproc job id"));
+    options.addOption(CliHelper.createSingleOption(CliConsts.CLUSTER_ARG_NAME,
+        "name of argument passed to the job that will contain the cluster name"));
   }
 
   public SpydraArgument parse(String[] args) throws IOException {
@@ -93,6 +95,10 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
 
     if (cmdLine.hasOption(SpydraArgument.OPTION_DRYRUN)) {
       spydraArgument.setDryRun(true);
+    }
+
+    if (cmdLine.hasOption(CliConsts.CLUSTER_ARG_NAME)) {
+      spydraArgument.setClusterArg(cmdLine.getOptionValue(CliConsts.CLUSTER_ARG_NAME));
     }
 
     List<String> jobArgs = new LinkedList<>(cmdLine.getArgList());
