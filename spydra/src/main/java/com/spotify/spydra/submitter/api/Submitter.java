@@ -55,6 +55,10 @@ public class Submitter {
 
   public boolean executeJob(SpydraArgument arguments) {
     try {
+      if (arguments.clusterArg.isPresent()) {
+        arguments.getSubmit().getJobArgs().add(arguments.getClusterArg());
+        arguments.getSubmit().getJobArgs().add(arguments.getCluster().getName());
+      }
       Executor executor = new ExecutorFactory().getExecutor(arguments);
       return executor.submit(arguments);
     } catch (IOException e) {

@@ -85,4 +85,14 @@ public class SubmissionCliParserTest {
     assertEquals("ck1=cv1,ck2=cv2", argument.cluster.options.get("labels"));
     assertEquals("sk1=sv1,sk2=sv2", argument.submit.options.get("labels"));
   }
+
+  @Test
+  public void testClusterArg() throws IOException {
+    SubmissionCliParser submissionCliParser = new SubmissionCliParser();
+
+    String[] cliArgs = {"submit", "--job-name", "my-job-123", "--cluster-arg", "--cluster.name"};
+    SpydraArgument args = submissionCliParser.parse(cliArgs);
+
+    assertEquals("--cluster.name", args.getClusterArg());
+  }
 }

@@ -83,6 +83,9 @@ public class SpydraArgument {
   // Optional Dataproc arguments
   public Optional<String> jobType = Optional.empty();
 
+  // Optional argument name for passing cluster to submitted jobs
+  public Optional<String> clusterArg = Optional.empty();
+
   public class Cluster {
     public Optional<String> name = Optional.empty();
     public Map<String, String> options = new HashMap<>();
@@ -355,6 +358,12 @@ public class SpydraArgument {
       merged.region = first.region;
     }
 
+    if (second.clusterArg.isPresent()) {
+      merged.clusterArg = second.clusterArg;
+    } else {
+      merged.clusterArg = first.clusterArg;
+    }
+
     return merged;
   }
 
@@ -480,6 +489,10 @@ public class SpydraArgument {
     return jobType.get();
   }
 
+  public String getClusterArg() {
+    return clusterArg.get();
+  }
+
   public Cluster getCluster() {
     return cluster;
   }
@@ -550,6 +563,10 @@ public class SpydraArgument {
 
   public void setJobType(String jobType) {
     this.jobType = Optional.of(jobType);
+  }
+
+  public void setClusterArg(String clusterArg) {
+    this.clusterArg = Optional.of(clusterArg);
   }
 
   public void setAutoScaler(AutoScaler autoScaler) {
