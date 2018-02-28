@@ -128,7 +128,7 @@ public class PoolingSubmitter extends DynamicSubmitter {
 
     Map<String, String> clusterFilter = ImmutableMap.of(
             "status.state", "ERROR",
-            "cluster.clusterName", arguments.getCluster().getName(),
+            "clusterName", arguments.getCluster().getName(),
             OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "",
             OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, arguments.getClientId()
     );
