@@ -91,14 +91,14 @@ public class Runner {
     checkAndPrintHelp(args, parser);
 
     SpydraArgument userArguments = parser.parse(args);
-    String userId = userId(SpydraArgumentUtil.isOnPremiseInvocation(userArguments));
+    Optional<String> userId = userId(SpydraArgumentUtil.isOnPremiseInvocation(userArguments));
     SpydraArgument finalArguments =
         SpydraArgumentUtil.mergeConfigurations(userArguments, userId);
     SpydraArgumentUtil.setDefaultClientIdIfRequired(finalArguments);
     SpydraArgumentUtil.setProjectFromCredentialsIfNotSet(finalArguments);
     finalArguments.replacePlaceholders();
 
-    MetricsFactory.initialize(finalArguments, userId);
+    MetricsFactory.initialize(finalArguments, userId.orElse("Application Default User"));
     Metrics metrics = MetricsFactory.getInstance();
 
     Submitter submitter = Submitter.getSubmitter(finalArguments);
@@ -111,11 +111,11 @@ public class Runner {
     System.exit(status ? 0 : 1);
   }
 
-  private static String userId(boolean onPremiseInvocation) throws IOException {
+  private static Optional<String> userId(boolean onPremiseInvocation) throws IOException {
     if (onPremiseInvocation) {
-      return Optional.ofNullable(System.getenv("HADOOP_USER_NAME")).orElse("onpremise");
+      return Optional.of(Optional.ofNullable(System.getenv("HADOOP_USER_NAME")).orElse("onpremise"));
     } else {
-      return gcpUtils.userIdFromJsonCredentialInEnv();
+      return new GcpUtils().getUserId();
     }
   }
 

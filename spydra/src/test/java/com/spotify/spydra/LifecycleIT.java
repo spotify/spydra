@@ -33,7 +33,6 @@ import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -90,8 +89,7 @@ public class LifecycleIT {
 
   private boolean isClusterCollected(SpydraArgument arguments)
       throws IOException, GeneralSecurityException {
-    GoogleCredential credential = GoogleCredential.fromStream(
-        new ByteArrayInputStream(gcpUtils.credentialJsonFromEnv().getBytes()));
+    GoogleCredential credential = new GcpUtils().getCredential();
     if (credential.createScopedRequired()) {
       credential =
           credential.createScoped(
