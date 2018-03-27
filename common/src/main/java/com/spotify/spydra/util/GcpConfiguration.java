@@ -6,9 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -48,8 +45,6 @@ public abstract class GcpConfiguration {
 
 class GcpConfigurationFromDefaultCredentials extends GcpConfiguration {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GcpConfigurationFromDefaultCredentials.class);
-
   @Override
   public String getProjectId() {
     return ServiceOptions.getDefaultProjectId();
@@ -80,8 +75,6 @@ class GcpConfigurationFromDefaultCredentials extends GcpConfiguration {
 }
 
 class GcpConfigurationFromServiceAccountKey extends GcpConfiguration {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(GcpConfigurationFromServiceAccountKey.class);
 
   @Override
   public String getProjectId() {

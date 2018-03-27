@@ -47,6 +47,7 @@ public class SpydraArgument {
   public static final String OPTION_NUM_WORKERS = "num-workers";
   public static final String OPTION_LABELS = "labels";
   public static final String OPTION_TAGS = "tags";
+  public static final String OPTION_ACCOUNT = "account";
   public static final String OPTION_SERVICE_ACCOUNT = "service-account";
   public static final String OPTION_JOB_ID = "id";
   public static final String OPTION_MAX_IDLE = "max-idle";

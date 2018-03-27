@@ -123,7 +123,7 @@ public class GcpUtils {
   }
 
   public Optional<String> getJsonCredentialsPath() {
-      return gcpConfiguration.getUserId();
+      return gcpConfiguration.getJsonCredentialsPath();
   }
 
   public Credentials getCredentials() {

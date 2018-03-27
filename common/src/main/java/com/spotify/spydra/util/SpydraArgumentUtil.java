@@ -20,6 +20,7 @@ package com.spotify.spydra.util;
 import static com.spotify.spydra.model.ClusterType.DATAPROC;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_MAX_IDLE;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_ACCOUNT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
 
 import com.spotify.spydra.model.ClusterType;
@@ -88,12 +89,12 @@ public class SpydraArgumentUtil {
           new String[]{BASE_CONFIGURATION_FILE_NAME, DEFAULT_DATAPROC_ARGUMENT_FILE_NAME,
                        SPYDRA_CONFIGURATION_FILE_NAME},
           arguments);
-      LOGGER.debug("Set Dataproc service account user ID: {}", userId.orElse(null));
       if (userId.isPresent()) {
-        LOGGER.debug("Set Dataproc service account user ID: {}", userId.get());
+        LOGGER.debug("Set user account and service-account for gcloud invocations: {}", userId.get());
+        outputConfig.getCluster().getOptions().put(OPTION_ACCOUNT, userId.get());
         outputConfig.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId.get());
       } else {
-        LOGGER.debug("Using application default credentials for dataproc cluster");
+        LOGGER.debug("Using application default credentials for gcloud invocations");
       }
     } else {
       outputConfig = baseArgsWithGivenArgs;
@@ -116,7 +117,7 @@ public class SpydraArgumentUtil {
 
     GcpUtils gcpUtils = new GcpUtils();
     gcpUtils.getUserId().ifPresent(userId ->
-      defaults.getCluster().getOptions().put(SpydraArgument.OPTION_SERVICE_ACCOUNT, userId));
+      defaults.getCluster().getOptions().put(SpydraArgument.OPTION_ACCOUNT, userId));
 
     gcpUtils.configureClusterProjectFromCredential(defaults);
     defaults.replacePlaceholders();
