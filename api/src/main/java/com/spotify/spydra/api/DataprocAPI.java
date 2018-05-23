@@ -25,7 +25,7 @@ import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -91,7 +91,7 @@ public class DataprocAPI {
     return success;
   }
 
-  public Collection<Cluster> listClusters(SpydraArgument arguments, Map<String, String> filters) throws IOException {
+  public List<Cluster> listClusters(SpydraArgument arguments, Map<String, String> filters) throws IOException {
     return gcloud.listClusters(arguments.cluster.getOptions().get("project"), arguments.getRegion(), filters);
   }
 }

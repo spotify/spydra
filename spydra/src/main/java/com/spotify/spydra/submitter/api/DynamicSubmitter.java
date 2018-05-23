@@ -27,7 +27,6 @@ import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.util.GcpUtils;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -35,11 +34,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DynamicSubmitter extends Submitter {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSubmitter.class);
 
   private final Metrics metrics = MetricsFactory.getInstance();
@@ -67,7 +68,6 @@ public class DynamicSubmitter extends Submitter {
     dataprocAPI.dryRun(argument.isDryRun());
 
     try {
-      argument.getCluster().setName(generateName());
       if (!acquireCluster(argument, dataprocAPI)) {
         return false;
       }
@@ -87,11 +87,26 @@ public class DynamicSubmitter extends Submitter {
 
   public boolean acquireCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
-    return createNewCluster(arguments, dataprocAPI);
+
+    Optional<Cluster> newCluster = createNewCluster(arguments, dataprocAPI);
+
+    newCluster.ifPresent(cluster ->
+        setTargetCluster(arguments, arguments.getCluster().getName(),
+            cluster.config.gceClusterConfig.zoneUri));
+
+    return newCluster.isPresent();
   }
 
-  boolean createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
+  Optional<Cluster> createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
+    return createNewCluster(arguments, dataprocAPI, DynamicSubmitter::generateName);
+  }
+
+  Optional<Cluster> createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI,
+                                     Supplier<String> nameGenerator)
+      throws IOException {
+    arguments.getCluster().setName(nameGenerator.get());
+
     SpydraArgument createArguments;
     if (arguments.autoScaler.isPresent()) {
       createArguments = configureAutoScaler(arguments);
@@ -103,14 +118,11 @@ public class DynamicSubmitter extends Submitter {
         SPYDRA_CLUSTER_LABEL + "=1");
 
     Optional<Cluster> cluster = dataprocAPI.createCluster(createArguments);
-    if (cluster.isPresent()) {
-      mutateForCluster(arguments, arguments.getCluster().getName(),
-          cluster.get().config.gceClusterConfig.zoneUri);
-    }
-    return cluster.isPresent();
+
+    return cluster;
   }
 
-  protected void mutateForCluster(SpydraArgument arguments, String name, String zone) {
+  protected void setTargetCluster(SpydraArgument arguments, String name, String zone) {
     arguments.getCluster().setName(name);
     arguments.getCluster().getOptions().put(OPTION_ZONE, zone);
     arguments.getSubmit().getOptions().put(OPTION_CLUSTER, name);
@@ -125,10 +137,11 @@ public class DynamicSubmitter extends Submitter {
     list.add("autoscaler-max=" + arguments.getAutoScaler().getMax());
     list.add("autoscaler-factor=" + arguments.getAutoScaler().getFactor());
     list.add("autoscaler-mode="
-        + (arguments.getAutoScaler().getDownscale() ? "downscale" : "upscale"));
+             + (arguments.getAutoScaler().getDownscale() ? "downscale" : "upscale"));
     list.add("autoscaler-downscale-timeout=" + (arguments.getAutoScaler().getDownscale() ?
-        // Statically configure a no-op value for auto_scaler.sh:
-        arguments.getAutoScaler().getDownscaleTimeout() : 0));
+                                                // Statically configure a no-op value for auto_scaler.sh:
+                                                arguments.getAutoScaler().getDownscaleTimeout()
+                                                                                         : 0));
     metadataArgument.cluster.getOptions()
         .put(SpydraArgument.OPTION_METADATA, StringUtils.join(list, ","));
     return SpydraArgument.merge(arguments, metadataArgument);
@@ -158,7 +171,7 @@ public class DynamicSubmitter extends Submitter {
     }
     LOGGER.info("Waiting for history files to be moved to its final location");
     gcpUtils.configureStorageFromEnvironment();
-    while (gcpUtils.getCount(bucketName, directory+"/") <= 1) { //directory itself counts as one
+    while (gcpUtils.getCount(bucketName, directory + "/") <= 1) { //directory itself counts as one
       LOGGER.info("Not yet moved files were encountered. Sleeping 1 second.");
       try {
         long now = System.currentTimeMillis();
@@ -178,7 +191,8 @@ public class DynamicSubmitter extends Submitter {
    * @param dataprocAPI dataprocAPI implementation to use to wait for history and release the cluster
    * @return whether it was successfully released
    */
-  public boolean releaseCluster(SpydraArgument arguments, DataprocAPI dataprocAPI) throws IOException {
+  public boolean releaseCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
+      throws IOException {
     try {
       waitForHistoryToBeMoved(arguments);
     } finally {

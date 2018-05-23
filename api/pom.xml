@@ -19,6 +19,16 @@
       <artifactId>metrics</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+        <groupId>com.spotify.data.spydra</groupId>
+        <artifactId>metrics</artifactId>
+        <version>0.3.17-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.spotify.data.spydra</groupId>
+      <artifactId>common</artifactId>
+      <version>0.3.17-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
 </project>
