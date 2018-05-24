@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Submitter {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(Submitter.class);
 
   private final Metrics metrics = MetricsFactory.getInstance();
