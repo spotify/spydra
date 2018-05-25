@@ -1,20 +1,3 @@
-/*
- * Copyright 2017 Spotify AB.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 package com.spotify.spydra.submitter.api;
 
 import static com.spotify.spydra.model.SpydraArgument.OPTIONS_FILTER_LABEL_PREFIX;
@@ -22,115 +5,130 @@ import static com.spotify.spydra.model.SpydraArgument.OPTIONS_FILTER_LABEL_PREFI
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.spotify.spydra.api.DataprocAPI;
+import com.spotify.spydra.api.gcloud.GcloudClusterAlreadyExistsException;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Supplier;
 
+/**
+ * The PoolingSubmitter pools cluster in a rotating, fixed size pool.
+ * <p>
+ * The PoolingSubmitter addresses issues with the PoolingSubmitter significantly exceeding the
+ * configured limit. When running many clients simultaneously, they would all observe a free slot
+ * and create a cluster. Eventually these clusters exceeding the limit would be collected.
+ * For large amounts of clients, this would commonly lead to clusters in an ERROR state due to
+ * exceeding quota.
+ * <p>
+ * In this implementation we use an algorithm to createClusterPlacement clusters in slots according to a configured
+ * limit and maximum age at a certain time and placed into a random slot. The algorithm relies on
+ * the assumption that multiple clients creating a cluster with the same name fails for all but 1
+ * client. The failing clients will wait for a while and then select a cluster from the list of
+ * clusters available.
+ *
+ * The placement_token of a cluster is based two-part:<ul>
+ * <li>slot_number: a random number between 0 and Limit</li>
+ * <li>- time_derivative: {@code (Time - slot_number * (Age // Limit) ) // Age}</li>
+ * </ul> together these form a unique identifier for each clusters' lifetime.
+ * For each slot, it's cluster lifetime is offset by Age // Limit. This has as affect that
+ * the limit is exceeded by one cluster at a time which should become idle and thus collected before
+ * the next horde of clients come in. The algorithm is implemented in {@link ClusterPlacement#createClusterPlacement}.
+ * Example scenario's have been worked out in
+ * <a href="https://docs.google.com/spreadsheets/d/1Sfw_yxNSYJjHYtiHGQQf1ZHnNTqc7nGyXGGts_EaupM">a spreadsheet.</a>
+ */
 public class PoolingSubmitter extends DynamicSubmitter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSubmitter.class);
-
   @VisibleForTesting
-  static final String POOLED_CLUSTER_CLIENTID_LABEL = "spydra-cluster-pool-id";
+  static final String POOLED_CLUSTER_CLIENTID_LABEL =
+      "spydra-fixed-pooling-cluster-client-id";
+  public static final String SPYDRA_PLACEMENT_TOKEN_LABEL = "spydra-placement-token";
+  public static final String SPYDRA_UNPLACED_TOKEN = "unplaced";
+  private Supplier<Long> timeSource;
 
-  public PoolingSubmitter() {
+  public PoolingSubmitter(Supplier<Long> timeSource) {
     super();
-  }
-
-  static final class Conditions {
-    static boolean isYoung(Cluster c, SpydraArgument arguments) {
-      return c.status.stateStartTime.plus(arguments.getPooling().getMaxAge())
-          .isAfter(ZonedDateTime.now(ZoneOffset.UTC));
-    }
-
-    public static boolean mayCreateMoreClusters(List<Cluster> filteredClusters,
-        SpydraArgument arguments) {
-      boolean may = filteredClusters.size() < arguments.getPooling().getLimit();
-      if (may) {
-        LOGGER.info(String.format("Got room for more clusters, %d out of %d.",
-            filteredClusters.size(), arguments.getPooling().getLimit()));
-      } else {
-        LOGGER.info(String.format("Should use a pooled cluster, have %d maximum %d clusters.",
-            filteredClusters.size(), arguments.getPooling().getLimit()));
-      }
-      return may;
-    }
+    this.timeSource = timeSource;
   }
 
   @Override
   public boolean acquireCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
-    try {
-      //Have API filter on clusters that are active, are spydra clusters, and belong to the right pool
-      Map<String, String> clusterFilter = ImmutableMap.of(
-          "status.state", "ACTIVE",
-          OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "",
-          OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, arguments.getClientId()
-      );
-      Collection<Cluster> clusters = dataprocAPI.listClusters(arguments, clusterFilter);
-      LOGGER.info(
-          String.format("Found %d clusters in pool, finding suitable cluster to pool on", clusters.size()));
-      List<Cluster> filteredClusters = clusters.stream()
-          .filter(c -> Conditions.isYoung(c, arguments))
-          // Sort and limit to eventually over time arrive at the limit
-          .sorted(Comparator.comparing(c -> c.clusterName))
-          .limit(arguments.getPooling().getLimit())
-          .collect(Collectors.toList());
-      LOGGER.info(
-          String.format("After filtering conditions, %d cluster(s) remain", filteredClusters.size()));
-      if (Conditions.mayCreateMoreClusters(filteredClusters, arguments)) {
-        return newPooledCluster(arguments, dataprocAPI);
-      } else {
-        //TODO: TW do a weighted sample on metrics instead.
-        Collections.shuffle(filteredClusters);
-        Cluster cluster = filteredClusters.get(0);
-        mutateForCluster(arguments, cluster.clusterName, cluster.config.gceClusterConfig.zoneUri);
-        return true;
-      }
-    } catch (IOException e) {
-      LOGGER.warn("Failed to pool a cluster: ", e);
-    }
 
-    // All has failed us - try to create a cluster the good 'ol fashioned way.
-    return newPooledCluster(arguments, dataprocAPI);
+    List<Cluster> existingPoolableClusters =
+        dataprocAPI.listClusters(arguments, poolableClusterFilter(arguments.getClientId()));
+
+    List<ClusterPlacement> allPlacements =
+        ClusterPlacement.all(timeSource, arguments.getPooling());
+
+    List<Cluster> existingPlacementClusters =
+        ClusterPlacement.filterClusters(existingPoolableClusters, allPlacements);
+
+    Collections.shuffle(allPlacements);
+    ClusterPlacement randomPlacement = allPlacements.get(0);
+
+    Cluster cluster = randomPlacement.findIn(existingPlacementClusters)
+        .orElse(createNewCluster(arguments, dataprocAPI, randomPlacement));
+
+    setTargetCluster(arguments, cluster.clusterName,
+        cluster.config.gceClusterConfig.zoneUri);
+
+    return true;
   }
 
-  private boolean newPooledCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
+  private Cluster createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI,
+                                   ClusterPlacement placement)
       throws IOException {
     // Label the pooled cluster with the client id. Unknown client ids all end up in their own pool.
     arguments.addOption(arguments.cluster.options, SpydraArgument.OPTION_LABELS,
         POOLED_CLUSTER_CLIENTID_LABEL + "=" + arguments.getClientId());
-    arguments.getCluster().setName(generateName());
-    return super.acquireCluster(arguments, dataprocAPI);
+
+    arguments.addOption(arguments.cluster.options, SpydraArgument.OPTION_LABELS,
+        SPYDRA_PLACEMENT_TOKEN_LABEL + "=" + placement.token());
+
+    String clusterName = generateName(arguments.getClientId(), placement.token());
+    try {
+      return super.createNewCluster(arguments, dataprocAPI, () -> clusterName)
+          .orElseThrow(() -> new IOException("Failed to create cluster: " + clusterName));
+    } catch (GcloudClusterAlreadyExistsException e) {
+
+      List<Cluster> existingClusters =
+          dataprocAPI.listClusters(arguments, Collections.singletonMap("clusterName", clusterName));
+
+      if (existingClusters.size() != 1) {
+        throw new IllegalStateException(
+            "Expected a single cluster to exists. Cluster name:" + clusterName);
+      }
+
+      return existingClusters.get(0);
+    }
   }
 
+  public static String generateName(String clientId, String placementToken) {
+    return String.format("spydra-%s-%s", clientId, placementToken);
+  }
 
   @Override
   public boolean releaseCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
-    boolean shouldCollect;
-    // If we're pooling clusters the cluster will live long enough for history to be collected
-    shouldCollect = !arguments.isPoolingEnabled();
 
     Map<String, String> clusterFilter = ImmutableMap.of(
-            "status.state", "ERROR",
-            "clusterName", arguments.getCluster().getName(),
-            OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "",
-            OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, arguments.getClientId()
+        "status.state", "ERROR",
+        "clusterName", arguments.getCluster().getName()
     );
-    shouldCollect = shouldCollect || dataprocAPI.listClusters(arguments, clusterFilter).stream()
-            .findAny().map(cluster -> cluster.status.state.equals(Cluster.Status.ERROR)).orElse(false);
 
-    return !shouldCollect || super.releaseCluster(arguments, dataprocAPI);
+    boolean shouldRelease = dataprocAPI.listClusters(arguments, clusterFilter).stream()
+        .findAny().map(cluster -> cluster.status.state.equals(Cluster.Status.ERROR)).orElse(false);
+
+    return !shouldRelease || super.releaseCluster(arguments, dataprocAPI);
+  }
+
+  private static Map<String, String> poolableClusterFilter(String clientId) {
+    return ImmutableMap.of(
+        OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "",
+        OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, clientId
+    );
   }
 }

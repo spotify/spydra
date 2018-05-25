@@ -1,8 +1,8 @@
 package com.spotify.spydra.submitter.api;
 
 
-import static com.spotify.spydra.submitter.api.FixedPoolSubmitter.SPYDRA_PLACEMENT_TOKEN_LABEL;
-import static com.spotify.spydra.submitter.api.FixedPoolSubmitter.SPYDRA_UNPLACED_TOKEN;
+import static com.spotify.spydra.submitter.api.PoolingSubmitter.SPYDRA_PLACEMENT_TOKEN_LABEL;
+import static com.spotify.spydra.submitter.api.PoolingSubmitter.SPYDRA_UNPLACED_TOKEN;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 

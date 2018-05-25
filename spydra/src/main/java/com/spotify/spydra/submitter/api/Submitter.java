@@ -24,6 +24,7 @@ import com.spotify.spydra.submitter.executor.Executor;
 import com.spotify.spydra.submitter.executor.ExecutorFactory;
 import com.spotify.spydra.util.SpydraArgumentUtil;
 import java.io.IOException;
+import java.time.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,8 @@ public class Submitter {
   private static final Logger LOGGER = LoggerFactory.getLogger(Submitter.class);
 
   private final Metrics metrics = MetricsFactory.getInstance();
+
+  private final static Clock clock = Clock.systemUTC();
 
   public static Submitter getSubmitter(SpydraArgument arguments) {
     SpydraArgumentUtil.checkRequiredArguments(arguments, SpydraArgumentUtil
@@ -44,7 +47,7 @@ public class Submitter {
       submitter = new Submitter();
     } else {
       if (arguments.isPoolingEnabled()) {
-        submitter = new PoolingSubmitter();
+        submitter = new PoolingSubmitter(clock::millis);
       } else {
         submitter = new DynamicSubmitter();
       }

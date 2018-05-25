@@ -17,21 +17,6 @@
 
 package com.spotify.spydra.submitter.api;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.spotify.spydra.api.DataprocAPI;
-import com.spotify.spydra.api.model.Cluster;
-import com.spotify.spydra.model.SpydraArgument;
-import java.time.Duration;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
@@ -41,8 +26,24 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.spotify.spydra.api.DataprocAPI;
+import com.spotify.spydra.api.model.Cluster;
+import com.spotify.spydra.model.SpydraArgument;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
 @RunWith(Enclosed.class)
 public class PoolingTest {
+
   private static final String spydraClusterName = "spydra-uuid";
   private static final String nonSpydraClusterName = "not-a-spydra-cluster";
 
@@ -54,7 +55,7 @@ public class PoolingTest {
     status.stateStartTime = ZonedDateTime.now(ZoneOffset.UTC);
     cluster.status = status;
     cluster.labels = ImmutableMap.of(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1",
-                                     PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid);
+        PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid);
     cluster.config.gceClusterConfig.metadata.heartbeat =
         Optional.of(cluster.status.stateStartTime.plusMinutes(60));
     return cluster;
@@ -66,7 +67,7 @@ public class PoolingTest {
     cluster.clusterName = "not-a-spydra-cluster";
     Cluster.Status status = new Cluster.Status();
     cluster.labels = ImmutableMap.of(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1",
-                                     PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid);
+        PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid);
     status.state = Cluster.Status.RUNNING;
     status.stateStartTime = ZonedDateTime.now(ZoneOffset.UTC);
     return cluster;
@@ -103,7 +104,7 @@ public class PoolingTest {
 
     @Before
     public void before() {
-      poolingSubmitter = new PoolingSubmitter();
+      poolingSubmitter = new PoolingSubmitter(Clock.systemUTC()::millis, "account");
       dataprocAPI = mock(DataprocAPI.class);
       arguments = new SpydraArgument();
       clientId = "my-client-id";
@@ -130,7 +131,8 @@ public class PoolingTest {
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, never()).createCluster(arguments);
 
-      assertTrue("A healthy cluster should be kept without problems.", poolingSubmitter.releaseCluster(arguments, dataprocAPI));
+      assertTrue("A healthy cluster should be kept without problems.",
+          poolingSubmitter.releaseCluster(arguments, dataprocAPI));
       verify(dataprocAPI, never()).deleteCluster(arguments);
 
     }
@@ -187,8 +189,9 @@ public class PoolingTest {
       arguments.cluster.setName(spydraClusterName);
 
       when(dataprocAPI.listClusters(eq(arguments), anyMap()))
-           .thenReturn(clusters);
-      assertTrue("A healthy cluster should be kept without problems.", poolingSubmitter.releaseCluster(arguments, dataprocAPI));
+          .thenReturn(clusters);
+      assertTrue("A healthy cluster should be kept without problems.",
+          poolingSubmitter.releaseCluster(arguments, dataprocAPI));
       verify(dataprocAPI).listClusters(eq(arguments), anyMap());
       verify(dataprocAPI, never()).deleteCluster(arguments);
     }
@@ -196,7 +199,7 @@ public class PoolingTest {
     @Test
     public void releaseErrorCluster() throws Exception {
       ImmutableList<Cluster> clusters =
-              ImmutableList.of(errorCluster(clientId), errorCluster(clientId));
+          ImmutableList.of(errorCluster(clientId), errorCluster(clientId));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       arguments.setPooling(pooling);
@@ -204,43 +207,12 @@ public class PoolingTest {
       arguments.cluster.setName(spydraClusterName);
 
       when(dataprocAPI.listClusters(eq(arguments), anyMap()))
-           .thenReturn(clusters);
+          .thenReturn(clusters);
       when(dataprocAPI.deleteCluster(arguments)).thenReturn(true);
-      assertTrue("A broken cluster should be collected without problems.", poolingSubmitter.releaseCluster(arguments, dataprocAPI));
+      assertTrue("A broken cluster should be collected without problems.",
+          poolingSubmitter.releaseCluster(arguments, dataprocAPI));
       verify(dataprocAPI).listClusters(eq(arguments), anyMap());
       verify(dataprocAPI).deleteCluster(arguments);
-    }
-  }
-
-  public static class PoolingConditionsTest {
-
-    @Test
-    public void isYoung() throws Exception {
-      String clientId = "some-client-id";
-      SpydraArgument arguments = new SpydraArgument();
-      SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
-      pooling.setMaxAge(Duration.ofMinutes(30));
-      arguments.setPooling(pooling);
-      arguments.setClientId(clientId);
-      assertTrue(PoolingSubmitter.Conditions.isYoung(perfectCluster(clientId), arguments));
-    }
-
-    @Test
-    public void mayCreateMoreClusters() throws Exception {
-      String myClientId="some-client-id";
-      ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(myClientId), perfectCluster(myClientId));
-      SpydraArgument arguments = new SpydraArgument();
-      SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
-      pooling.setLimit(2);
-      pooling.setMaxAge(Duration.ofMinutes(30));
-      arguments.setPooling(pooling);
-      arguments.setClientId(myClientId);
-
-      assertFalse(PoolingSubmitter.Conditions.mayCreateMoreClusters(clusters, arguments));
-
-      pooling.setLimit(3);
-      assertTrue(PoolingSubmitter.Conditions.mayCreateMoreClusters(clusters, arguments));
     }
   }
 }
