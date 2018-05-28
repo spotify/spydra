@@ -47,7 +47,7 @@ public class Submitter {
       submitter = new Submitter();
     } else {
       if (arguments.isPoolingEnabled()) {
-        submitter = new PoolingSubmitter(clock::millis);
+        submitter = new PoolingSubmitter(clock::millis, new DefaultRandomPlacementGenerator());
       } else {
         submitter = new DynamicSubmitter();
       }

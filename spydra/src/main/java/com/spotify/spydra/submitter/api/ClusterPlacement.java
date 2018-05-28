@@ -22,9 +22,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 abstract class ClusterPlacement {
 
-  abstract long clusterGeneration();
-
   abstract int clusterNumber();
+
+  abstract long clusterGeneration();
 
   String token() {
     return String.format("%s-%s", clusterNumber(), clusterGeneration());
@@ -37,8 +37,8 @@ abstract class ClusterPlacement {
     }
     try {
       return new ClusterPlacementBuilder()
-          .clusterGeneration(Long.valueOf(splits[0]))
-          .clusterNumber(Integer.valueOf(splits[1]))
+          .clusterNumber(Integer.valueOf(splits[0]))
+          .clusterGeneration(Long.valueOf(splits[1]))
           .build();
     } catch (NumberFormatException nfe) {
       throw new IllegalArgumentException("Could not parse token: " + token, nfe);

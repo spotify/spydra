@@ -9,6 +9,7 @@ import com.spotify.spydra.api.gcloud.GcloudClusterAlreadyExistsException;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +48,13 @@ public class PoolingSubmitter extends DynamicSubmitter {
   public static final String SPYDRA_PLACEMENT_TOKEN_LABEL = "spydra-placement-token";
   public static final String SPYDRA_UNPLACED_TOKEN = "unplaced";
   private Supplier<Long> timeSource;
+  private final RandomPlacementGenerator randomPlacementGenerator;
 
-  public PoolingSubmitter(Supplier<Long> timeSource) {
+  public PoolingSubmitter(Supplier<Long> timeSource,
+                          RandomPlacementGenerator randomPlacementGenerator) {
     super();
     this.timeSource = timeSource;
+    this.randomPlacementGenerator = randomPlacementGenerator;
   }
 
   @Override
@@ -66,19 +70,23 @@ public class PoolingSubmitter extends DynamicSubmitter {
     List<Cluster> existingPlacementClusters =
         ClusterPlacement.filterClusters(existingPoolableClusters, allPlacements);
 
-    Collections.shuffle(allPlacements);
-    ClusterPlacement randomPlacement = allPlacements.get(0);
-
+    ClusterPlacement randomPlacement = randomPlacementGenerator.randomPlacement(allPlacements);
     Cluster cluster = randomPlacement.findIn(existingPlacementClusters)
-        .orElse(createNewCluster(arguments, dataprocAPI, randomPlacement));
+        .orElseGet(() -> {
+          try {
+            return createNewCluster(arguments, dataprocAPI, randomPlacement);
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
 
-    setTargetCluster(arguments, cluster.clusterName,
-        cluster.config.gceClusterConfig.zoneUri);
+    setTargetCluster(arguments, cluster.clusterName, cluster.config.gceClusterConfig.zoneUri);
 
     return true;
   }
 
-  private Cluster createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI,
+  private Cluster createNewCluster(SpydraArgument arguments,
+                                   DataprocAPI dataprocAPI,
                                    ClusterPlacement placement)
       throws IOException {
     // Label the pooled cluster with the client id. Unknown client ids all end up in their own pool.
