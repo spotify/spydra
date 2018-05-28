@@ -90,12 +90,16 @@ To be able to use Dataproc and on-premise Hadoop, a few things need to be set up
 * A [Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
   with the right (Google Cloud Dataproc API) [APIs enabled](https://support.google.com/cloud/answer/6158841?hl=en)
 * A [service account](https://cloud.google.com/compute/docs/access/service-accounts) with
-  [project editor](https://cloud.google.com/compute/docs/access/iam) rights in your project
-* JSON key for the service account
+  [project editor](https://cloud.google.com/compute/docs/access/iam) rights in your project. The service account can be specified in two ways:
+  * A JSON key for the service account, and the environment variable [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials)
+    needs to point to the location of this service account JSON key. This cannot be a user credential.
+  * If the [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials)
+    environment variable is not set, Spydra will attempt to use application default credentails. In a local development enviroment
+    application default credentials can be obtained by authenticating with the command
+    [gcloud auth application-default login](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login). When running
+    on Google Compute Platform managed nodes, the application default credentials are provided by the default service account of the node.
 * [gcloud](https://cloud.google.com/sdk/gcloud/) needs to be installed
 * `gcloud` needs to be [authenticated using the service account](https://cloud.google.com/sdk/gcloud/reference/auth/)
-* The environment variable [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials)
-  needs to point to the location of the service account JSON key. This cannot be a user credential.
 * [hadoop jar](https://hadoop.apache.org/docs/r2.6.0/hadoop-project-dist/hadoop-common/CommandsManual.html#jar)
   needs to be installed and configured to submit to your cluster
 
@@ -345,7 +349,7 @@ an ephemeral cluster as long as the cluster is running.
 * A Google Cloud Storage bucket for uploading init-actions. Ensure that this bucket is readable with all credentials used with `Spydra`.
 * A Google Cloud Storage bucket for storing integration test logs
 * JSON key for a [service account](https://cloud.google.com/compute/docs/access/service-accounts)
-  with editor access to the project and bucket
+  with editor access to the project and bucket.
 * The environment variable `GOOGLE_APPLICATION_CREDENTIALS` pointing at the location of the service
   account JSON key
 * [gcloud](https://cloud.google.com/sdk/gcloud/) authenticated with the service account
@@ -371,6 +375,14 @@ the *project* parameter in *integration-test-config.json* (or elsewhere).
 
 Notice that the file name must be exactly *integration-test-config.json* as that is what the
 integration test will search for when it is run on the maven verify phase.
+
+#### Integration testing with application default credentials
+
+Due to a limitation in the
+[GCS Connector library](https://cloud.google.com/dataproc/docs/concepts/connectors/cloud-storage),
+the integration tests do not work when using  application default credentials, unless the tests are launched on
+a Google Compute Platform managed node. Scripts for launching the tests in a Google Kubernetes Engine cluster
+have been provided in [integration_test_k8s](./integration_test_k8s)
 
 ### Build, Test and Package
 
