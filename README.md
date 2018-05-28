@@ -380,7 +380,7 @@ integration test will search for when it is run on the maven verify phase.
 
 Due to a limitation in the
 [GCS Connector library](https://cloud.google.com/dataproc/docs/concepts/connectors/cloud-storage),
-the integration tests do not work when using  application default credentials, unless the tests are launched on
+the integration tests do not work when using application default credentials, unless the tests are launched on
 a Google Compute Platform managed node. Scripts for launching the tests in a Google Kubernetes Engine cluster
 have been provided in [integration_test_k8s](./integration_test_k8s)
 
