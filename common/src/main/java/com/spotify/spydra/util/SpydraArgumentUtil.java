@@ -20,9 +20,9 @@ package com.spotify.spydra.util;
 import static com.spotify.spydra.model.ClusterType.DATAPROC;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_MAX_IDLE;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_ACCOUNT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
 
-import com.google.common.base.Throwables;
 import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.Optional;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +74,7 @@ public class SpydraArgumentUtil {
     return config;
   }
 
-  public static SpydraArgument mergeConfigurations(SpydraArgument arguments, String userId)
+  public static SpydraArgument mergeConfigurations(SpydraArgument arguments, Optional<String> userId)
       throws IOException, URISyntaxException {
     SpydraArgument baseArgsWithGivenArgs = mergeConfigsFromPath(
             new String[]{BASE_CONFIGURATION_FILE_NAME, SPYDRA_CONFIGURATION_FILE_NAME},
@@ -87,8 +89,13 @@ public class SpydraArgumentUtil {
           new String[]{BASE_CONFIGURATION_FILE_NAME, DEFAULT_DATAPROC_ARGUMENT_FILE_NAME,
                        SPYDRA_CONFIGURATION_FILE_NAME},
           arguments);
-      LOGGER.debug("Set Dataproc service account user ID: {}", userId);
-      outputConfig.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId);
+      if (userId.isPresent()) {
+        LOGGER.debug("Set user account and service-account for gcloud invocations: {}", userId.get());
+        outputConfig.getCluster().getOptions().put(OPTION_ACCOUNT, userId.get());
+        outputConfig.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId.get());
+      } else {
+        LOGGER.debug("Using application default credentials for gcloud invocations");
+      }
     } else {
       outputConfig = baseArgsWithGivenArgs;
     }
@@ -107,9 +114,11 @@ public class SpydraArgumentUtil {
         new String[]{BASE_CONFIGURATION_FILE_NAME, DEFAULT_DATAPROC_ARGUMENT_FILE_NAME,
                      SPYDRA_CONFIGURATION_FILE_NAME},
         base);
+
     GcpUtils gcpUtils = new GcpUtils();
-    defaults.getCluster().getOptions().put(
-        SpydraArgument.OPTION_SERVICE_ACCOUNT, gcpUtils.userIdFromJsonCredentialInEnv());
+    gcpUtils.getUserId().ifPresent(userId ->
+      defaults.getCluster().getOptions().put(SpydraArgument.OPTION_ACCOUNT, userId));
+
     gcpUtils.configureClusterProjectFromCredential(defaults);
     defaults.replacePlaceholders();
     return defaults;
@@ -123,18 +132,9 @@ public class SpydraArgumentUtil {
   }
 
   public static void setProjectFromCredentialsIfNotSet(SpydraArgument arguments) throws IOException {
-    arguments.getCluster().getOptions().computeIfAbsent(SpydraArgument.OPTION_PROJECT,
-        (key) -> {
-          GcpUtils gcpUtils = new GcpUtils();
-          try {
-            return gcpUtils.projectFromJsonCredential(gcpUtils.credentialJsonFromEnv())
-                .orElseThrow(() -> new IOException(
-                    "No credential available from the credentials found from environment."));
-          } catch (IOException ex) {
-            Throwables.propagate(ex);
-            return null;
-          }
-        });
+    arguments.getCluster().getOptions().computeIfAbsent(
+      SpydraArgument.OPTION_PROJECT,
+      key -> new GcpUtils().getProjectId());
   }
 
   public static void checkRequiredArguments(SpydraArgument arguments, boolean isOnPremiseInvocation,

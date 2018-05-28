@@ -33,7 +33,6 @@ import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
 import com.spotify.spydra.util.SpydraArgumentUtil;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -71,8 +70,8 @@ public class LifecycleIT {
     // Merge to get all other custom test arguments
     arguments = SpydraArgument.merge(arguments, testArgs);
 
-    LOGGER.debug("Using following service account to run gcloud commands locally: " +
-        arguments.getCluster().getOptions().get(SpydraArgument.OPTION_SERVICE_ACCOUNT));
+    LOGGER.info("Using following service account to run gcloud commands locally: " +
+        arguments.getCluster().getOptions().get(SpydraArgument.OPTION_ACCOUNT));
     Submitter submitter = Submitter.getSubmitter(arguments);
     assertTrue("job wasn't successful", submitter.executeJob(arguments));
 
@@ -90,8 +89,7 @@ public class LifecycleIT {
 
   private boolean isClusterCollected(SpydraArgument arguments)
       throws IOException, GeneralSecurityException {
-    GoogleCredential credential = GoogleCredential.fromStream(
-        new ByteArrayInputStream(gcpUtils.credentialJsonFromEnv().getBytes()));
+    GoogleCredential credential = new GcpUtils().getCredential();
     if (credential.createScopedRequired()) {
       credential =
           credential.createScoped(

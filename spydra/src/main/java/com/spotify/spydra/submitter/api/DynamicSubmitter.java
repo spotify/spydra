@@ -33,7 +33,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
@@ -54,10 +53,6 @@ public class DynamicSubmitter extends Submitter {
 
   public DynamicSubmitter() {
     this(new DataprocAPI(), new GcpUtils());
-  }
-
-  public DynamicSubmitter(String account) {
-    this(new DataprocAPI(account), new GcpUtils());
   }
 
   public DynamicSubmitter(DataprocAPI dataprocAPI, GcpUtils gcpUtils) {

@@ -47,10 +47,6 @@ public class PoolingSubmitter extends DynamicSubmitter {
     super();
   }
 
-  public PoolingSubmitter(String account) {
-    super(account);
-  }
-
   static final class Conditions {
     static boolean isYoung(Cluster c, SpydraArgument arguments) {
       return c.status.stateStartTime.plus(arguments.getPooling().getMaxAge())
@@ -134,7 +130,7 @@ public class PoolingSubmitter extends DynamicSubmitter {
     );
     shouldCollect = shouldCollect || dataprocAPI.listClusters(arguments, clusterFilter).stream()
             .findAny().map(cluster -> cluster.status.state.equals(Cluster.Status.ERROR)).orElse(false);
-    
+
     return !shouldCollect || super.releaseCluster(arguments, dataprocAPI);
   }
 }

@@ -25,7 +25,6 @@ import com.spotify.spydra.api.process.ProcessHelper;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,18 +45,11 @@ public class GcloudExecutor {
   private static final String DEFAULT_GCLOUD_COMMAND = "gcloud";
 
   private final String baseCommand;
-  private final String account;
 
   private boolean dryRun = false;
 
   public GcloudExecutor() {
     this.baseCommand = DEFAULT_GCLOUD_COMMAND;
-    this.account = null;
-  }
-
-  public GcloudExecutor(String account) {
-    this.baseCommand = DEFAULT_GCLOUD_COMMAND;
-    this.account = account;
   }
 
   public Optional<Cluster> createCluster(String name, String region, Map<String, String> args)
@@ -106,12 +98,7 @@ public class GcloudExecutor {
   }
 
   private List<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
-
     List<String> command = Lists.newArrayList(this.baseCommand);
-    if (account != null && !account.isEmpty()) {
-      command.add("--account");
-      command.add(account);
-    }
     command.addAll(commands);
     command.add(createOption("quiet", ""));
     options.entrySet().forEach(entry -> command.add(createOption(entry.getKey(), entry.getValue())));

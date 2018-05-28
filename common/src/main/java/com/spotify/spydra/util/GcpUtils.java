@@ -17,8 +17,9 @@
 
 package com.spotify.spydra.util;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.gax.paging.Page;
-import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.auth.Credentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -26,14 +27,9 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
 import com.spotify.spydra.model.SpydraArgument;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -50,63 +46,25 @@ public class GcpUtils {
 
   public static Storage storage;
 
+  private static final GcpConfiguration gcpConfiguration = GcpConfiguration.create();
+
   public void configureCredentialFromEnvironment(Configuration configuration)
       throws IOException {
-    String json = credentialJsonFromEnv();
-    Optional<String> projectId = projectFromJsonCredential(json);
-    if (projectId.isPresent()) {
-      LOGGER.info("Found service account credentials from: " + jsonCredentialPath());
+    configuration.set("fs.gs.project.id", getProjectId());
+    Optional<String> credentialsJsonPath = getJsonCredentialsPath();
+    if (credentialsJsonPath.isPresent()) {
+      LOGGER.info("Found service account credentials from: " + credentialsJsonPath.get());
       configuration.setBoolean("fs.gs.auth.service.account.enable", true);
-      configuration.set("fs.gs.auth.service.account.json.keyfile", jsonCredentialPath());
-      configuration.set("fs.gs.project.id", projectId.get());
+      configuration.set("fs.gs.auth.service.account.json.keyfile", credentialsJsonPath.get());
     } else {
-      LOGGER.info("Given credentials seem not to be of service account in path: "
-                  + jsonCredentialPath());
+      LOGGER.info("Using default hadoop configuration");
     }
-  }
-
-  private String jsonCredentialPath() {
-    return System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
-  }
-
-  public String credentialJsonFromEnv() throws IOException {
-    String jsonFile = jsonCredentialPath();
-    if (jsonFile == null || !Files.exists(Paths.get(jsonFile))) {
-      throw new IllegalArgumentException(
-          "GOOGLE_APPLICATION_CREDENTIALS needs to be set and point to a valid credential json");
-    }
-    return new String(Files.readAllBytes(Paths.get(jsonFile)));
-  }
-
-  public Optional<String> projectFromJsonCredential(String json) throws PathNotFoundException {
-    try {
-      return Optional.of(JsonPath.read(json, "$.project_id"));
-    } catch (PathNotFoundException ex) {
-      LOGGER.info("Could not parse project_id from credentials.");
-      return Optional.empty();
-    }
-  }
-
-  private Optional<String> userIdFromJsonCredential(String json) {
-    try {
-      return Optional.of(JsonPath.read(json, "$.client_email"));
-    } catch (PathNotFoundException ex) {
-      LOGGER.info("Could not parse client_email from credentials.");
-      return Optional.empty();
-    }
-  }
-
-  public String userIdFromJsonCredentialInEnv() throws IOException {
-    return userIdFromJsonCredential(credentialJsonFromEnv()).orElseThrow(
-        () -> new IllegalArgumentException(
-          "No valid credentials (service account) were available to forward to the cluster."));
   }
 
   public void configureClusterProjectFromCredential(SpydraArgument arguments)
       throws IOException {
-    String json = credentialJsonFromEnv();
-    projectFromJsonCredential(json)
-        .ifPresent(s -> arguments.getCluster().getOptions().put(SpydraArgument.OPTION_PROJECT, s));
+    arguments.getCluster().getOptions()
+      .put(SpydraArgument.OPTION_PROJECT, getProjectId());
   }
 
   public FileSystem fileSystemForUri(URI uri) throws IOException {
@@ -118,18 +76,11 @@ public class GcpUtils {
 
   public void configureStorageFromEnvironment()
           throws IOException {
-    String json = credentialJsonFromEnv();
-    Optional<String> projectId = projectFromJsonCredential(json);
-    if (projectId.isPresent()) {
-      storage = StorageOptions.newBuilder()
-            .setCredentials(ServiceAccountCredentials.fromStream(new FileInputStream(jsonCredentialPath())))
-            .setProjectId(projectId.get())
-            .build()
-            .getService();
-    } else {
-      LOGGER.info("Unable to initiate storage. Check the credentials in path: "
-              + jsonCredentialPath());
-    }
+    storage = StorageOptions.newBuilder()
+        .setCredentials(getCredentials())
+        .setProjectId(getProjectId())
+        .build()
+        .getService();
   }
 
   public Bucket checkBucket(String bucketName) {
@@ -159,7 +110,28 @@ public class GcpUtils {
   }
 
   public long getCount(String bucketName, String directory) {
-    Iterable bucketIterator = listBucket(bucketName, directory).iterateAll();
+    Iterable<Blob> bucketIterator = listBucket(bucketName, directory).iterateAll();
     return StreamSupport.stream(bucketIterator.spliterator(), false).count();
   }
+
+  public String getProjectId() {
+      return gcpConfiguration.getProjectId();
+  }
+
+  public Optional<String> getUserId() {
+      return gcpConfiguration.getUserId();
+  }
+
+  public Optional<String> getJsonCredentialsPath() {
+      return gcpConfiguration.getJsonCredentialsPath();
+  }
+
+  public Credentials getCredentials() {
+      return gcpConfiguration.getCredentials();
+  }
+
+  public GoogleCredential getCredential() {
+      return gcpConfiguration.getCredential();
+  }
+
 }
