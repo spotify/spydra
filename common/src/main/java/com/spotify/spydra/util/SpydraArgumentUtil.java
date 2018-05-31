@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
@@ -116,8 +117,14 @@ public class SpydraArgumentUtil {
         base);
 
     GcpUtils gcpUtils = new GcpUtils();
-    gcpUtils.getUserId().ifPresent(userId ->
-      defaults.getCluster().getOptions().put(SpydraArgument.OPTION_ACCOUNT, userId));
+    gcpUtils.getUserId().ifPresent(userId -> {
+      final Map<String, String> options = defaults.getCluster().getOptions();
+
+      options.put(SpydraArgument.OPTION_ACCOUNT, userId);
+      // If we have json credentials on path, add the user as the service account user too
+      gcpUtils.getJsonCredentialsPath().ifPresent(
+          ignored -> options.put(SpydraArgument.OPTION_SERVICE_ACCOUNT, userId));
+    });
 
     gcpUtils.configureClusterProjectFromCredential(defaults);
     defaults.replacePlaceholders();

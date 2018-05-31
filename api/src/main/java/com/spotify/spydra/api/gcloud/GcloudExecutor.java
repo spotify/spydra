@@ -24,6 +24,7 @@ import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.api.process.ProcessHelper;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
+import com.spotify.spydra.util.GcpUtils;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -99,6 +100,14 @@ public class GcloudExecutor {
 
   private List<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
     List<String> command = Lists.newArrayList(this.baseCommand);
+    final GcpUtils gcpUtils = new GcpUtils();
+    gcpUtils.getJsonCredentialsPath().ifPresent(ignored ->
+        gcpUtils.getUserId().ifPresent(userId -> {
+          command.add("--account");
+          command.add(userId);
+        })
+    );
+
     command.addAll(commands);
     command.add(createOption("quiet", ""));
     options.entrySet().forEach(entry -> command.add(createOption(entry.getKey(), entry.getValue())));

@@ -28,6 +28,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.dataproc.Dataproc;
 import com.google.api.services.dataproc.model.Cluster;
 import com.google.api.services.dataproc.model.ListClustersResponse;
+import com.google.auth.oauth2.GceHelper;
 import com.google.common.collect.Lists;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.submitter.api.Submitter;
@@ -43,6 +44,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
+import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +58,11 @@ public class LifecycleIT {
 
   @Test
   public void testLifecycle() throws Exception {
+    // The way that the haddop credentials provider is buggy as it tries to contact the metadata
+    // service in gcp if we use the default account
+    Assume.assumeTrue("Skipping lifecycle test, not running on gce and "
+                      + "GOOGLE_APPLICATION_CREDENTIALS not set",
+        hasApplicationJsonOrRunningOnGce());
     SpydraArgument testArgs = SpydraArgumentUtil.loadArguments("integration-test-config.json");
     SpydraArgument arguments = SpydraArgumentUtil
         .dataprocConfiguration(CLIENT_ID, testArgs.getLogBucket(), testArgs.getRegion());
@@ -85,6 +92,11 @@ public class LifecycleIT {
         "mapred:mapreduce.jobhistory.intermediate-done-dir"));
     LOGGER.info("Checking that we do not have any files in: " + intermediateUri);
     assertEquals(0, getFileCount(intermediateUri));
+  }
+
+  private boolean hasApplicationJsonOrRunningOnGce() {
+    return new GcpUtils().getJsonCredentialsPath().isPresent()
+           || GceHelper.runningOnComputeEngine();
   }
 
   private boolean isClusterCollected(SpydraArgument arguments)
