@@ -144,6 +144,38 @@
           </dependency>
         </dependencies>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.16</version>
+        <configuration>
+          <projectName>Spydra</projectName>
+          <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+          <licenseName>apache_v2</licenseName>
+          <organizationName>Spotify AB</organizationName>
+          <inceptionYear>2016</inceptionYear>
+          <encoding>UTF-8</encoding>
+          <failOnMissingHeader>true</failOnMissingHeader>
+          <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+          <processStartTag>-\-\-</processStartTag>
+          <processEndTag>-/-/-</processEndTag>
+          <emptyLineAfterHeader>true</emptyLineAfterHeader>
+          <roots>
+            <root>src/main/java</root>
+            <root>src/test/java</root>
+          </roots>
+          <sectionDelimiter>--</sectionDelimiter>
+        </configuration>
+        <executions>
+          <execution>
+            <id>check-file-header</id>
+            <goals>
+              <goal>check-file-header</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
