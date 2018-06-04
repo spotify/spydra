@@ -17,28 +17,11 @@
  * limitations under the License.
  * -/-/-
  */
+package com.spotify.spydra.submitter.api;
 
-package com.spotify.spydra.submitter.runner;
+import java.util.List;
 
-import java.io.IOException;
+public interface RandomPlacementGenerator {
 
-/**
- * Interface for different CLI parsers, such as subcommands
- */
-public interface CliParser<T> {
-
-  T parse(String[] args) throws IOException;
-
-  /**
-   * Prints help for the subcommand this parser is responsible for
-   */
-  void printHelp();
-
-  boolean enoughArgs(String[] args);
-
-  class ParsingException extends RuntimeException {
-    public ParsingException(Throwable cause) {
-      super(cause);
-    }
-  }
+  ClusterPlacement randomPlacement(List<ClusterPlacement> placements);
 }

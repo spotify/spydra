@@ -144,6 +144,38 @@
           </dependency>
         </dependencies>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.16</version>
+        <configuration>
+          <projectName>Spydra</projectName>
+          <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+          <licenseName>apache_v2</licenseName>
+          <organizationName>Spotify AB</organizationName>
+          <inceptionYear>2016</inceptionYear>
+          <encoding>UTF-8</encoding>
+          <failOnMissingHeader>true</failOnMissingHeader>
+          <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+          <processStartTag>-\-\-</processStartTag>
+          <processEndTag>-/-/-</processEndTag>
+          <emptyLineAfterHeader>true</emptyLineAfterHeader>
+          <roots>
+            <root>src/main/java</root>
+            <root>src/test/java</root>
+          </roots>
+          <sectionDelimiter>--</sectionDelimiter>
+        </configuration>
+        <executions>
+          <execution>
+            <id>check-file-header</id>
+            <goals>
+              <goal>check-file-header</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -281,6 +313,12 @@
         <artifactId>json-path</artifactId>
         <version>2.2.0</version>
       </dependency>
+      <dependency>
+        <groupId>org.immutables</groupId>
+        <artifactId>value</artifactId>
+        <version>2.6.1</version>
+        <scope>provided</scope>
+      </dependency>
 
       <!-- Test dependencies -->
       <dependency>
@@ -299,6 +337,12 @@
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-mapreduce-examples</artifactId>
         <version>${hadoop.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>java-hamcrest</artifactId>
+        <version>2.0.0.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

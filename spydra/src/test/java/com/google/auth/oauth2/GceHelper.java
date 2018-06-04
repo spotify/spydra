@@ -17,28 +17,13 @@
  * limitations under the License.
  * -/-/-
  */
+package com.google.auth.oauth2;
 
-package com.spotify.spydra.submitter.runner;
+public class GceHelper {
 
-import java.io.IOException;
+  public static boolean runningOnComputeEngine() {
 
-/**
- * Interface for different CLI parsers, such as subcommands
- */
-public interface CliParser<T> {
-
-  T parse(String[] args) throws IOException;
-
-  /**
-   * Prints help for the subcommand this parser is responsible for
-   */
-  void printHelp();
-
-  boolean enoughArgs(String[] args);
-
-  class ParsingException extends RuntimeException {
-    public ParsingException(Throwable cause) {
-      super(cause);
-    }
+    return ComputeEngineCredentials.runningOnComputeEngine(OAuth2Utils.HTTP_TRANSPORT_FACTORY,
+        DefaultCredentialsProvider.DEFAULT);
   }
 }

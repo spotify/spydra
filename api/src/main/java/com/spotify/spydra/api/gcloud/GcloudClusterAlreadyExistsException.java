@@ -17,28 +17,11 @@
  * limitations under the License.
  * -/-/-
  */
+package com.spotify.spydra.api.gcloud;
 
-package com.spotify.spydra.submitter.runner;
+public class GcloudClusterAlreadyExistsException extends RuntimeException {
 
-import java.io.IOException;
-
-/**
- * Interface for different CLI parsers, such as subcommands
- */
-public interface CliParser<T> {
-
-  T parse(String[] args) throws IOException;
-
-  /**
-   * Prints help for the subcommand this parser is responsible for
-   */
-  void printHelp();
-
-  boolean enoughArgs(String[] args);
-
-  class ParsingException extends RuntimeException {
-    public ParsingException(Throwable cause) {
-      super(cause);
-    }
+  public GcloudClusterAlreadyExistsException(String msg) {
+    super(msg);
   }
 }
