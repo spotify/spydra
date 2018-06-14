@@ -29,6 +29,7 @@ import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -75,8 +76,9 @@ abstract class ClusterPlacement {
                                                  SpydraArgument.Pooling pooling) {
     long time = timeSource.get() / 1000;
     long age = pooling.getMaxAge().getSeconds();
+    long timeOffset = new Random(clusterNumber).longs(1, 0, age).findFirst().getAsLong();
 
-    long generation = computeGeneration(time, age);
+    long generation = computeGeneration(time + timeOffset, age);
 
     return new ClusterPlacementBuilder()
         .clusterNumber(clusterNumber)

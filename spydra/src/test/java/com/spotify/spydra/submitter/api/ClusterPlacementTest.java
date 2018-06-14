@@ -30,7 +30,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import com.spotify.spydra.api.model.Cluster;
-import com.spotify.spydra.model.SpydraArgument;
+import com.spotify.spydra.model.SpydraArgument.Pooling;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,22 +40,38 @@ import org.junit.Test;
 public class ClusterPlacementTest {
 
   @Test
-  public void testComputeGeneration() {
-    assertEquals(ClusterPlacement.computeGeneration(0, 30), 0);
-    assertEquals(ClusterPlacement.computeGeneration(30, 30), 1);
-    assertEquals(ClusterPlacement.computeGeneration(31, 30), 1);
+  public void testClustereneration() {
+    // Random offset is 20 and 6 for clusterNumber 0 and 1 and age 30
+    final Pooling pooling = new Pooling();
+    pooling.setLimit(2);
+    pooling.setMaxAge(Duration.ofSeconds(30));
+    assertEquals(ClusterPlacement.createClusterPlacement(() -> 0L, 0, pooling)
+            .clusterGeneration(),0);
+    assertEquals(ClusterPlacement.createClusterPlacement(() -> 39000L, 0, pooling)
+        .clusterGeneration(), 1);
+    assertEquals(ClusterPlacement.createClusterPlacement(() -> 40000L, 0, pooling)
+        .clusterGeneration(), 2);
+
+    assertEquals(ClusterPlacement.createClusterPlacement(() -> 0L, 1, pooling)
+        .clusterGeneration(), 0);
+    assertEquals(ClusterPlacement.createClusterPlacement(() -> 23000L, 1, pooling)
+        .clusterGeneration(), 0);
+    assertEquals(ClusterPlacement.createClusterPlacement(() -> 24000L, 1, pooling)
+        .clusterGeneration(), 1);
   }
 
   @Test
   public void testAllPlacements() {
-    final SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
+    final Pooling pooling = new Pooling();
     pooling.setLimit(3);
     pooling.setMaxAge(Duration.ofSeconds(30));
 
+    // Random offsets are 20, 6 and 18 for the clusterNumbers 0, 1 and 2 and age 30
     final List<ClusterPlacement> all = ClusterPlacement.all(() -> 40000L, pooling);
 
     assertThat(all, hasSize(3));
-    assertThat(all, hasItems(new ClusterPlacementBuilder().clusterNumber(0).clusterGeneration(1).build(),
+    assertThat(all, hasItems(
+        new ClusterPlacementBuilder().clusterNumber(0).clusterGeneration(2).build(),
         new ClusterPlacementBuilder().clusterNumber(1).clusterGeneration(1).build(),
         new ClusterPlacementBuilder().clusterNumber(2).clusterGeneration(1).build()));
   }

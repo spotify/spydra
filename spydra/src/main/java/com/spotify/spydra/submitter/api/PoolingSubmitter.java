@@ -56,8 +56,6 @@ import java.util.function.Supplier;
  * For each slot, it's cluster lifetime is offset by Age // Limit. This has as affect that
  * the limit is exceeded by one cluster at a time which should become idle and thus collected before
  * the next horde of clients come in. The algorithm is implemented in {@link ClusterPlacement#createClusterPlacement}.
- * Example scenario's have been worked out in
- * <a href="https://docs.google.com/spreadsheets/d/1Sfw_yxNSYJjHYtiHGQQf1ZHnNTqc7nGyXGGts_EaupM">a spreadsheet.</a>
  */
 public class PoolingSubmitter extends DynamicSubmitter {
 
