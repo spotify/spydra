@@ -52,9 +52,11 @@ public class PoolingTest {
   private static final String nonSpydraClusterName = "not-a-spydra-cluster";
   private static final String VALID_TOKEN_1 = "0-0";
   private static final String VALID_TOKEN_2 = "1-0";
-  private static final Long NOW = Duration.ofMinutes(15).getSeconds() * 1000;
+  private static final Long NOW = Duration.ofMinutes(30).getSeconds() * 1000;
 
-  static Cluster perfectCluster(final String clientid, final String token) {
+  static Cluster perfectCluster(final String clientid,
+                                final int clusterNumber,
+                                final long generation) {
     Cluster cluster = new Cluster();
     cluster.clusterName = spydraClusterName;
     Cluster.Status status = new Cluster.Status();
@@ -63,7 +65,8 @@ public class PoolingTest {
     cluster.status = status;
     cluster.labels = ImmutableMap.of(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1",
         PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid,
-        PoolingSubmitter.SPYDRA_PLACEMENT_TOKEN_LABEL, token);
+        PoolingSubmitter.SPYDRA_PLACEMENT_TOKEN_LABEL,
+        String.format("%d-%d", clusterNumber, generation));
     cluster.config.gceClusterConfig.metadata.heartbeat =
         Optional.of(cluster.status.stateStartTime.plusMinutes(60));
     return cluster;
@@ -81,14 +84,10 @@ public class PoolingTest {
     return cluster;
   }
 
-  static Cluster creatingCluster(String clientid) {
-    Cluster cluster = perfectCluster(clientid, VALID_TOKEN_1);
-    cluster.status.state = "CREATING";
-    return cluster;
-  }
-
-  static Cluster errorCluster(final String clientid, final String token) {
-    Cluster cluster = perfectCluster(clientid, token);
+  static Cluster errorCluster(final String clientid,
+                              final int clusterNumber,
+                              final long generation) {
+    Cluster cluster = perfectCluster(clientid, clusterNumber, generation);
     cluster.status.state = Cluster.Status.ERROR;
     return cluster;
   }
@@ -114,21 +113,23 @@ public class PoolingTest {
 
     @Test
     public void acquirePooledCluster() throws Exception {
+      final Duration age = Duration.ofMinutes(30);
 
       ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(clientId, VALID_TOKEN_1),
-              perfectCluster(clientId, VALID_TOKEN_2));
+          ImmutableList.of(
+              perfectCluster(clientId, 0, 1),
+              perfectCluster(clientId, 1, 1));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2); // 2 perfectly suited clusters above!
-      pooling.setMaxAge(Duration.ofMinutes(30));
+      pooling.setMaxAge(age);
       arguments.setClientId(clientId);
       arguments.setPooling(pooling);
 
       when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
       when(dataprocAPI.createCluster(arguments))
-          .thenReturn(Optional.of(perfectCluster(clientId, VALID_TOKEN_1)));
+          .thenReturn(Optional.of(perfectCluster(clientId, 0, 1)));
 
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
@@ -142,20 +143,21 @@ public class PoolingTest {
 
     @Test
     public void avoidAncientCluster() throws Exception {
+      final Duration age = Duration.ofMinutes(10);
       ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(clientId, VALID_TOKEN_1),
-              perfectCluster(clientId, VALID_TOKEN_2));
+          ImmutableList.of(perfectCluster(clientId, 0, 0),
+              perfectCluster(clientId, 1, 0));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(1); // 2 reasonable but old clusters above. Pool is "full", but none usable.
-      pooling.setMaxAge(Duration.ofMinutes(10));
+      pooling.setMaxAge(age);
       arguments.setClientId(clientId);
       arguments.setPooling(pooling);
 
       when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
       when(dataprocAPI.createCluster(arguments))
-          .thenReturn(Optional.of(perfectCluster(clientId, "0-3")));
+          .thenReturn(Optional.of(perfectCluster(clientId, 0, 3)));
 
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
@@ -165,7 +167,7 @@ public class PoolingTest {
     @Test
     public void acquireNewCluster() throws Exception {
       ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(clientId, VALID_TOKEN_1));
+          ImmutableList.of(perfectCluster(clientId, 0, 1));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2);
@@ -175,7 +177,7 @@ public class PoolingTest {
 
       ClusterPlacement clusterPlacement = new ClusterPlacementBuilder()
           .clusterNumber(1)
-          .clusterGeneration(0)
+          .clusterGeneration(1)
           .build();
 
       reset(randomPlacementGenerator);
@@ -185,7 +187,7 @@ public class PoolingTest {
       when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
       when(dataprocAPI.createCluster(arguments))
-          .thenReturn(Optional.of(perfectCluster(clientId, VALID_TOKEN_2)));
+          .thenReturn(Optional.of(perfectCluster(clientId, 1, 1)));
       boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
       assertTrue("Failed to acquire a cluster", result);
       verify(dataprocAPI, times(1)).createCluster(arguments);
@@ -194,8 +196,8 @@ public class PoolingTest {
     @Test
     public void releaseCluster() throws Exception {
       ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(clientId, VALID_TOKEN_1),
-              perfectCluster(clientId, VALID_TOKEN_2));
+          ImmutableList.of(perfectCluster(clientId, 0, 1),
+              perfectCluster(clientId, 1, 1));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2);
@@ -215,8 +217,8 @@ public class PoolingTest {
     @Test
     public void releaseErrorCluster() throws Exception {
       ImmutableList<Cluster> clusters =
-          ImmutableList.of(errorCluster(clientId, VALID_TOKEN_1),
-              errorCluster(clientId, VALID_TOKEN_2));
+          ImmutableList.of(errorCluster(clientId, 0, 0),
+              errorCluster(clientId, 1, 0));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2);
