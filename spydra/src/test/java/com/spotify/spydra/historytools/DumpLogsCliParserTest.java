@@ -22,11 +22,11 @@ package com.spotify.spydra.historytools;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import com.spotify.spydra.CliTestHelpers;
 import com.spotify.spydra.historytools.commands.DumpLogsCommand;
 import com.spotify.spydra.submitter.runner.CliConsts;
 import com.spotify.spydra.submitter.runner.CliParser;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
@@ -56,7 +56,7 @@ public class DumpLogsCliParserTest {
   @Test
   public void testMissingArgs() {
     // Ensure options are mandatory
-    List<String[]> failingLines = Lists.newArrayList(
+    List<String[]> failingLines = Arrays.asList(
         new String[]{
             CliTestHelpers.toStrOpt(CliConsts.CLIENT_ID_OPTION_NAME, DUMMY_CLIENT_ID)
         },

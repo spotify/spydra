@@ -20,7 +20,6 @@
 
 package com.spotify.spydra.submitter.runner;
 
-import com.google.common.base.Joiner;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.MissingOptionException;
@@ -89,7 +88,7 @@ public class CliHelper {
     try {
       return parser.parse(options, args);
     } catch (MissingOptionException moe) {
-      logger.error("Required options missing: " + Joiner.on(',').join(moe.getMissingOptions()));
+      logger.error(moe.getMessage());
       throw new CliParser.ParsingException(moe);
     } catch (ParseException e) {
       logger.error("Failed parsing options", e);

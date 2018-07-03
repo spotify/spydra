@@ -22,14 +22,13 @@ package com.spotify.spydra;
 
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.base.Joiner;
 import com.spotify.spydra.submitter.runner.CliParser;
 import java.util.List;
 
 public class CliTestHelpers {
   public static <T> void ensureAllThrow(CliParser<T> parser, List<String[]> argsList, Class exceptionCls) {
     for (String[] args : argsList) {
-      String errorMsg = "Should throw for: " + Joiner.on(";").join(args);
+      String errorMsg = "Should throw for: " + String.join(";", args);
       assertTrue(errorMsg, checkThrows(parser, args, exceptionCls));
     }
   }

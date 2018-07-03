@@ -32,7 +32,6 @@ import com.google.api.services.dataproc.Dataproc;
 import com.google.api.services.dataproc.model.Cluster;
 import com.google.api.services.dataproc.model.ListClustersResponse;
 import com.google.auth.oauth2.GceHelper;
-import com.google.common.collect.Lists;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.submitter.api.Submitter;
 import com.spotify.spydra.util.GcpUtils;
@@ -40,6 +39,7 @@ import com.spotify.spydra.util.SpydraArgumentUtil;
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 import org.apache.hadoop.examples.WordCount;
@@ -71,7 +71,7 @@ public class LifecycleIT {
         .dataprocConfiguration(CLIENT_ID, testArgs.getLogBucket(), testArgs.getRegion());
     arguments.getCluster().numWorkers(3);
     arguments.getSubmit().jar(getExamplesJarPath());
-    arguments.getSubmit().setJobArgs(Lists.newArrayList("pi", "1", "1"));
+    arguments.getSubmit().setJobArgs(Arrays.asList("pi", "1", "1"));
 
     // TODO We should test the init action as well but the uploading before running the test is tricky
     // We could upload it manually to a test bucket here and set the right things
