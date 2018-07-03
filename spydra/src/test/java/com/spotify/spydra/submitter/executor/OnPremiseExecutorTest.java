@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 import com.spotify.spydra.model.SpydraArgument;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 public class OnPremiseExecutorTest {
@@ -47,13 +46,13 @@ public class OnPremiseExecutorTest {
     arguments.getSubmit().getOptions().put(OPTION_JAR, jarPath);
     arguments.getSubmit().getOptions().put(OPTION_CLASS, mainClass);
     arguments.getSubmit().getOptions().put(SpydraArgument.OPTION_PROPERTIES,
-        StringUtils.join(properties, ","));
+        String.join(",", properties));
     arguments.getSubmit().setJobArgs(args);
 
     OnPremiseExecutor executor = new OnPremiseExecutor();
     List<String> command = executor.getCommand(arguments);
 
-    String[] baseCommand = StringUtils.split(OnPremiseExecutor.BASE_COMMAND);
+    String[] baseCommand = OnPremiseExecutor.BASE_COMMAND.split(" ");
     for (int i = 0; i < baseCommand.length; i++) {
       assertEquals(baseCommand[i], command.get(i));
     }
@@ -75,7 +74,7 @@ public class OnPremiseExecutorTest {
     String expectedCommand = "hadoop jar jarPath mainClass arg1 "
         + "-D propertyName0=propertyValue0 "
         + "-D propertyName1=propertyValue1";
-    String actualCommand = StringUtils.join(command, StringUtils.SPACE);
+    String actualCommand = String.join(" ", command);
     assertEquals(expectedCommand, actualCommand);
   }
 }

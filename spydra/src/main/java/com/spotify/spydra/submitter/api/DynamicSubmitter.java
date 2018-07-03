@@ -38,7 +38,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +145,7 @@ public class DynamicSubmitter extends Submitter {
                                                 arguments.getAutoScaler().getDownscaleTimeout()
                                                                                          : 0));
     metadataArgument.cluster.getOptions()
-        .put(SpydraArgument.OPTION_METADATA, StringUtils.join(list, ","));
+        .put(SpydraArgument.OPTION_METADATA, String.join(",", list));
     return SpydraArgument.merge(arguments, metadataArgument);
   }
 

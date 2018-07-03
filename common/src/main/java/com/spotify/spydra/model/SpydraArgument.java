@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-import org.apache.commons.lang3.StringUtils;
 
 public class SpydraArgument {
   public static final String OPTION_JAR = "jar";
@@ -427,7 +426,7 @@ public class SpydraArgument {
   private Properties parseProperties(Map<String, String> options) {
     Properties properties = new Properties();
     if (options.containsKey(OPTION_PROPERTIES)) {
-      for (String property : StringUtils.split(options.get(OPTION_PROPERTIES), ",")) {
+      for (String property : options.get(OPTION_PROPERTIES).split(",")) {
         String[] split = property.split("=");
         properties.put(split[0], split[1]);
       }

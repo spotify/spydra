@@ -33,7 +33,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.commons.lang3.StringUtils;
 
 public class SubmissionCliParser implements CliParser<SpydraArgument> {
   final static String CMD_NAME = "submit";
@@ -82,7 +81,7 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
 
     if (cmdLine.hasOption(CliConsts.JARS_OPTION_NAME)) {
       spydraArgument.getSubmit().getOptions().put(SpydraArgument.OPTION_JARS,
-          StringUtils.join(cmdLine.getOptionValues(CliConsts.JARS_OPTION_NAME), ","));
+          String.join(",", cmdLine.getOptionValues(CliConsts.JARS_OPTION_NAME)));
     }
 
     if (cmdLine.hasOption(CliConsts.JOBNAME_OPTION_NAME)) {

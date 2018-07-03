@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import jdk.nashorn.tools.Shell;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +78,7 @@ public class OnPremiseExecutor implements Executor {
   }
 
   private void addBaseCommand() {
-    String[] commands = StringUtils.split(BASE_COMMAND);
+    String[] commands = BASE_COMMAND.split(" ");
     this.command.addAll(Arrays.asList(commands));
   }
 
@@ -105,7 +104,7 @@ public class OnPremiseExecutor implements Executor {
     }
 
     List<String> command = getCommand(arguments);
-    String fullCommand = StringUtils.join(command, StringUtils.SPACE);
+    String fullCommand = String.join(" ", command);
     LOGGER.info("Executing command {}", fullCommand);
     boolean result = false;
     try {
