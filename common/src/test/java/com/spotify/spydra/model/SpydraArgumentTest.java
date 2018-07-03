@@ -20,8 +20,6 @@
 
 package com.spotify.spydra.model;
 
-
-import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Test;
 

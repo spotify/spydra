@@ -21,14 +21,13 @@
 package com.spotify.spydra.api.gcloud;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.api.process.ProcessHelper;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.util.GcpUtils;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import jdk.nashorn.tools.Shell;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +57,7 @@ public class GcloudExecutor {
       throws IOException {
     Map<String, String> createOptions = new HashMap<>(args);
     createOptions.put(SpydraArgument.OPTION_REGION, region);
-    List<String> command = ImmutableList.of("--format=json", "beta", "dataproc", "clusters", "create", name);
+    List<String> command = Arrays.asList("--format=json", "beta", "dataproc", "clusters", "create", name);
     StringBuilder outputBuilder = new StringBuilder();
     boolean success = ProcessHelper.executeForOutput(
         buildCommand(command, createOptions, Collections.emptyList()),
@@ -83,7 +81,7 @@ public class GcloudExecutor {
   public boolean deleteCluster(String name, String region, Map<String, String> args) throws IOException {
     Map<String, String> deleteOptions = new HashMap<>(args);
     deleteOptions.put(SpydraArgument.OPTION_REGION, region);
-    return execute(ImmutableList.of("dataproc", "clusters", "delete", name,
+    return execute(Arrays.asList("dataproc", "clusters", "delete", name,
         createOption("async", "")),
         deleteOptions, Collections.emptyList());
   }
@@ -92,7 +90,7 @@ public class GcloudExecutor {
       throws IOException {
     Map<String, String> submitOptions = new HashMap<>(options);
     submitOptions.put(SpydraArgument.OPTION_REGION, region);
-    List<String> submitCommand = Lists.newArrayList("dataproc", "jobs", "submit", type);
+    List<String> submitCommand = new ArrayList<>(Arrays.asList("dataproc", "jobs", "submit", type));
     if (type.equals(SpydraArgument.JOB_TYPE_PYSPARK)) {
       // JOB_TYPE_PYSPARK is special, it has a positional argument :|
       submitCommand.add(pyFile.orElseThrow(() -> new IllegalArgumentException(
@@ -104,7 +102,8 @@ public class GcloudExecutor {
   }
 
   private List<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
-    List<String> command = Lists.newArrayList(this.baseCommand);
+    List<String> command = new ArrayList<>();
+    command.add(this.baseCommand);
     final GcpUtils gcpUtils = new GcpUtils();
     gcpUtils.getJsonCredentialsPath().ifPresent(ignored ->
         gcpUtils.getUserId().ifPresent(userId -> {
@@ -115,10 +114,10 @@ public class GcloudExecutor {
 
     command.addAll(commands);
     command.add(createOption("quiet", ""));
-    options.entrySet().forEach(entry -> command.add(createOption(entry.getKey(), entry.getValue())));
+    options.forEach((key, value) -> command.add(createOption(key, value)));
     if (jobArgs.size() != 0) {
       command.add("--");
-      jobArgs.forEach(command::add);
+      command.addAll(jobArgs);
     }
 
     return command;
@@ -128,7 +127,7 @@ public class GcloudExecutor {
       throws IOException {
     List<String> command = buildCommand(commands, options, jobArgs);
     if (this.dryRun) {
-      System.out.println(StringUtils.join(command, StringUtils.SPACE));
+      System.out.println(String.join(" ", command));
       return true;
     } else {
       return ProcessHelper.executeCommand(command) == Shell.SUCCESS;
@@ -148,8 +147,7 @@ public class GcloudExecutor {
   }
 
   public List<Cluster> listClusters(String project, String region, Map<String,String> filters) throws IOException {
-    List<String> command = Lists.newArrayList(
-        "dataproc", "clusters", "list", "--format=json");
+    List<String> command = new ArrayList<>(Arrays.asList("dataproc", "clusters", "list", "--format=json"));
     Map<String, String> options = new HashMap<>();
     options.put(SpydraArgument.OPTION_PROJECT, project);
     options.put(SpydraArgument.OPTION_REGION, region);

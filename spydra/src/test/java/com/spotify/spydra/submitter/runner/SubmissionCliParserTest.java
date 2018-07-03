@@ -21,13 +21,15 @@
 package com.spotify.spydra.submitter.runner;
 
 import static com.spotify.spydra.submitter.runner.CliConsts.JOBNAME_OPTION_NAME;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.ImmutableMap;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -71,14 +73,14 @@ public class SubmissionCliParserTest {
   public void testMultipleSpydraJson() throws IOException {
     File jsonFile1 = temporaryFolder.newFile("spydra1.json");
     File jsonFile2 = temporaryFolder.newFile("spydra2.json");
-    JsonHelper.objectMapper().writeValue(jsonFile1, ImmutableMap.of(
-        "cluster", ImmutableMap.of("options", ImmutableMap.of("labels", "ck1=cv1")),
-        "submit", ImmutableMap.of("options", ImmutableMap.of("labels", "sk1=sv1"))
-    ));
-    JsonHelper.objectMapper().writeValue(jsonFile2, ImmutableMap.of(
-        "cluster", ImmutableMap.of("options", ImmutableMap.of("labels", "ck2=cv2")),
-        "submit", ImmutableMap.of("options", ImmutableMap.of("labels", "sk2=sv2"))
-    ));
+    JsonHelper.objectMapper().writeValue(jsonFile1, new HashMap<String, Map<String, Map<String, String>>>() {{
+        put("cluster", singletonMap("options", singletonMap("labels", "ck1=cv1")));
+        put("submit", singletonMap("options", singletonMap("labels", "sk1=sv1")));
+    }});
+    JsonHelper.objectMapper().writeValue(jsonFile2, new HashMap<String, Map<String, Map<String, String>>>() {{
+        put("cluster", singletonMap("options", singletonMap("labels", "ck2=cv2")));
+        put("submit", singletonMap("options", singletonMap("labels", "sk2=sv2")));
+    }});
     SubmissionCliParser parser = new SubmissionCliParser();
     String[] args = {
         "--spydra-json", jsonFile1.toString(),
@@ -88,4 +90,6 @@ public class SubmissionCliParserTest {
     assertEquals("ck1=cv1,ck2=cv2", argument.cluster.options.get("labels"));
     assertEquals("sk1=sv1,sk2=sv2", argument.submit.options.get("labels"));
   }
+
 }
+

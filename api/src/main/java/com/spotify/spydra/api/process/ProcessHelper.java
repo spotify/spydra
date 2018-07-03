@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import jdk.nashorn.tools.Shell;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ public class ProcessHelper {
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessHelper.class);
 
   public static int executeCommand(List<String> command) throws IOException {
-    LOGGER.debug("Executing command: " + StringUtils.join(command, " "));
+    LOGGER.debug("Executing command: " + String.join(" ", command));
     ProcessBuilder pb = new ProcessBuilder(command)
         .redirectError(ProcessBuilder.Redirect.INHERIT)
         .redirectOutput(ProcessBuilder.Redirect.INHERIT);
@@ -51,7 +50,7 @@ public class ProcessHelper {
 
   public static boolean executeForOutput(List<String> command, StringBuilder outputBuilder)
       throws IOException {
-    LOGGER.debug("Executing command: " + StringUtils.join(command, " "));
+    LOGGER.debug("Executing command: " + String.join(" ", command));
     ProcessBuilder pb = new ProcessBuilder(command)
         .redirectError(ProcessBuilder.Redirect.PIPE)
         .redirectOutput(ProcessBuilder.Redirect.PIPE);

@@ -26,13 +26,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,8 +60,7 @@ public class DynamicSubmitterTest {
 
   @Test
   public void releaseErrorCluster() throws Exception {
-    ImmutableList<Cluster> clusters =
-            ImmutableList.of(errorCluster(clientId), errorCluster(clientId));
+    List<Cluster> clusters = Arrays.asList(errorCluster(), errorCluster());
 
     SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
     arguments.setPooling(pooling);
@@ -75,19 +75,19 @@ public class DynamicSubmitterTest {
     verify(dataprocAPI).deleteCluster(arguments);
   }
 
-  private static Cluster perfectCluster(final String clientid) {
+  private static Cluster perfectCluster() {
     Cluster cluster = new Cluster();
     cluster.clusterName = spydraClusterName;
     Cluster.Status status = new Cluster.Status();
     status.state = Cluster.Status.RUNNING;
     status.stateStartTime = ZonedDateTime.now(ZoneOffset.UTC);
     cluster.status = status;
-    cluster.labels = ImmutableMap.of(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1");
+    cluster.labels = Collections.singletonMap(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1");
     return cluster;
   }
 
-  private static Cluster errorCluster(final String clientid) {
-    Cluster cluster = perfectCluster(clientid);
+  private static Cluster errorCluster() {
+    Cluster cluster = perfectCluster();
     cluster.status.state = Cluster.Status.ERROR;
     return cluster;
   }

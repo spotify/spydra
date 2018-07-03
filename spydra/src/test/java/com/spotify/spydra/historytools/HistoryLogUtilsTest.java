@@ -25,7 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Iterators;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 import org.apache.hadoop.conf.Configuration;
@@ -82,11 +82,12 @@ public class HistoryLogUtilsTest {
   @Test
   public void testFindHistoryFilePath() throws Exception {
 
-    final Iterator<LocatedFileStatus> mockListing = Iterators.forArray(
+    final Iterator<LocatedFileStatus> mockListing = Arrays.asList(
         mockFileStatus("/foobar.jhist"),
         mockFileStatus("/barbaz.jhist"),
         mockFileStatus("/a.log"),
-        mockFileStatus("/" + DUMMY_JHIST_NAME));
+        mockFileStatus("/" + DUMMY_JHIST_NAME))
+        .iterator();
 
     Optional<String> jHistFile = HistoryLogUtils.findHistoryFilePath(mockListing,
         ApplicationId.newInstance(DUMMY_ID_TIMESTAMP, DUMMY_ID_SERIAL));
@@ -98,8 +99,7 @@ public class HistoryLogUtilsTest {
   @Test
   public void testNoHistoryFound() throws Exception {
 
-    final Iterator<LocatedFileStatus> mockListing = Iterators.forArray(
-        mockFileStatus("/a.log"));
+    final Iterator<LocatedFileStatus> mockListing = Arrays.asList(mockFileStatus("/a.log")).iterator();
 
     Optional<String> jHistFile = HistoryLogUtils.findHistoryFilePath(mockListing,
         ApplicationId.newInstance(DUMMY_ID_TIMESTAMP, DUMMY_ID_SERIAL));

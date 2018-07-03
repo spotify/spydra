@@ -20,8 +20,6 @@
 
 package com.spotify.spydra.submitter.runner;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.spotify.spydra.historytools.DumpHistoryCliParser;
 import com.spotify.spydra.historytools.DumpLogsCliParser;
 import com.spotify.spydra.historytools.HistoryLogUtils;
@@ -73,9 +71,13 @@ public class Runner {
         break;
       default:
         LOGGER.error("Unknown command: " + command);
-        System.out.println("Unsupported command. Possible commands are: " + Joiner.on(",")
-            .join(Lists.newArrayList(CliConsts.SUBMIT_CMD_NAME, CliConsts.LOGS_CMD_NAME,
-                CliConsts.DUMP_HISTORY_CMD_NAME, CliConsts.RUN_JHS_CMD_NAME)));
+        System.out.println(
+            "Unsupported command. Possible commands are: "
+            + String.join(", ", Arrays.asList(
+                CliConsts.SUBMIT_CMD_NAME,
+                CliConsts.LOGS_CMD_NAME,
+                CliConsts.DUMP_HISTORY_CMD_NAME,
+                CliConsts.RUN_JHS_CMD_NAME)));
         System.exit(1);
         break;
     }

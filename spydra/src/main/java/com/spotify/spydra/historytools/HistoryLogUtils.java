@@ -20,11 +20,10 @@
 
 package com.spotify.spydra.historytools;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +81,7 @@ public class HistoryLogUtils {
 
     if (logger.isDebugEnabled()) {
       logger.debug("Dumping generated config to be applied for log/history tools");
-      logger.debug(Joiner.on("\n").join(cfg.iterator()));
+      logger.debug(StreamSupport.stream(cfg.spliterator(), false).map(Object::toString).collect(Collectors.joining("\n")));
     }
 
     return cfg;
@@ -158,7 +157,7 @@ public class HistoryLogUtils {
 
     JobID jobId = new JobID(String.valueOf(applicationId.getClusterTimestamp()), applicationId.getId());
 
-    List<LocatedFileStatus> jhistFiles = Lists.newArrayList();
+    List<LocatedFileStatus> jhistFiles = new ArrayList<>();
     // maybe this could work more nicely with some recursive glob and a filter
     try {
       jhistFiles = StreamSupport

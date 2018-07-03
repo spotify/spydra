@@ -9,7 +9,7 @@
   <artifactId>spydra</artifactId>
 
   <properties>
-    <init-action-uri>gs://spydra-init-actions/${artifactId}</init-action-uri>
+    <init-action-uri>gs://spydra-init-actions/${project.artifactId}</init-action-uri>
     <versioned-init-action-uri>${init-action-uri}/${project.version}</versioned-init-action-uri>
     <test-configuration-dir>../travis_files</test-configuration-dir>
   </properties>
@@ -78,6 +78,11 @@
       <version>4.0</version>
     </dependency>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-dataproc</artifactId>
       <scope>test</scope>
@@ -89,6 +94,17 @@
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>

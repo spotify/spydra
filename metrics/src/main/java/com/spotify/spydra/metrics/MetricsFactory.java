@@ -20,7 +20,6 @@
 
 package com.spotify.spydra.metrics;
 
-import com.google.common.base.Throwables;
 import com.spotify.spydra.metrics.impl.LoggingMetrics;
 import com.spotify.spydra.model.SpydraArgument;
 import java.lang.reflect.Constructor;
@@ -52,7 +51,7 @@ public class MetricsFactory {
       metrics = constructor.newInstance(user);
     } catch (ClassNotFoundException | IllegalAccessException | InstantiationException
         | NoSuchMethodException | InvocationTargetException e) {
-      Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 }

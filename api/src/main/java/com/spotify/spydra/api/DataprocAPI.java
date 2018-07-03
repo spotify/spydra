@@ -21,13 +21,13 @@
 package com.spotify.spydra.api;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.spotify.spydra.api.gcloud.GcloudExecutor;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,7 +69,8 @@ public class DataprocAPI {
   }
 
   public boolean deleteCluster(SpydraArgument arguments) throws IOException {
-    ImmutableMap<String, String> args = ImmutableMap.of(SpydraArgument.OPTION_PROJECT,
+    Map<String, String> args = Collections.singletonMap(
+        SpydraArgument.OPTION_PROJECT,
         arguments.getCluster().getOptions().get(SpydraArgument.OPTION_PROJECT));
     boolean success = false;
     try {

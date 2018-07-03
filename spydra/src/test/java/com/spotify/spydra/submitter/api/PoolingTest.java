@@ -31,14 +31,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
 import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,9 +51,6 @@ import org.junit.runner.RunWith;
 public class PoolingTest {
 
   private static final String spydraClusterName = "spydra-uuid";
-  private static final String nonSpydraClusterName = "not-a-spydra-cluster";
-  private static final String VALID_TOKEN_1 = "0-0";
-  private static final String VALID_TOKEN_2 = "1-0";
   private static final Long NOW = Duration.ofMinutes(30).getSeconds() * 1000;
 
   static Cluster perfectCluster(final String clientid,
@@ -63,24 +62,13 @@ public class PoolingTest {
     status.state = Cluster.Status.RUNNING;
     status.stateStartTime = ZonedDateTime.now(ZoneOffset.UTC);
     cluster.status = status;
-    cluster.labels = ImmutableMap.of(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1",
-        PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid,
-        PoolingSubmitter.SPYDRA_PLACEMENT_TOKEN_LABEL,
-        String.format("%d-%d", clusterNumber, generation));
+    cluster.labels = new HashMap<String, String>() {{
+      put(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1");
+      put(PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid);
+      put(PoolingSubmitter.SPYDRA_PLACEMENT_TOKEN_LABEL, String.format("%d-%d", clusterNumber, generation));
+    }};
     cluster.config.gceClusterConfig.metadata.heartbeat =
         Optional.of(cluster.status.stateStartTime.plusMinutes(60));
-    return cluster;
-  }
-
-  static Cluster nonSpydraCluster(String clientid) {
-    Cluster cluster = new Cluster();
-    cluster.labels = ImmutableMap.of();
-    cluster.clusterName = "not-a-spydra-cluster";
-    Cluster.Status status = new Cluster.Status();
-    cluster.labels = ImmutableMap.of(DynamicSubmitter.SPYDRA_CLUSTER_LABEL, "1",
-        PoolingSubmitter.POOLED_CLUSTER_CLIENTID_LABEL, clientid);
-    status.state = Cluster.Status.RUNNING;
-    status.stateStartTime = ZonedDateTime.now(ZoneOffset.UTC);
     return cluster;
   }
 
@@ -115,10 +103,7 @@ public class PoolingTest {
     public void acquirePooledCluster() throws Exception {
       final Duration age = Duration.ofMinutes(30);
 
-      ImmutableList<Cluster> clusters =
-          ImmutableList.of(
-              perfectCluster(clientId, 0, 1),
-              perfectCluster(clientId, 1, 1));
+      List<Cluster> clusters = Arrays.asList(perfectCluster(clientId, 0, 1), perfectCluster(clientId, 1, 1));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2); // 2 perfectly suited clusters above!
@@ -144,9 +129,8 @@ public class PoolingTest {
     @Test
     public void avoidAncientCluster() throws Exception {
       final Duration age = Duration.ofMinutes(10);
-      ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(clientId, 0, 0),
-              perfectCluster(clientId, 1, 0));
+      List<Cluster> clusters = Arrays.asList(perfectCluster(clientId, 0, 0),
+          perfectCluster(clientId, 1, 0));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(1); // 2 reasonable but old clusters above. Pool is "full", but none usable.
@@ -166,8 +150,7 @@ public class PoolingTest {
 
     @Test
     public void acquireNewCluster() throws Exception {
-      ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(clientId, 0, 1));
+      List<Cluster> clusters = Collections.singletonList(perfectCluster(clientId, 0, 1));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2);
@@ -195,9 +178,8 @@ public class PoolingTest {
 
     @Test
     public void releaseCluster() throws Exception {
-      ImmutableList<Cluster> clusters =
-          ImmutableList.of(perfectCluster(clientId, 0, 1),
-              perfectCluster(clientId, 1, 1));
+      List<Cluster> clusters = Arrays.asList(perfectCluster(clientId, 0, 1),
+          perfectCluster(clientId, 1, 1));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2);
@@ -216,9 +198,8 @@ public class PoolingTest {
 
     @Test
     public void releaseErrorCluster() throws Exception {
-      ImmutableList<Cluster> clusters =
-          ImmutableList.of(errorCluster(clientId, 0, 0),
-              errorCluster(clientId, 1, 0));
+      List<Cluster> clusters = Arrays.asList(errorCluster(clientId, 0, 0),
+          errorCluster(clientId, 1, 0));
 
       SpydraArgument.Pooling pooling = new SpydraArgument.Pooling();
       pooling.setLimit(2);

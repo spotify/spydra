@@ -21,8 +21,6 @@ package com.spotify.spydra.submitter.api;
 
 import static com.spotify.spydra.model.SpydraArgument.OPTIONS_FILTER_LABEL_PREFIX;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.spotify.spydra.api.DataprocAPI;
 import com.spotify.spydra.api.gcloud.GcloudClusterAlreadyExistsException;
 import com.spotify.spydra.api.model.Cluster;
@@ -30,6 +28,7 @@ import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -59,11 +58,10 @@ import java.util.function.Supplier;
  */
 public class PoolingSubmitter extends DynamicSubmitter {
 
-  @VisibleForTesting
-  static final String POOLED_CLUSTER_CLIENTID_LABEL =
-      "spydra-fixed-pooling-cluster-client-id";
+  public static final String POOLED_CLUSTER_CLIENTID_LABEL = "spydra-fixed-pooling-cluster-client-id";
   public static final String SPYDRA_PLACEMENT_TOKEN_LABEL = "spydra-placement-token";
   public static final String SPYDRA_UNPLACED_TOKEN = "unplaced";
+
   private Supplier<Long> timeSource;
   private final RandomPlacementGenerator randomPlacementGenerator;
 
@@ -139,10 +137,9 @@ public class PoolingSubmitter extends DynamicSubmitter {
   public boolean releaseCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
       throws IOException {
 
-    Map<String, String> clusterFilter = ImmutableMap.of(
-        "status.state", "ERROR",
-        "clusterName", arguments.getCluster().getName()
-    );
+    Map<String, String> clusterFilter = new HashMap<>();
+    clusterFilter.put("status.state", "ERROR");
+    clusterFilter.put("clusterName", arguments.getCluster().getName());
 
     boolean shouldRelease = dataprocAPI.listClusters(arguments, clusterFilter).stream()
         .findAny().map(cluster -> cluster.status.state.equals(Cluster.Status.ERROR)).orElse(false);
@@ -151,9 +148,9 @@ public class PoolingSubmitter extends DynamicSubmitter {
   }
 
   private static Map<String, String> poolableClusterFilter(String clientId) {
-    return ImmutableMap.of(
-        OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "",
-        OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, clientId
-    );
+    Map<String, String> result = new HashMap<>();
+    result.put(OPTIONS_FILTER_LABEL_PREFIX + SPYDRA_CLUSTER_LABEL, "");
+    result.put(OPTIONS_FILTER_LABEL_PREFIX + POOLED_CLUSTER_CLIENTID_LABEL, clientId);
+    return result;
   }
 }
