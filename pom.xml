@@ -16,7 +16,7 @@
   <groupId>com.spotify.data.spydra</groupId>
   <artifactId>spydra-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.3.20-SNAPSHOT</version>
+  <version>0.3.20</version>
 
   <prerequisites>
     <maven>3.2.2</maven>
@@ -74,7 +74,7 @@
     <url>https://github.com/spotify/spydra</url>
     <connection>scm:git:git@github.com:spotify/spydra.git</connection>
     <developerConnection>scm:git:git@github.com:spotify/spydra.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v0.3.20</tag>
   </scm>
 
   <build>
