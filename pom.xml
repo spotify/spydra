@@ -296,7 +296,7 @@
 
   <profiles>
     <profile>
-      <id>release</id>
+      <id>release-spydra</id>
       <build>
         <plugins>
           <plugin>
