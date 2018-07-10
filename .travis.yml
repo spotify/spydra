@@ -45,7 +45,7 @@ install: true
 
 script:
   # Run on pull requests (encrypted data not available for pull requests)
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean test -Dmaven.javadoc.skip=true; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean verify; fi'
   # Run on merges to master
   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -P release,install-init-scripts --settings=travis_files/settings.xml; fi'
 
