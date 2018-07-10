@@ -31,7 +31,8 @@ import org.apache.commons.cli.Options;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 public class DumpLogsCliParser implements CliParser<DumpLogsCommand> {
-  private final static String CMD_NAME = CliConsts.DUMP_HISTORY_CMD_NAME;
+
+  private static final String CMD_NAME = CliConsts.DUMP_HISTORY_CMD_NAME;
 
   private static final Options options;
 
@@ -58,13 +59,17 @@ public class DumpLogsCliParser implements CliParser<DumpLogsCommand> {
   private static Options buildCliOptions() {
     Options options = new Options();
 
-    options.addOption(CliHelper.createRequiredSingleOption(CliConsts.CLIENT_ID_OPTION_NAME,
+    options.addOption(CliHelper.createRequiredSingleOption(
+        CliConsts.CLIENT_ID_OPTION_NAME,
         "client-id used for cluster lifetime"));
-    options.addOption(CliHelper.createRequiredSingleOption(CliConsts.JOB_ID_OPTION_NAME,
+    options.addOption(CliHelper.createRequiredSingleOption(
+        CliConsts.JOB_ID_OPTION_NAME,
         "job-id of the job to display"));
-    options.addOption(CliHelper.createRequiredSingleOption(CliConsts.USERNAME_OPTION_NAME,
+    options.addOption(CliHelper.createRequiredSingleOption(
+        CliConsts.USERNAME_OPTION_NAME,
         "username of the user who ran the job - often 'root'"));
-    options.addOption(CliHelper.createRequiredSingleOption(CliConsts.LOG_BUCKET_OPTION_NAME,
+    options.addOption(CliHelper.createRequiredSingleOption(
+        CliConsts.LOG_BUCKET_OPTION_NAME,
         " name of the bucket storing the Hadoop logs and history information"));
 
     return options;

@@ -20,6 +20,8 @@
 
 package com.spotify.spydra.util;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.gax.paging.Page;
 import com.google.auth.Credentials;
@@ -33,7 +35,6 @@ import com.google.cloud.storage.StorageOptions;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 import org.apache.hadoop.conf.Configuration;
@@ -51,8 +52,7 @@ public class GcpUtils {
 
   private static final GcpConfiguration gcpConfiguration = GcpConfiguration.create();
 
-  public void configureCredentialFromEnvironment(Configuration configuration)
-      throws IOException {
+  public void configureCredentialFromEnvironment(Configuration configuration) {
     configuration.set("fs.gs.project.id", getProjectId());
     Optional<String> credentialsJsonPath = getJsonCredentialsPath();
     if (credentialsJsonPath.isPresent()) {
@@ -64,10 +64,9 @@ public class GcpUtils {
     }
   }
 
-  public void configureClusterProjectFromCredential(SpydraArgument arguments)
-      throws IOException {
+  public void configureClusterProjectFromCredential(SpydraArgument arguments) {
     arguments.getCluster().getOptions()
-      .put(SpydraArgument.OPTION_PROJECT, getProjectId());
+        .put(SpydraArgument.OPTION_PROJECT, getProjectId());
   }
 
   public FileSystem fileSystemForUri(URI uri) throws IOException {
@@ -78,7 +77,7 @@ public class GcpUtils {
   }
 
   public void configureStorageFromEnvironment()
-          throws IOException {
+      throws IOException {
     storage = StorageOptions.newBuilder()
         .setCredentials(getCredentials())
         .setProjectId(getProjectId())
@@ -87,12 +86,14 @@ public class GcpUtils {
   }
 
   public Bucket checkBucket(String bucketName) {
-    return Objects.requireNonNull(storage.get(bucketName, Storage.BucketGetOption.fields()),
-            "No such bucket");
+    return requireNonNull(
+        storage.get(bucketName, Storage.BucketGetOption.fields()),
+        "No such bucket");
   }
 
   public Bucket createBucket(String bucketName) {
-    Bucket bucket = storage.create(BucketInfo.newBuilder(bucketName)
+    Bucket bucket = storage.create(
+        BucketInfo.newBuilder(bucketName)
             .setLocation("europe-west1")
             .build());
     return bucket;
@@ -106,8 +107,9 @@ public class GcpUtils {
   }
 
   public Page<Blob> listBucket(String bucketName, String directory) {
-    Bucket bucket = Objects.requireNonNull(storage.get(bucketName, Storage.BucketGetOption.fields()),
-            "Please provide bucket name.");
+    Bucket bucket = requireNonNull(
+        storage.get(bucketName, Storage.BucketGetOption.fields()),
+        "Please provide bucket name.");
     Page<Blob> blobs = bucket.list(Storage.BlobListOption.prefix(directory));
     return blobs;
   }
@@ -118,23 +120,23 @@ public class GcpUtils {
   }
 
   public String getProjectId() {
-      return gcpConfiguration.getProjectId();
+    return gcpConfiguration.getProjectId();
   }
 
   public Optional<String> getUserId() {
-      return gcpConfiguration.getUserId();
+    return gcpConfiguration.getUserId();
   }
 
   public Optional<String> getJsonCredentialsPath() {
-      return gcpConfiguration.getJsonCredentialsPath();
+    return gcpConfiguration.getJsonCredentialsPath();
   }
 
   public Credentials getCredentials() {
-      return gcpConfiguration.getCredentials();
+    return gcpConfiguration.getCredentials();
   }
 
   public GoogleCredential getCredential() {
-      return gcpConfiguration.getCredential();
+    return gcpConfiguration.getCredential();
   }
 
 }

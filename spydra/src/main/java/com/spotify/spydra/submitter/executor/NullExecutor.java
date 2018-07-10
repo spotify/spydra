@@ -24,9 +24,10 @@ import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
 
 /**
- * Null Executor, does nothing but this it does very well
+ * Null Executor, does nothing but this it does very well.
  */
 public class NullExecutor implements Executor {
+
   @Override
   public boolean submit(SpydraArgument argument) throws IOException {
     return true;

@@ -23,14 +23,14 @@ package com.spotify.spydra.submitter.runner;
 import java.io.IOException;
 
 /**
- * Interface for different CLI parsers, such as subcommands
+ * Interface for different CLI parsers, such as subcommands.
  */
 public interface CliParser<T> {
 
   T parse(String[] args) throws IOException;
 
   /**
-   * Prints help for the subcommand this parser is responsible for
+   * Prints help for the subcommand this parser is responsible for.
    */
   void printHelp();
 

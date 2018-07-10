@@ -24,7 +24,7 @@ import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_PROJECT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
 
-import com.spotify.spydra.api.DataprocAPI;
+import com.spotify.spydra.api.DataprocApi;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
@@ -47,19 +47,19 @@ public class DynamicSubmitter extends Submitter {
 
   private final Metrics metrics = MetricsFactory.getInstance();
 
-  private final static String DEFAULT_CLUSTER_PREFIX = "spydra";
+  private static final String DEFAULT_CLUSTER_PREFIX = "spydra";
 
-  public final static String SPYDRA_CLUSTER_LABEL = "spydra-cluster";
+  public static final String SPYDRA_CLUSTER_LABEL = "spydra-cluster";
 
-  private final DataprocAPI dataprocAPI;
+  private final DataprocApi dataprocApi;
   private final GcpUtils gcpUtils;
 
   public DynamicSubmitter() {
-    this(new DataprocAPI(), new GcpUtils());
+    this(new DataprocApi(), new GcpUtils());
   }
 
-  public DynamicSubmitter(DataprocAPI dataprocAPI, GcpUtils gcpUtils) {
-    this.dataprocAPI = dataprocAPI;
+  public DynamicSubmitter(DataprocApi dataprocApi, GcpUtils gcpUtils) {
+    this.dataprocApi = dataprocApi;
     this.gcpUtils = gcpUtils;
 
   }
@@ -67,10 +67,10 @@ public class DynamicSubmitter extends Submitter {
   @Override
   public boolean executeJob(SpydraArgument argument) {
 
-    dataprocAPI.dryRun(argument.isDryRun());
+    dataprocApi.dryRun(argument.isDryRun());
 
     try {
-      if (!acquireCluster(argument, dataprocAPI)) {
+      if (!acquireCluster(argument, dataprocApi)) {
         return false;
       }
       return super.executeJob(argument);
@@ -80,32 +80,33 @@ public class DynamicSubmitter extends Submitter {
       return false;
     } finally {
       try {
-        releaseCluster(argument, dataprocAPI);
+        releaseCluster(argument, dataprocApi);
       } catch (IOException e) {
         LOGGER.warn("Failed to release cluster", e);
       }
     }
   }
 
-  public boolean acquireCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
+  public boolean acquireCluster(SpydraArgument arguments, DataprocApi dataprocApi)
       throws IOException {
 
-    Optional<Cluster> newCluster = createNewCluster(arguments, dataprocAPI);
+    Optional<Cluster> newCluster = createNewCluster(arguments, dataprocApi);
 
     newCluster.ifPresent(cluster ->
-        setTargetCluster(arguments, arguments.getCluster().getName(),
-            cluster.config.gceClusterConfig.zoneUri));
+                             setTargetCluster(arguments, arguments.getCluster().getName(),
+                                              cluster.config.gceClusterConfig.zoneUri));
 
     return newCluster.isPresent();
   }
 
-  Optional<Cluster> createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
+  Optional<Cluster> createNewCluster(SpydraArgument arguments, DataprocApi dataprocApi)
       throws IOException {
-    return createNewCluster(arguments, dataprocAPI, DynamicSubmitter::generateName);
+    return createNewCluster(arguments, dataprocApi, DynamicSubmitter::generateName);
   }
 
-  Optional<Cluster> createNewCluster(SpydraArgument arguments, DataprocAPI dataprocAPI,
-                                     Supplier<String> nameGenerator)
+  Optional<Cluster> createNewCluster(
+      SpydraArgument arguments, DataprocApi dataprocApi,
+      Supplier<String> nameGenerator)
       throws IOException {
     arguments.getCluster().setName(nameGenerator.get());
 
@@ -117,9 +118,9 @@ public class DynamicSubmitter extends Submitter {
     }
 
     arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS,
-        SPYDRA_CLUSTER_LABEL + "=1");
+                        SPYDRA_CLUSTER_LABEL + "=1");
 
-    Optional<Cluster> cluster = dataprocAPI.createCluster(createArguments);
+    Optional<Cluster> cluster = dataprocApi.createCluster(createArguments);
 
     return cluster;
   }
@@ -128,22 +129,24 @@ public class DynamicSubmitter extends Submitter {
     arguments.getCluster().setName(name);
     arguments.getCluster().getOptions().put(OPTION_ZONE, zone);
     arguments.getSubmit().getOptions().put(OPTION_CLUSTER, name);
-    arguments.getSubmit().getOptions().put(OPTION_PROJECT,
+    arguments.getSubmit().getOptions().put(
+        OPTION_PROJECT,
         arguments.getCluster().getOptions().get(OPTION_PROJECT));
   }
 
   private SpydraArgument configureAutoScaler(SpydraArgument arguments) {
-    SpydraArgument metadataArgument = new SpydraArgument();
+    final SpydraArgument metadataArgument = new SpydraArgument();
     List<String> list = new ArrayList<>();
     list.add("autoscaler-interval=" + arguments.getAutoScaler().getInterval());
     list.add("autoscaler-max=" + arguments.getAutoScaler().getMax());
     list.add("autoscaler-factor=" + arguments.getAutoScaler().getFactor());
     list.add("autoscaler-mode="
              + (arguments.getAutoScaler().getDownscale() ? "downscale" : "upscale"));
-    list.add("autoscaler-downscale-timeout=" + (arguments.getAutoScaler().getDownscale() ?
-                                                // Statically configure a no-op value for auto_scaler.sh:
-                                                arguments.getAutoScaler().getDownscaleTimeout()
-                                                                                         : 0));
+    list.add("autoscaler-downscale-timeout="
+             + (arguments.getAutoScaler().getDownscale()
+                // Statically configure a no-op value for auto_scaler.sh:
+                ? arguments.getAutoScaler().getDownscaleTimeout()
+                : 0));
     metadataArgument.cluster.getOptions()
         .put(SpydraArgument.OPTION_METADATA, String.join(",", list));
     return SpydraArgument.merge(arguments, metadataArgument);
@@ -166,7 +169,7 @@ public class DynamicSubmitter extends Submitter {
     String path = arguments.clusterProperties()
         .getProperty("mapred:mapreduce.jobhistory.intermediate-done-dir");
     URI uri = URI.create(path);
-    String bucketName = uri.getHost();
+    final String bucketName = uri.getHost();
     String directory = uri.getPath();
     if (directory != null && directory.length() > 0) {
       directory = directory.substring(1, directory.length()); //remove leading slash from the path
@@ -189,16 +192,19 @@ public class DynamicSubmitter extends Submitter {
   }
 
   /**
+   * Release a cluster.
+   *
    * @param arguments   describing the cluster to be released
-   * @param dataprocAPI dataprocAPI implementation to use to wait for history and release the cluster
+   * @param dataprocApi dataprocApi implementation to use to wait for history and release
+   *                    the cluster
    * @return whether it was successfully released
    */
-  public boolean releaseCluster(SpydraArgument arguments, DataprocAPI dataprocAPI)
+  public boolean releaseCluster(SpydraArgument arguments, DataprocApi dataprocApi)
       throws IOException {
     try {
       waitForHistoryToBeMoved(arguments);
     } finally {
-      return dataprocAPI.deleteCluster(arguments);
+      return dataprocApi.deleteCluster(arguments);
     }
   }
 }

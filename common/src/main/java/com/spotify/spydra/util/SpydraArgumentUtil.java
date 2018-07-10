@@ -21,9 +21,9 @@
 package com.spotify.spydra.util;
 
 import static com.spotify.spydra.model.ClusterType.DATAPROC;
+import static com.spotify.spydra.model.SpydraArgument.OPTION_ACCOUNT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_MAX_IDLE;
-import static com.spotify.spydra.model.SpydraArgument.OPTION_ACCOUNT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_SERVICE_ACCOUNT;
 
 import com.spotify.spydra.model.ClusterType;
@@ -52,8 +52,9 @@ public class SpydraArgumentUtil {
       throws IOException, URISyntaxException {
     ClassLoader classLoader = SpydraArgumentUtil.class.getClassLoader();
     try (InputStream is = classLoader.getResourceAsStream(fileName)) {
-      if (is == null)
+      if (is == null) {
         throw new IOException("Failed to load arguments from " + fileName);
+      }
       String json = new String(IOUtils.toByteArray(is));
       return JsonHelper.fromString(json, SpydraArgument.class);
     }
@@ -78,8 +79,9 @@ public class SpydraArgumentUtil {
     return config;
   }
 
-  public static SpydraArgument mergeConfigurations(SpydraArgument arguments, Optional<String> userId)
-      throws IOException, URISyntaxException {
+  public static SpydraArgument mergeConfigurations(
+      SpydraArgument arguments, Optional<String> userId
+  ) throws IOException, URISyntaxException {
     SpydraArgument baseArgsWithGivenArgs = mergeConfigsFromPath(
             new String[]{BASE_CONFIGURATION_FILE_NAME, SPYDRA_CONFIGURATION_FILE_NAME},
             arguments);
@@ -94,7 +96,8 @@ public class SpydraArgumentUtil {
                        SPYDRA_CONFIGURATION_FILE_NAME},
           arguments);
       if (userId.isPresent()) {
-        LOGGER.debug("Set user account and service-account for gcloud invocations: {}", userId.get());
+        LOGGER.debug(
+            "Set user account and service-account for gcloud invocations: {}", userId.get());
         outputConfig.getCluster().getOptions().put(OPTION_ACCOUNT, userId.get());
         outputConfig.getCluster().getOptions().put(OPTION_SERVICE_ACCOUNT, userId.get());
       } else {
@@ -141,10 +144,10 @@ public class SpydraArgumentUtil {
     }
   }
 
-  public static void setProjectFromCredentialsIfNotSet(SpydraArgument arguments) throws IOException {
+  public static void setProjectFromCredentialsIfNotSet(SpydraArgument arguments) {
     arguments.getCluster().getOptions().computeIfAbsent(
-      SpydraArgument.OPTION_PROJECT,
-      key -> new GcpUtils().getProjectId());
+        SpydraArgument.OPTION_PROJECT,
+        key -> new GcpUtils().getProjectId());
   }
 
   public static void checkRequiredArguments(SpydraArgument arguments, boolean isOnPremiseInvocation,
@@ -170,15 +173,17 @@ public class SpydraArgumentUtil {
       if (arguments.getRegion().equals("global")) {
         if (!arguments.cluster.getOptions().containsKey(SpydraArgument.OPTION_ZONE)) {
           throw new IllegalArgumentException(
-              "Please define region other than global, or optionally, cluster.options.zone in configuration.");
+              "Please define region other than global, or optionally, "
+              + "cluster.options.zone in configuration.");
         }
-        LOGGER.info("Consider specifying region and omitting cluster.options.zone in your configuration "
-                + "for the auto-zone selector to balance between zones automatically. "
-                + "See https://cloud.google.com/dataproc/docs/concepts/auto-zone");
+        LOGGER.info("Consider specifying region and omitting cluster.options.zone in your "
+            + "configuration for the auto-zone selector to balance between zones automatically. "
+            + "See https://cloud.google.com/dataproc/docs/concepts/auto-zone");
       }
-      if (arguments.getJobType() == SpydraArgument.JOB_TYPE_PYSPARK) {
+      if (SpydraArgument.JOB_TYPE_PYSPARK.equals(arguments.getJobType())) {
         arguments.submit.pyFile.orElseThrow(
-            () -> new IllegalArgumentException("pyspark jobs require the submit.py file to be set"));
+            () -> new IllegalArgumentException(
+                "pyspark jobs require the submit.py file to be set"));
       }
     }
 
@@ -200,8 +205,10 @@ public class SpydraArgumentUtil {
     }
 
     if (arguments.getCluster().name.isPresent()) {
-      throw new IllegalArgumentException("cluster.name should never be set by the user. Set " +
-          "submit.options." + SpydraArgument.OPTION_CLUSTER + " if you want to use a static cluster");
+      throw new IllegalArgumentException(
+          "cluster.name should never be set by the user. Set "
+          + "submit.options." + SpydraArgument.OPTION_CLUSTER
+          + " if you want to use a static cluster");
     }
 
     arguments.metricClass.orElseThrow(() ->

@@ -57,7 +57,8 @@ public class GcloudExecutor {
       throws IOException {
     Map<String, String> createOptions = new HashMap<>(args);
     createOptions.put(SpydraArgument.OPTION_REGION, region);
-    List<String> command = Arrays.asList("--format=json", "beta", "dataproc", "clusters", "create", name);
+    List<String> command = Arrays.asList(
+        "--format=json", "beta", "dataproc", "clusters", "create", name);
     StringBuilder outputBuilder = new StringBuilder();
     boolean success = ProcessHelper.executeForOutput(
         buildCommand(command, createOptions, Collections.emptyList()),
@@ -69,7 +70,7 @@ public class GcloudExecutor {
           .readValue(output, Cluster.class);
       return Optional.of(cluster);
     } else {
-      if(output.contains("ALREADY_EXISTS")){
+      if (output.contains("ALREADY_EXISTS")) {
         throw new GcloudClusterAlreadyExistsException(output);
       }
       LOGGER.error("Dataproc cluster creation call failed. Command line output:");
@@ -78,35 +79,47 @@ public class GcloudExecutor {
     }
   }
 
-  public boolean deleteCluster(String name, String region, Map<String, String> args) throws IOException {
+  public boolean deleteCluster(String name, String region, Map<String, String> args)
+      throws IOException {
     Map<String, String> deleteOptions = new HashMap<>(args);
     deleteOptions.put(SpydraArgument.OPTION_REGION, region);
-    return execute(Arrays.asList("dataproc", "clusters", "delete", name,
-        createOption("async", "")),
-        deleteOptions, Collections.emptyList());
+    return execute(
+        Arrays.asList("dataproc", "clusters", "delete", name, createOption("async", "")),
+        deleteOptions,
+        Collections.emptyList()
+    );
   }
 
-  public boolean submit(String type, Optional<String> pyFile, String region, Map<String, String> options, List<String> jobArgs)
-      throws IOException {
+  public boolean submit(
+      String type,
+      Optional<String> pyFile,
+      String region,
+      Map<String, String> options,
+      List<String> jobArgs
+  ) throws IOException {
     Map<String, String> submitOptions = new HashMap<>(options);
     submitOptions.put(SpydraArgument.OPTION_REGION, region);
     List<String> submitCommand = new ArrayList<>(Arrays.asList("dataproc", "jobs", "submit", type));
     if (type.equals(SpydraArgument.JOB_TYPE_PYSPARK)) {
       // JOB_TYPE_PYSPARK is special, it has a positional argument :|
       submitCommand.add(pyFile.orElseThrow(() -> new IllegalArgumentException(
-          "Somehow pyFile was not set when running a pyspark job. " +
-          "This should've been caught in SpydraArgumentUtil#checkRequiredArguments already!"
+          "Somehow pyFile was not set when running a pyspark job. "
+          + "This should've been caught in SpydraArgumentUtil#checkRequiredArguments already!"
       )));
     }
     return execute(submitCommand, submitOptions, jobArgs);
   }
 
-  private List<String> buildCommand(List<String> commands, Map<String, String> options, List<String> jobArgs) {
+  private List<String> buildCommand(
+      List<String> commands,
+      Map<String, String> options,
+      List<String> jobArgs
+  ) {
     List<String> command = new ArrayList<>();
     command.add(this.baseCommand);
     final GcpUtils gcpUtils = new GcpUtils();
-    gcpUtils.getJsonCredentialsPath().ifPresent(ignored ->
-        gcpUtils.getUserId().ifPresent(userId -> {
+    gcpUtils.getJsonCredentialsPath().ifPresent(
+        ignored -> gcpUtils.getUserId().ifPresent(userId -> {
           command.add("--account");
           command.add(userId);
         })
@@ -146,17 +159,18 @@ public class GcloudExecutor {
     this.dryRun = dryRun;
   }
 
-  public List<Cluster> listClusters(String project, String region, Map<String,String> filters) throws IOException {
-    List<String> command = new ArrayList<>(Arrays.asList("dataproc", "clusters", "list", "--format=json"));
+  public List<Cluster> listClusters(String project, String region, Map<String, String> filters)
+      throws IOException {
+    final List<String> command = Arrays.asList("dataproc", "clusters", "list", "--format=json");
     Map<String, String> options = new HashMap<>();
     options.put(SpydraArgument.OPTION_PROJECT, project);
     options.put(SpydraArgument.OPTION_REGION, region);
 
-    if(filters != null && !filters.isEmpty()) {
+    if (filters != null && !filters.isEmpty()) {
       StringJoiner filterItems = new StringJoiner(" AND ");
       filters.forEach((key, value) -> {
         //Allows for label filters to not specify a value to match "anything" (just check if exists)
-        if(value == null || value.isEmpty()) {
+        if (value == null || value.isEmpty()) {
           value = "*";
         }
         filterItems.add(String.format("%s = %s", key, value));

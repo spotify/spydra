@@ -23,10 +23,10 @@ package com.spotify.spydra.submitter.runner;
 import com.spotify.spydra.historytools.DumpHistoryCliParser;
 import com.spotify.spydra.historytools.DumpLogsCliParser;
 import com.spotify.spydra.historytools.HistoryLogUtils;
-import com.spotify.spydra.historytools.RunJHSCliParser;
+import com.spotify.spydra.historytools.RunJhsCliParser;
 import com.spotify.spydra.historytools.commands.DumpHistoryCommand;
 import com.spotify.spydra.historytools.commands.DumpLogsCommand;
-import com.spotify.spydra.historytools.commands.RunJHSCommand;
+import com.spotify.spydra.historytools.commands.RunJhsCommand;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
@@ -118,21 +118,21 @@ public class Runner {
 
   private static Optional<String> userId(boolean onPremiseInvocation) throws IOException {
     if (onPremiseInvocation) {
-      return Optional.of(Optional.ofNullable(System.getenv("HADOOP_USER_NAME")).orElse("onpremise"));
+      return Optional.of(System.getenv().getOrDefault("HADOOP_USER_NAME", "onpremise"));
     } else {
       return new GcpUtils().getUserId();
     }
   }
 
   private static void runHistoryServer(String[] args) throws IOException {
-    CliParser<RunJHSCommand> parser = new RunJHSCliParser();
+    CliParser<RunJhsCommand> parser = new RunJhsCliParser();
     checkAndPrintHelp(args, parser);
 
-    RunJHSCommand runJhsCommand = parser.parse(args);
+    RunJhsCommand runJhsCommand = parser.parse(args);
     Configuration configuration = HistoryLogUtils.generateHadoopConfig(
         runJhsCommand.clientId(), runJhsCommand.logBucket());
     gcpUtils.configureCredentialFromEnvironment(configuration);
-    HistoryLogUtils.startJHS(configuration);
+    HistoryLogUtils.startJhs(configuration);
   }
 
   private static void runDumpHistory(String[] args) throws IOException {

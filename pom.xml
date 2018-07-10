@@ -58,6 +58,12 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.0</version>
       </plugin>
+      <plugin>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <violationSeverity>warning</violationSeverity>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

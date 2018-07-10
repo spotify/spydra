@@ -17,8 +17,8 @@
  * limitations under the License.
  * -/-/-
  */
-package com.spotify.spydra.submitter.api;
 
+package com.spotify.spydra.submitter.api;
 
 import static com.spotify.spydra.submitter.api.PoolingSubmitter.SPYDRA_PLACEMENT_TOKEN_LABEL;
 import static com.spotify.spydra.submitter.api.PoolingSubmitter.SPYDRA_UNPLACED_TOKEN;
@@ -71,9 +71,10 @@ abstract class ClusterPlacement {
         .collect(toList());
   }
 
-  static ClusterPlacement createClusterPlacement(Supplier<Long> timeSource,
-                                                 int clusterNumber,
-                                                 SpydraArgument.Pooling pooling) {
+  static ClusterPlacement createClusterPlacement(
+      Supplier<Long> timeSource,
+      int clusterNumber,
+      SpydraArgument.Pooling pooling) {
     long time = timeSource.get() / 1000;
     long age = pooling.getMaxAge().getSeconds();
     long timeOffset = new Random(clusterNumber).longs(1, 0, age).findFirst().getAsLong();
@@ -94,8 +95,9 @@ abstract class ClusterPlacement {
     return from(cluster.labels.getOrDefault(SPYDRA_PLACEMENT_TOKEN_LABEL, SPYDRA_UNPLACED_TOKEN));
   }
 
-  static List<Cluster> filterClusters(List<Cluster> clusters,
-                                      List<ClusterPlacement> allPlacements) {
+  static List<Cluster> filterClusters(
+      List<Cluster> clusters,
+      List<ClusterPlacement> allPlacements) {
     Set<String> clusterPlacements = allPlacements.stream()
         .map(ClusterPlacement::token)
         .collect(toSet());
