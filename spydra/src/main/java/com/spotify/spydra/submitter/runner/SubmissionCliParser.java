@@ -35,23 +35,29 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
 public class SubmissionCliParser implements CliParser<SpydraArgument> {
-  final static String CMD_NAME = "submit";
-  private final static Options options = new Options();
+
+  static final String CMD_NAME = "submit";
+  private static final Options options = new Options();
 
   public SubmissionCliParser() {
     options.addOption("n", SpydraArgument.OPTION_DRYRUN, false,
-        "Do a dry run without executing anything");
-    options.addOption(CliHelper.createMultiOption(CliConsts.SPYDRA_JSON_OPTION_NAME,
-        "path to the spydra configuration json file, can occur multiple times" +
-            ", file contents are merged"));
-    options.addOption(CliHelper.createSingleOption(CliConsts.CLIENT_ID_OPTION_NAME,
+                      "Do a dry run without executing anything");
+    options.addOption(CliHelper.createMultiOption(
+        CliConsts.SPYDRA_JSON_OPTION_NAME,
+        "path to the spydra configuration json file, can occur multiple times"
+        + ", file contents are merged"));
+    options.addOption(CliHelper.createSingleOption(
+        CliConsts.CLIENT_ID_OPTION_NAME,
         "client id, overwrites the configured one if set"));
-    options.addOption(CliHelper.createSingleOption(CliConsts.JAR_OPTION_NAME,
+    options.addOption(CliHelper.createSingleOption(
+        CliConsts.JAR_OPTION_NAME,
         "main jar path, overwrites the configured one if set"));
-    options.addOption(CliHelper.createMultiOption(CliConsts.JARS_OPTION_NAME,
-        "jar files to be shipped with the job, can occur multiple times" +
-            ", overwrites the configured ones if set"));
-    options.addOption(CliHelper.createSingleOption(CliConsts.JOBNAME_OPTION_NAME,
+    options.addOption(CliHelper.createMultiOption(
+        CliConsts.JARS_OPTION_NAME,
+        "jar files to be shipped with the job, can occur multiple times"
+        + ", overwrites the configured ones if set"));
+    options.addOption(CliHelper.createSingleOption(
+        CliConsts.JOBNAME_OPTION_NAME,
         "job name, used as dataproc job id"));
   }
 
@@ -65,13 +71,15 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
     if (cmdLine.hasOption(CliConsts.SPYDRA_JSON_OPTION_NAME)) {
       String[] files = cmdLine.getOptionValues(CliConsts.SPYDRA_JSON_OPTION_NAME);
       for (String file : files) {
-        spydraArgument = SpydraArgument.merge(spydraArgument,
+        spydraArgument = SpydraArgument.merge(
+            spydraArgument,
             JsonHelper.objectMapper().readValue(new File(file), SpydraArgument.class));
       }
     }
 
     if (cmdLine.hasOption(CliConsts.JAR_OPTION_NAME)) {
-      spydraArgument.getSubmit().getOptions().put(SpydraArgument.OPTION_JAR,
+      spydraArgument.getSubmit().getOptions().put(
+          SpydraArgument.OPTION_JAR,
           cmdLine.getOptionValue(CliConsts.JAR_OPTION_NAME));
     }
 
@@ -80,12 +88,14 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
     }
 
     if (cmdLine.hasOption(CliConsts.JARS_OPTION_NAME)) {
-      spydraArgument.getSubmit().getOptions().put(SpydraArgument.OPTION_JARS,
+      spydraArgument.getSubmit().getOptions().put(
+          SpydraArgument.OPTION_JARS,
           String.join(",", cmdLine.getOptionValues(CliConsts.JARS_OPTION_NAME)));
     }
 
     if (cmdLine.hasOption(CliConsts.JOBNAME_OPTION_NAME)) {
-      spydraArgument.getSubmit().getOptions().put(SpydraArgument.OPTION_JOB_ID,
+      spydraArgument.getSubmit().getOptions().put(
+          SpydraArgument.OPTION_JOB_ID,
           sanitizeJobId(cmdLine.getOptionValue(CliConsts.JOBNAME_OPTION_NAME)));
     }
 
@@ -115,21 +125,21 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
     formatter.printHelp(CMD_NAME + " [jobArgs]", options);
   }
 
-  private String sanitizeJobId(String jobID) {
+  private String sanitizeJobId(String jobId) {
 
     String uuid = UUID.randomUUID().toString();
 
     //Limit size so that id with uuid is max 88 characters
     //Specs say 100, but Google suspect they have issues >88
-    int maxLength = min(88 - uuid.length() - 1, jobID.length());
-    jobID = jobID.substring(0, maxLength);
+    int maxLength = min(88 - uuid.length() - 1, jobId.length());
+    jobId = jobId.substring(0, maxLength);
 
     //Remove all non-allowed characters
-    jobID = jobID.replaceAll("[^a-zA-Z0-9_-]", "_");
+    jobId = jobId.replaceAll("[^a-zA-Z0-9_-]", "_");
 
     //Append uuid
-    jobID = jobID + "-" + uuid;
+    jobId = jobId + "-" + uuid;
 
-    return jobID;
+    return jobId;
   }
 }

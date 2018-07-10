@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.spotify.spydra.api.DataprocAPI;
+import com.spotify.spydra.api.DataprocApi;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
 import java.time.ZoneOffset;
@@ -45,14 +45,14 @@ public class DynamicSubmitterTest {
   private static final String spydraClusterName = "spydra-uuid";
 
   DynamicSubmitter dynamicSubmitter;
-  DataprocAPI dataprocAPI;
+  DataprocApi dataprocApi;
   SpydraArgument arguments;
   String clientId;
 
   @Before
   public void before() {
     dynamicSubmitter = new DynamicSubmitter();
-    dataprocAPI = mock(DataprocAPI.class);
+    dataprocApi = mock(DataprocApi.class);
     arguments = new SpydraArgument();
     clientId = "my-client-id";
   }
@@ -67,12 +67,12 @@ public class DynamicSubmitterTest {
     arguments.setClientId(clientId);
     arguments.cluster.setName(spydraClusterName);
 
-    when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
+    when(dataprocApi.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
             .thenReturn(clusters);
-    when(dataprocAPI.deleteCluster(arguments)).thenReturn(true);
+    when(dataprocApi.deleteCluster(arguments)).thenReturn(true);
     assertTrue("A broken cluster should be collected without problems.",
-        dynamicSubmitter.releaseCluster(arguments, dataprocAPI));
-    verify(dataprocAPI).deleteCluster(arguments);
+        dynamicSubmitter.releaseCluster(arguments, dataprocApi));
+    verify(dataprocApi).deleteCluster(arguments);
   }
 
   private static Cluster perfectCluster() {

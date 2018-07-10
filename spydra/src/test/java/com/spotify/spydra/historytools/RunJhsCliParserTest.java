@@ -23,21 +23,21 @@ package com.spotify.spydra.historytools;
 import static org.junit.Assert.assertEquals;
 
 import com.spotify.spydra.CliTestHelpers;
-import com.spotify.spydra.historytools.commands.RunJHSCommand;
+import com.spotify.spydra.historytools.commands.RunJhsCommand;
 import com.spotify.spydra.submitter.runner.CliConsts;
 import com.spotify.spydra.submitter.runner.CliParser;
 import java.util.Arrays;
 import org.junit.Test;
 
-public class RunJHSCliParserTest {
+public class RunJhsCliParserTest {
 
-  private static final RunJHSCliParser PARSER = new RunJHSCliParser();
+  private static final RunJhsCliParser PARSER = new RunJhsCliParser();
   private static final String DUMMY_CLIENT_ID = "pretty-client-2342";
   private static final String DUMMY_BUCKET = "bucket";
 
   @Test
   public void testParseWithUser() {
-    RunJHSCommand jhsCmd = PARSER.parse(new String[]{
+    RunJhsCommand jhsCmd = PARSER.parse(new String[]{
         CliTestHelpers.toStrOpt(CliConsts.CLIENT_ID_OPTION_NAME, DUMMY_CLIENT_ID),
         CliTestHelpers.toStrOpt(CliConsts.LOG_BUCKET_OPTION_NAME, DUMMY_BUCKET)
     });
@@ -47,7 +47,7 @@ public class RunJHSCliParserTest {
 
   @Test
   public void testParseWithoutUser() {
-    RunJHSCommand jhsCmd = PARSER.parse(new String[]{
+    RunJhsCommand jhsCmd = PARSER.parse(new String[]{
         CliTestHelpers.toStrOpt(CliConsts.CLIENT_ID_OPTION_NAME, DUMMY_CLIENT_ID),
         CliTestHelpers.toStrOpt(CliConsts.LOG_BUCKET_OPTION_NAME, DUMMY_BUCKET)
     });

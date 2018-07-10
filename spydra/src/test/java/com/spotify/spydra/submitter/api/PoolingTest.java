@@ -31,7 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.spotify.spydra.api.DataprocAPI;
+import com.spotify.spydra.api.DataprocApi;
 import com.spotify.spydra.api.model.Cluster;
 import com.spotify.spydra.model.SpydraArgument;
 import java.time.Duration;
@@ -83,7 +83,7 @@ public class PoolingTest {
   public static class PoolingSubmitterTest {
 
     PoolingSubmitter poolingSubmitter;
-    DataprocAPI dataprocAPI;
+    DataprocApi dataprocApi;
     SpydraArgument arguments;
     String clientId;
     private RandomPlacementGenerator randomPlacementGenerator;
@@ -94,7 +94,7 @@ public class PoolingTest {
       when(randomPlacementGenerator.randomPlacement(anyListOf(ClusterPlacement.class)))
           .thenCallRealMethod();
       poolingSubmitter = new PoolingSubmitter(() -> NOW, randomPlacementGenerator);
-      dataprocAPI = mock(DataprocAPI.class);
+      dataprocApi = mock(DataprocApi.class);
       arguments = new SpydraArgument();
       clientId = "my-client-id";
     }
@@ -111,18 +111,18 @@ public class PoolingTest {
       arguments.setClientId(clientId);
       arguments.setPooling(pooling);
 
-      when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
+      when(dataprocApi.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
-      when(dataprocAPI.createCluster(arguments))
+      when(dataprocApi.createCluster(arguments))
           .thenReturn(Optional.of(perfectCluster(clientId, 0, 1)));
 
-      boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
+      boolean result = poolingSubmitter.acquireCluster(arguments, dataprocApi);
       assertTrue("Failed to acquire a cluster", result);
-      verify(dataprocAPI, never()).createCluster(arguments);
+      verify(dataprocApi, never()).createCluster(arguments);
 
       assertTrue("A healthy cluster should be kept without problems.",
-          poolingSubmitter.releaseCluster(arguments, dataprocAPI));
-      verify(dataprocAPI, never()).deleteCluster(arguments);
+          poolingSubmitter.releaseCluster(arguments, dataprocApi));
+      verify(dataprocApi, never()).deleteCluster(arguments);
 
     }
 
@@ -138,14 +138,14 @@ public class PoolingTest {
       arguments.setClientId(clientId);
       arguments.setPooling(pooling);
 
-      when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
+      when(dataprocApi.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
-      when(dataprocAPI.createCluster(arguments))
+      when(dataprocApi.createCluster(arguments))
           .thenReturn(Optional.of(perfectCluster(clientId, 0, 3)));
 
-      boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
+      boolean result = poolingSubmitter.acquireCluster(arguments, dataprocApi);
       assertTrue("Failed to acquire a cluster", result);
-      verify(dataprocAPI, times(1)).createCluster(arguments);
+      verify(dataprocApi, times(1)).createCluster(arguments);
     }
 
     @Test
@@ -167,13 +167,13 @@ public class PoolingTest {
       when(randomPlacementGenerator.randomPlacement(anyListOf(ClusterPlacement.class)))
           .thenReturn(clusterPlacement);
 
-      when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
+      when(dataprocApi.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
-      when(dataprocAPI.createCluster(arguments))
+      when(dataprocApi.createCluster(arguments))
           .thenReturn(Optional.of(perfectCluster(clientId, 1, 1)));
-      boolean result = poolingSubmitter.acquireCluster(arguments, dataprocAPI);
+      boolean result = poolingSubmitter.acquireCluster(arguments, dataprocApi);
       assertTrue("Failed to acquire a cluster", result);
-      verify(dataprocAPI, times(1)).createCluster(arguments);
+      verify(dataprocApi, times(1)).createCluster(arguments);
     }
 
     @Test
@@ -188,12 +188,12 @@ public class PoolingTest {
       arguments.setClientId(clientId);
       arguments.cluster.setName(spydraClusterName);
 
-      when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
+      when(dataprocApi.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
       assertTrue("A healthy cluster should be kept without problems.",
-          poolingSubmitter.releaseCluster(arguments, dataprocAPI));
-      verify(dataprocAPI).listClusters(eq(arguments), anyMapOf(String.class, String.class));
-      verify(dataprocAPI, never()).deleteCluster(arguments);
+          poolingSubmitter.releaseCluster(arguments, dataprocApi));
+      verify(dataprocApi).listClusters(eq(arguments), anyMapOf(String.class, String.class));
+      verify(dataprocApi, never()).deleteCluster(arguments);
     }
 
     @Test
@@ -208,13 +208,13 @@ public class PoolingTest {
       arguments.setClientId(clientId);
       arguments.cluster.setName(spydraClusterName);
 
-      when(dataprocAPI.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
+      when(dataprocApi.listClusters(eq(arguments), anyMapOf(String.class, String.class)))
           .thenReturn(clusters);
-      when(dataprocAPI.deleteCluster(arguments)).thenReturn(true);
+      when(dataprocApi.deleteCluster(arguments)).thenReturn(true);
       assertTrue("A broken cluster should be collected without problems.",
-          poolingSubmitter.releaseCluster(arguments, dataprocAPI));
-      verify(dataprocAPI).listClusters(eq(arguments), anyMapOf(String.class, String.class));
-      verify(dataprocAPI).deleteCluster(arguments);
+          poolingSubmitter.releaseCluster(arguments, dataprocApi));
+      verify(dataprocApi).listClusters(eq(arguments), anyMapOf(String.class, String.class));
+      verify(dataprocApi).deleteCluster(arguments);
     }
   }
 }

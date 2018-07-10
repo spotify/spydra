@@ -135,7 +135,7 @@ public class SpydraArgument {
     public void project(String project) {
       this.options.put(OPTION_PROJECT, project);
     }
- }
+  }
 
   public class Submit {
     public Map<String, String> options = new HashMap<>();
@@ -260,8 +260,8 @@ public class SpydraArgument {
   /**
    * Merges two set of arguments, with the values in the first argument overwritten by the second.
    *
-   * @param first  A set of Spydra arguments. These are the defaults that will be overwritten by the values in second if
-   *               the key exists in both.
+   * @param first  A set of Spydra arguments. These are the defaults that will be overwritten by the
+   *               values in second if the key exists in both.
    * @param second A set of Spydra arguments. The second argument overwrites the first.
    * @return A set (instance) of merged Spydra arguments.
    */
@@ -405,7 +405,7 @@ public class SpydraArgument {
   }
 
   private static String joinValues(String v1, String v2) {
-    // Either value (but not both) could be null since it is grabbed from a Map where it may not exist.
+    // At most one value can be null since it is grabbed from a Map where it may not exist.
     if (v1 == null || v1.length() == 0) {
       return v2;
     }

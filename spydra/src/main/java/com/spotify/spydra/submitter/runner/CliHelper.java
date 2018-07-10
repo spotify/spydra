@@ -30,27 +30,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helpful utilities to handle cli parsing and options creation
+ * Helpful utilities to handle cli parsing and options creation.
  */
 public class CliHelper {
-  static final Logger logger = LoggerFactory.getLogger(CliHelper.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(CliHelper.class);
 
   /**
-   * Creates an optional long parameter with a single argument
+   * Creates an optional long parameter with a single argument.
    */
   public static Option createSingleOption(String optName, String description) {
     return createOption(optName, description, false, false);
   }
 
   /**
-   * Creates a required long parameter with a single argument
+   * Creates a required long parameter with a single argument.
    */
   public static Option createRequiredSingleOption(String optName, String description) {
     return createOption(optName, description, true, false);
   }
 
   /**
-   * Creates an optional long parameter with multiple arguments
+   * Creates an optional long parameter with multiple arguments.
    */
   public static Option createMultiOption(String optName, String description) {
     return createOption(optName, description, false, true);
@@ -65,7 +66,8 @@ public class CliHelper {
    * @param isRequired    whether this parameter is strictly required
    * @param unlimitedArgs whether it supports multiple arguments, default is on argument
    */
-  public static Option createOption(String optName, String description,
+  public static Option createOption(
+      String optName, String description,
       boolean isRequired, boolean unlimitedArgs) {
 
     Option.Builder builder = Option.builder()
@@ -82,9 +84,10 @@ public class CliHelper {
     return builder.build();
   }
 
-  public static CommandLine tryParse(CommandLineParser parser, Options options,
+  public static CommandLine tryParse(
+      CommandLineParser parser,
+      Options options,
       String[] args) {
-
     try {
       return parser.parse(options, args);
     } catch (MissingOptionException moe) {

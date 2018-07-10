@@ -23,9 +23,9 @@ package com.spotify.spydra.historytools.commands;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class RunJHSCommand {
+public abstract class RunJhsCommand {
 
-  RunJHSCommand() {
+  RunJhsCommand() {
   }
 
   public abstract String clientId();
@@ -33,7 +33,7 @@ public abstract class RunJHSCommand {
   public abstract String logBucket();
 
   public static Builder builder() {
-    return new AutoValue_RunJHSCommand.Builder();
+    return new AutoValue_RunJhsCommand.Builder();
   }
 
   @AutoValue.Builder
@@ -42,6 +42,6 @@ public abstract class RunJHSCommand {
 
     public abstract Builder logBucket(String logBucket);
 
-    public abstract RunJHSCommand build();
+    public abstract RunJhsCommand build();
   }
 }

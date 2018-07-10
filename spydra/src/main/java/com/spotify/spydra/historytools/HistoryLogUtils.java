@@ -68,7 +68,8 @@ public class HistoryLogUtils {
    * @param username username to generate configuration for
    * @param bucket   name of the bucket storing logs and history information
    */
-  public static Configuration generateHadoopConfig(String clientId, String username,
+  public static Configuration generateHadoopConfig(
+      String clientId, String username,
       String bucket) {
     // We want minimalistic and clean options that are unlikely to collide with anything,
     // that's why not loading defaults
@@ -81,7 +82,10 @@ public class HistoryLogUtils {
 
     if (logger.isDebugEnabled()) {
       logger.debug("Dumping generated config to be applied for log/history tools");
-      logger.debug(StreamSupport.stream(cfg.spliterator(), false).map(Object::toString).collect(Collectors.joining("\n")));
+      logger.debug(
+          StreamSupport.stream(cfg.spliterator(), false)
+              .map(Object::toString)
+              .collect(Collectors.joining("\n")));
     }
 
     return cfg;
@@ -96,17 +100,18 @@ public class HistoryLogUtils {
   }
 
   /**
-   * Dumps the full job logs for a particular application to stdout
+   * Dumps the full job logs for a particular application to stdout.
    *
    * @param applicationId application to dump logs for
    */
   public static void dumpFullLogs(Configuration cfg, ApplicationId applicationId) {
-    LogCLIHelpers logCLIHelpers = new LogCLIHelpers();
+    LogCLIHelpers logCliHelpers = new LogCLIHelpers();
     // TODO: Add the proper base dir settings etc...
 
-    logCLIHelpers.setConf(cfg);
+    logCliHelpers.setConf(cfg);
     try {
-      logCLIHelpers.dumpAllContainersLogs(applicationId, cfg.get(SPYDRA_HISTORY_USERNAME_PROPERTY), System.out);
+      logCliHelpers.dumpAllContainersLogs(
+          applicationId, cfg.get(SPYDRA_HISTORY_USERNAME_PROPERTY), System.out);
     } catch (IOException e) {
       logger.error("Failed dumping log files for application " + applicationId.toString(), e);
     }
@@ -119,7 +124,8 @@ public class HistoryLogUtils {
    */
   public static void dumpFullHistory(Configuration cfg, ApplicationId applicationId) {
     try {
-      // TODO: This might be a problem if we have intermediate and done dirs in different filesystems
+      // TODO: This might be a problem if we have intermediate
+      // TODO: and done dirs in different filesystems
       FileSystem fs = FileSystem.get(new URI(cfg.get(JHAdminConfig.MR_HISTORY_DONE_DIR)), cfg);
 
       // TODO: Seems to hang if there is no listing??
@@ -140,22 +146,26 @@ public class HistoryLogUtils {
   }
 
   /**
-   * Tries to locate a mapreduce job history file for some client id and application
+   * Tries to locate a mapreduce job history file for some client id and application.
    *
    * @return Path of the located jhist file
    * @throws IOException        Failure to initialize filesystem to access history file
    * @throws URISyntaxException Location specified for history path prefix is not a valid URI
    */
-  public static Optional<String> findHistoryFilePath(FileSystem fs, String historyDirPrefix,
+  public static Optional<String> findHistoryFilePath(
+      FileSystem fs, String historyDirPrefix,
       ApplicationId applicationId) throws IOException, URISyntaxException {
     Path jhistPathPattern = new Path(historyDirPrefix);
-    return findHistoryFilePath(new RemoteIteratorAdaptor<>(fs.listFiles(jhistPathPattern, true)), applicationId);
+    return findHistoryFilePath(
+        new RemoteIteratorAdaptor<>(fs.listFiles(jhistPathPattern, true)), applicationId);
   }
 
-  public static Optional<String> findHistoryFilePath(Iterator<LocatedFileStatus> listing,
-      ApplicationId applicationId) {
+  public static Optional<String> findHistoryFilePath(
+      Iterator<LocatedFileStatus> listing, ApplicationId applicationId) {
 
-    JobID jobId = new JobID(String.valueOf(applicationId.getClusterTimestamp()), applicationId.getId());
+    JobID jobId = new JobID(
+        String.valueOf(applicationId.getClusterTimestamp()),
+        applicationId.getId());
 
     List<LocatedFileStatus> jhistFiles = new ArrayList<>();
     // maybe this could work more nicely with some recursive glob and a filter
@@ -185,13 +195,14 @@ public class HistoryLogUtils {
   }
 
   /**
-   * Starts a minimal JobHistoryServer
+   * Starts a minimal JobHistoryServer.
    */
-  public static void startJHS(Configuration cfg) {
+  public static void startJhs(Configuration cfg) {
     try {
       JobHistoryServer jobHistoryServer = new JobHistoryServer();
       jobHistoryServer.init(cfg);
-      logger.info(String.format("Starting JobHistoryServer on: http://%s",
+      logger.info(String.format(
+          "Starting JobHistoryServer on: http://%s",
           cfg.get(JHAdminConfig.MR_HISTORY_WEBAPP_ADDRESS)));
       jobHistoryServer.start();
     } catch (Exception e) {
@@ -213,7 +224,7 @@ public class HistoryLogUtils {
     logger.info("Dumping full history information");
     dumpFullHistory(cfg, appId);
     logger.info("Starting local JHS");
-    startJHS(cfg);
+    startJhs(cfg);
   }
 
 }

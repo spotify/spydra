@@ -20,7 +20,7 @@
 
 package com.spotify.spydra.historytools;
 
-import com.spotify.spydra.historytools.commands.RunJHSCommand;
+import com.spotify.spydra.historytools.commands.RunJhsCommand;
 import com.spotify.spydra.submitter.runner.CliConsts;
 import com.spotify.spydra.submitter.runner.CliHelper;
 import com.spotify.spydra.submitter.runner.CliParser;
@@ -29,23 +29,20 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
-public class RunJHSCliParser implements CliParser<RunJHSCommand> {
-  public final static String CMD_NAME = CliConsts.RUN_JHS_CMD_NAME;
+public class RunJhsCliParser implements CliParser<RunJhsCommand> {
 
-  private static final Options options;
+  public static final String CMD_NAME = CliConsts.RUN_JHS_CMD_NAME;
 
-  static {
-    options = buildCliOptions();
-  }
+  private static final Options options = buildCliOptions();
 
   @Override
-  public RunJHSCommand parse(String[] args) {
+  public RunJhsCommand parse(String[] args) {
     DefaultParser parser = new DefaultParser();
     CommandLine cmdLine;
 
     cmdLine = CliHelper.tryParse(parser, options, args);
 
-    return RunJHSCommand.builder()
+    return RunJhsCommand.builder()
         .clientId(cmdLine.getOptionValue(CliConsts.CLIENT_ID_OPTION_NAME))
         .logBucket(cmdLine.getOptionValue(CliConsts.LOG_BUCKET_OPTION_NAME))
         .build();
@@ -54,11 +51,14 @@ public class RunJHSCliParser implements CliParser<RunJHSCommand> {
   private static Options buildCliOptions() {
     Options options = new Options();
 
-    options.addOption(CliHelper.createRequiredSingleOption(CliConsts.CLIENT_ID_OPTION_NAME,
+    options.addOption(CliHelper.createRequiredSingleOption(
+        CliConsts.CLIENT_ID_OPTION_NAME,
         "client-id used for cluster lifetime"));
-    options.addOption(CliHelper.createSingleOption(CliConsts.USERNAME_OPTION_NAME,
+    options.addOption(CliHelper.createSingleOption(
+        CliConsts.USERNAME_OPTION_NAME,
         "user that ran the job - optional but required to view logs"));
-    options.addOption(CliHelper.createRequiredSingleOption(CliConsts.LOG_BUCKET_OPTION_NAME,
+    options.addOption(CliHelper.createRequiredSingleOption(
+        CliConsts.LOG_BUCKET_OPTION_NAME,
         " name of the bucket storing the Hadoop logs and history information"));
 
     return options;
@@ -68,7 +68,7 @@ public class RunJHSCliParser implements CliParser<RunJHSCommand> {
   public void printHelp() {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setLongOptSeparator("=");
-    formatter.printHelp(CMD_NAME, RunJHSCliParser.options);
+    formatter.printHelp(CMD_NAME, RunJhsCliParser.options);
   }
 
   @Override

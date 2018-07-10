@@ -28,10 +28,11 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.LoggerFactory;
 
 /**
- * Small helper to parse for help-parameters for different subcommands
+ * Small helper to parse for help-parameters for different subcommands.
  */
 public class HelpParser {
-  final static String HELP_OPTION_NAME = "help";
+
+  static final String HELP_OPTION_NAME = "help";
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(Runner.class);
 
   private static final Options options;

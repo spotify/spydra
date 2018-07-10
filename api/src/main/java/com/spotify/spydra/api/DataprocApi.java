@@ -32,17 +32,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class DataprocAPI {
+public class DataprocApi {
   private final Metrics metrics;
   private final GcloudExecutor gcloud;
 
-  public DataprocAPI() {
+  public DataprocApi() {
     gcloud = new GcloudExecutor();
     metrics = MetricsFactory.getInstance();
   }
 
   @VisibleForTesting
-  DataprocAPI(GcloudExecutor gcloud, Metrics metrics) {
+  DataprocApi(GcloudExecutor gcloud, Metrics metrics) {
     this.gcloud = gcloud;
     this.metrics = metrics;
   }
@@ -95,7 +95,10 @@ public class DataprocAPI {
     return success;
   }
 
-  public List<Cluster> listClusters(SpydraArgument arguments, Map<String, String> filters) throws IOException {
-    return gcloud.listClusters(arguments.cluster.getOptions().get("project"), arguments.getRegion(), filters);
+  public List<Cluster> listClusters(SpydraArgument arguments, Map<String, String> filters)
+      throws IOException {
+    String project = arguments.cluster.getOptions().get("project");
+    String region = arguments.getRegion();
+    return gcloud.listClusters(project, region, filters);
   }
 }

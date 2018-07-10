@@ -37,7 +37,7 @@ public class Submitter {
 
   private final Metrics metrics = MetricsFactory.getInstance();
 
-  private final static Clock clock = Clock.systemUTC();
+  private static final Clock clock = Clock.systemUTC();
 
   public static Submitter getSubmitter(SpydraArgument arguments) {
     SpydraArgumentUtil.checkRequiredArguments(arguments, SpydraArgumentUtil

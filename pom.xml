@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -42,34 +44,6 @@
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>steffengr</id>
-      <email>steffeng@spotify.com</email>
-      <name>Steffen Grohsschmiedt</name>
-    </developer>
-    <developer>
-      <id>jstck</id>
-      <email>stack@spotify.com</email>
-      <name>John Stäck</name>
-    </developer>
-    <developer>
-      <id>Cy6erBr4in</id>
-      <email>alexander@spotify.com</email>
-      <name>Alexander Dergachev</name>
-    </developer>
-    <developer>
-      <id>varjoranta</id>
-      <email>varjo@spotify.com</email>
-      <name>Hannu Varjoranta</name>
-    </developer>
-    <developer>
-      <id>Xeago</id>
-      <email>xeago@spotify.com</email>
-      <name>Twan Wolthof</name>
-    </developer>
-  </developers>
-
   <scm>
     <url>https://github.com/spotify/spydra</url>
     <connection>scm:git:git@github.com:spotify/spydra.git</connection>
@@ -83,6 +57,52 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.0</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <violationSeverity>warning</violationSeverity>
+          <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.4</version>
+        <configuration>
+          <show>private</show>
+          <failOnError>false</failOnError>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -293,27 +313,4 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <profiles>
-    <profile>
-      <id>release-spydra</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.1</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

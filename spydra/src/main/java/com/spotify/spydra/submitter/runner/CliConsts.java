@@ -21,19 +21,19 @@
 package com.spotify.spydra.submitter.runner;
 
 /**
- * Constants frequently used for CLI sub-commands and options
+ * Constants frequently used for CLI sub-commands and options.
  */
 public class CliConsts {
   public static final String SUBMIT_CMD_NAME = "submit";
   public static final String LOGS_CMD_NAME = "dump-logs";
   public static final String DUMP_HISTORY_CMD_NAME = "dump-history";
   public static final String RUN_JHS_CMD_NAME = "run-jhs";
-  public final static String JOB_ID_OPTION_NAME = "application";
-  public final static String CLIENT_ID_OPTION_NAME = "clientid";
-  public final static String JAR_OPTION_NAME = "jar";
-  public final static String JARS_OPTION_NAME = "jars";
-  public final static String SPYDRA_JSON_OPTION_NAME = "spydra-json";
-  public final static String USERNAME_OPTION_NAME = "username";
-  public final static String LOG_BUCKET_OPTION_NAME = "log-bucket";
-  public final static String JOBNAME_OPTION_NAME = "job-name";
+  public static final String JOB_ID_OPTION_NAME = "application";
+  public static final String CLIENT_ID_OPTION_NAME = "clientid";
+  public static final String JAR_OPTION_NAME = "jar";
+  public static final String JARS_OPTION_NAME = "jars";
+  public static final String SPYDRA_JSON_OPTION_NAME = "spydra-json";
+  public static final String USERNAME_OPTION_NAME = "username";
+  public static final String LOG_BUCKET_OPTION_NAME = "log-bucket";
+  public static final String JOBNAME_OPTION_NAME = "job-name";
 }
