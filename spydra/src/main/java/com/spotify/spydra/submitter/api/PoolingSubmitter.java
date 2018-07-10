@@ -54,10 +54,13 @@ import java.util.function.Supplier;
  * </p>
  *
  * <p>
- * The placement_token of a cluster is based two-part:<ul>
+ * The placement_token of a cluster is based two-part:
+ * </p>
+ * <ul>
  * <li>slot_number: a random number between 0 and Limit</li>
  * <li>- time_derivative: {@code (Time - slot_number * (Age // Limit) ) // Age}</li>
- * </ul> together these form a unique identifier for each clusters' lifetime.
+ * </ul>
+ * <p>Together these form a unique identifier for each clusters' lifetime.
  * For each slot, it's cluster lifetime is offset by Age // Limit. This has as affect that
  * the limit is exceeded by one cluster at a time which should become idle and thus collected before
  * the next horde of clients come in. The algorithm is implemented in
