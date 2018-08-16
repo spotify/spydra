@@ -26,6 +26,7 @@ import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
 
 import com.spotify.spydra.api.DataprocApi;
 import com.spotify.spydra.api.model.Cluster;
+import com.spotify.spydra.api.model.Job;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
@@ -68,6 +69,22 @@ public class DynamicSubmitter extends Submitter {
   public boolean executeJob(SpydraArgument argument) {
 
     dataprocApi.dryRun(argument.isDryRun());
+    try {
+      if (!argument.submit.getLabels().isEmpty()) {
+        List<Job> jobs = dataprocApi.listJobs(argument);
+        for (Job job : jobs) {
+          if (job.status.isDone() || job.status.isInProggress()) {
+            LOGGER.info(String.format("Job[%s] found with specified labels", job.reference.jobId));
+            dataprocApi.waitJobForOutput(argument, job.reference.jobId);
+            return true;
+          }
+        }
+      }
+    } catch (IOException e) {
+      LOGGER.error("Failed to list jobs", e);
+      e.printStackTrace();
+      return false;
+    }
 
     try {
       if (!acquireCluster(argument, dataprocApi)) {
@@ -117,7 +134,7 @@ public class DynamicSubmitter extends Submitter {
       createArguments = arguments;
     }
 
-    arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_LABELS,
+    arguments.addOption(createArguments.cluster.options, SpydraArgument.OPTION_CLUSTER_LABELS,
                         SPYDRA_CLUSTER_LABEL + "=1");
 
     Optional<Cluster> cluster = dataprocApi.createCluster(createArguments);

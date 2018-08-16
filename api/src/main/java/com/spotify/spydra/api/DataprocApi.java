@@ -23,11 +23,13 @@ package com.spotify.spydra.api;
 import com.google.common.annotations.VisibleForTesting;
 import com.spotify.spydra.api.gcloud.GcloudExecutor;
 import com.spotify.spydra.api.model.Cluster;
+import com.spotify.spydra.api.model.Job;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -101,4 +103,21 @@ public class DataprocApi {
     String region = arguments.getRegion();
     return gcloud.listClusters(project, region, filters);
   }
+
+  public List<Job> listJobs(SpydraArgument arguments)
+      throws IOException {
+    String project = arguments.cluster.getOptions().get("project");
+    String region = arguments.getRegion();
+    Map<String, String> labelItems = new HashMap<>();
+    Map<String, String> labels = arguments.getSubmit().getLabels();
+    labels.forEach((k,v) -> labelItems.put(String.format("labels.%s",k),v));
+
+    return gcloud.listJobs(project, region, labelItems);
+  }
+
+  public void waitJobForOutput(SpydraArgument arguments, String jobId) throws IOException {
+    String region = arguments.getRegion();
+    gcloud.waitForOutput(region,jobId);
+  }
+
 }
