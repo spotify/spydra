@@ -77,14 +77,12 @@ public class DynamicSubmitter extends Submitter {
         for (Job job : jobs) {
           if (job.status.isDone() || job.status.isInProggress()) {
             LOGGER.info(String.format("Job[%s] found with specified labels", job.reference.jobId));
-            dataprocApi.waitJobForOutput(argument, job.reference.jobId);
-            return true;
+            return dataprocApi.waitJobForOutput(argument, job.reference.jobId);
           }
         }
       }
     } catch (IOException e) {
       LOGGER.error("Failed to list jobs", e);
-      e.printStackTrace();
       return false;
     }
 

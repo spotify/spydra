@@ -223,7 +223,7 @@ public class GcloudExecutor {
     }
   }
 
-  public void waitForOutput(String region, String jobId) throws IOException {
+  public boolean waitForOutput(String region, String jobId) throws IOException {
     final List<String> command = Arrays.asList("dataproc", "jobs", "wait", jobId);
     Map<String, String> options = new HashMap<>();
     options.put(SpydraArgument.OPTION_REGION, region);
@@ -232,9 +232,10 @@ public class GcloudExecutor {
             buildCommand(command, options, Collections.emptyList())
     );
     if (exitCode != 0) {
-      LOGGER.error("Dataproc wait for job failed");
-      throw new IOException("Failed to wait for job. Gcloud call failed.");
+      LOGGER.error("Dataproc wait for job failed.");
+      return false;
+    } else {
+      return true;
     }
-
   }
 }

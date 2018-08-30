@@ -118,9 +118,9 @@ public class DataprocApi {
     return gcloud.listJobs(project, region, labelItems);
   }
 
-  public void waitJobForOutput(SpydraArgument arguments, String jobId) throws IOException {
+  public boolean waitJobForOutput(SpydraArgument arguments, String jobId) throws IOException {
     String region = arguments.getRegion();
-    gcloud.waitForOutput(region,jobId);
+    return gcloud.waitForOutput(region,jobId);
   }
 
 }

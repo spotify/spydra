@@ -45,7 +45,9 @@ public class ProcessHelper {
       p.destroy();
     }
 
-    return p.exitValue();
+    int exitCode = p.exitValue();
+    LOGGER.debug("Returned with exit code: " + exitCode);
+    return exitCode;
   }
 
   public static boolean executeForOutput(List<String> command, StringBuilder outputBuilder)
