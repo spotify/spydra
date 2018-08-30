@@ -104,7 +104,7 @@ public class DataprocApi {
     return gcloud.listClusters(project, region, filters);
   }
 
-  public List<Job> listJobsMatchingLabel(SpydraArgument arguments, String labelName)
+  public Optional<Job> findLatestJobMatchingLabel(SpydraArgument arguments, String labelName)
       throws IOException {
     String project = arguments.cluster.getOptions().get("project");
     String region = arguments.getRegion();
@@ -115,7 +115,15 @@ public class DataprocApi {
           String.format("labels.%s",labelName),
           labels.get(labelName));
     }
-    return gcloud.listJobs(project, region, labelItems);
+    List<Job> jobs = gcloud.listJobs(
+        project,
+        region,
+        labelItems,
+        Optional.of(1),
+        Optional.of("~status.stateStartTime"));
+    return jobs.isEmpty()
+        ? Optional.empty()
+        : Optional.of(jobs.get(0));
   }
 
   public boolean waitJobForOutput(SpydraArgument arguments, String jobId) throws IOException {

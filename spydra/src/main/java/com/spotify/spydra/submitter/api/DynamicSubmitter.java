@@ -73,8 +73,10 @@ public class DynamicSubmitter extends Submitter {
     dataprocApi.dryRun(argument.isDryRun());
     try {
       if (argument.submit.getLabels().containsKey(OPTIONS_DEDUPLICATING_LABEL)) {
-        List<Job> jobs = dataprocApi.listJobsMatchingLabel(argument, OPTIONS_DEDUPLICATING_LABEL);
-        for (Job job : jobs) {
+        Optional<Job> maybeJob = dataprocApi.findLatestJobMatchingLabel(
+            argument, OPTIONS_DEDUPLICATING_LABEL);
+        if (maybeJob.isPresent()) {
+          Job job = maybeJob.get();
           if (job.status.isDone() || job.status.isInProggress()) {
             LOGGER.info(String.format("Job[%s] found with specified labels", job.reference.jobId));
             return dataprocApi.waitJobForOutput(argument, job.reference.jobId);

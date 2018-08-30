@@ -263,7 +263,7 @@ public class SpydraArgumentUtil {
       }
       filterItems.add(String.format("%s=%s", key, value));
     });
-    return String.format("%s",filterItems.toString());
+    return filterItems.toString();
   }
 
 }

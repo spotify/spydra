@@ -160,13 +160,16 @@ public class GcloudExecutor {
     this.dryRun = dryRun;
   }
 
-  public List<Job> listJobs(String project, String region, Map<String,String> filters)
+  public List<Job> listJobs(String project, String region, Map<String,String> filters,
+        Optional<Integer> limit,  Optional<String> sortBy)
       throws IOException {
 
     final List<String> command = Arrays.asList("dataproc", "jobs", "list", "--format=json");
     Map<String, String> options = new HashMap<>();
     options.put(SpydraArgument.OPTION_PROJECT, project);
     options.put(SpydraArgument.OPTION_REGION, region);
+    limit.ifPresent(l -> options.put("limit", String.valueOf(l)));
+    sortBy.ifPresent(s -> options.put("sort-by", s));
 
     if (filters != null && !filters.isEmpty()) {
       String labelItems = SpydraArgumentUtil.joinFilters(filters);
