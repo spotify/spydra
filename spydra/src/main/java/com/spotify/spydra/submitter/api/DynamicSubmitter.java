@@ -20,6 +20,7 @@
 
 package com.spotify.spydra.submitter.api;
 
+import static com.spotify.spydra.model.SpydraArgument.OPTIONS_DEDUPLICATING_LABEL;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_PROJECT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
@@ -30,6 +31,7 @@ import com.spotify.spydra.api.model.Job;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
+import com.spotify.spydra.submitter.executor.ExecutorFactory;
 import com.spotify.spydra.util.GcpUtils;
 import java.io.IOException;
 import java.net.URI;
@@ -70,8 +72,8 @@ public class DynamicSubmitter extends Submitter {
 
     dataprocApi.dryRun(argument.isDryRun());
     try {
-      if (!argument.submit.getLabels().isEmpty()) {
-        List<Job> jobs = dataprocApi.listJobs(argument);
+      if (argument.submit.getLabels().containsKey(OPTIONS_DEDUPLICATING_LABEL)) {
+        List<Job> jobs = dataprocApi.listJobsMatchingLabel(argument, OPTIONS_DEDUPLICATING_LABEL);
         for (Job job : jobs) {
           if (job.status.isDone() || job.status.isInProggress()) {
             LOGGER.info(String.format("Job[%s] found with specified labels", job.reference.jobId));
@@ -90,7 +92,7 @@ public class DynamicSubmitter extends Submitter {
       if (!acquireCluster(argument, dataprocApi)) {
         return false;
       }
-      return super.executeJob(argument);
+      return executeJob(new ExecutorFactory(() -> dataprocApi), argument);
     } catch (Exception e) {
       LOGGER.error("Failed to create cluster", e);
       metrics.fatalError(argument, e);

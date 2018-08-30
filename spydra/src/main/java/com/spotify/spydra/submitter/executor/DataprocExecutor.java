@@ -26,9 +26,14 @@ import java.io.IOException;
 
 public class DataprocExecutor implements Executor {
 
+  private final DataprocApi dataprocApi;
+
+  public DataprocExecutor(DataprocApi dataprocApi) {
+    this.dataprocApi = dataprocApi;
+  }
+
   @Override
   public boolean submit(SpydraArgument arguments) throws IOException {
-    DataprocApi dataprocApi = new DataprocApi();
     dataprocApi.dryRun(arguments.isDryRun());
     return dataprocApi.submit(arguments);
   }

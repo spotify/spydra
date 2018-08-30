@@ -20,7 +20,10 @@
 
 package com.spotify.spydra.submitter.executor;
 
+import com.spotify.spydra.api.DataprocApi;
 import com.spotify.spydra.model.SpydraArgument;
+
+import java.util.function.Supplier;
 
 /**
  * Factory responsible for creating instances of different executors based a
@@ -28,10 +31,20 @@ import com.spotify.spydra.model.SpydraArgument;
  */
 public class ExecutorFactory {
 
+  private final Supplier<DataprocApi> dataprocApiSupplier;
+
+  public ExecutorFactory() {
+    this(DataprocApi::new);
+  }
+
+  public ExecutorFactory(Supplier<DataprocApi> dataprocApiSupplier) {
+    this.dataprocApiSupplier = dataprocApiSupplier;
+  }
+
   public Executor getExecutor(SpydraArgument arguments) {
     switch (arguments.getClusterType()) {
       case DATAPROC:
-        return new DataprocExecutor();
+        return new DataprocExecutor(dataprocApiSupplier.get());
       case ON_PREMISE:
         return new OnPremiseExecutor();
       case NULL:

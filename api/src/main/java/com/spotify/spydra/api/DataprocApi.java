@@ -104,14 +104,17 @@ public class DataprocApi {
     return gcloud.listClusters(project, region, filters);
   }
 
-  public List<Job> listJobs(SpydraArgument arguments)
+  public List<Job> listJobsMatchingLabel(SpydraArgument arguments, String labelName)
       throws IOException {
     String project = arguments.cluster.getOptions().get("project");
     String region = arguments.getRegion();
     Map<String, String> labelItems = new HashMap<>();
     Map<String, String> labels = arguments.getSubmit().getLabels();
-    labels.forEach((k,v) -> labelItems.put(String.format("labels.%s",k),v));
-
+    if (labels.containsKey(labelName)) {
+      labelItems.put(
+          String.format("labels.%s",labelName),
+          labels.get(labelName));
+    }
     return gcloud.listJobs(project, region, labelItems);
   }
 

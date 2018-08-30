@@ -25,6 +25,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
 
+  public Job() { }
+
+  public Job(Reference reference, Status status) {
+    this.reference = reference;
+    this.status = status;
+  }
+
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Status {
     public static final String STATE_UNSPECIFIED = "STATE_UNSPECIFIED";
@@ -38,6 +45,12 @@ public class Job {
     public static final String ERROR = "ERROR";
     public static final String ATTEMPT_FAILURE = "ATTEMPT_FAILURE";
     public String state;
+
+    public Status() { }
+
+    public Status(String state) {
+      this.state = state;
+    }
 
     public boolean isInProggress() {
       return state.equals(PENDING) || state.equals(RUNNING) || state.equals(SETUP_DONE);
@@ -56,6 +69,13 @@ public class Job {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Reference {
+
+    public Reference() { }
+
+    public Reference(String jobId) {
+      this.jobId = jobId;
+    }
+
     public String jobId;
   }
 

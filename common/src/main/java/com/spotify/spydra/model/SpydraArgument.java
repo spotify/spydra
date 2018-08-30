@@ -56,6 +56,7 @@ public class SpydraArgument {
   public static final String OPTION_MAX_IDLE = "max-idle";
   public static final String OPTIONS_FILTER = "filter";
   public static final String OPTIONS_FILTER_LABEL_PREFIX = "labels.";
+  public static final String OPTIONS_DEDUPLICATING_LABEL = "spydra-dedup-id";
 
 
   public static final String JOB_TYPE_HADOOP = "hadoop";
@@ -66,6 +67,7 @@ public class SpydraArgument {
   public static final String UUID_PLACEHOLDER = "${UUID}";
 
   public static final String OPTION_DRYRUN = "dry-run";
+
 
   // Required arguments
   public Optional<String> clientId = Optional.empty();

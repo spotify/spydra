@@ -20,20 +20,31 @@
 package com.spotify.spydra.submitter.api;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.spotify.spydra.api.DataprocApi;
 import com.spotify.spydra.api.model.Cluster;
+import com.spotify.spydra.api.model.Job;
+import com.spotify.spydra.api.model.Job.Status;
+import com.spotify.spydra.api.model.Job.Reference;
+import com.spotify.spydra.model.ClusterType;
 import com.spotify.spydra.model.SpydraArgument;
+import com.spotify.spydra.util.GcpUtils;
+
+import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,13 +57,15 @@ public class DynamicSubmitterTest {
 
   DynamicSubmitter dynamicSubmitter;
   DataprocApi dataprocApi;
+  GcpUtils gcpUtils;
   SpydraArgument arguments;
   String clientId;
 
   @Before
   public void before() {
-    dynamicSubmitter = new DynamicSubmitter();
     dataprocApi = mock(DataprocApi.class);
+    gcpUtils = mock(GcpUtils.class);
+    dynamicSubmitter = new DynamicSubmitter(dataprocApi, gcpUtils);
     arguments = new SpydraArgument();
     clientId = "my-client-id";
   }
@@ -90,5 +103,58 @@ public class DynamicSubmitterTest {
     Cluster cluster = perfectCluster();
     cluster.status.state = Cluster.Status.ERROR;
     return cluster;
+  }
+
+  @Test
+  public void reattachToOriginalRunningJob() throws Exception {
+    whenRunningDuplicateJobWaitForOriginal(new Status(Status.RUNNING));
+  }
+
+  @Test
+  public void returnResultOfOriginalSucessfulJob() throws Exception {
+    whenRunningDuplicateJobWaitForOriginal(new Status(Status.DONE));
+  }
+
+  private void whenRunningDuplicateJobWaitForOriginal(Status statusOfOriginal) throws Exception {
+    SpydraArgument.Submit submit = arguments.new Submit();
+    submit.setLabels("spydra-dedup-id=1");
+    arguments.setSubmit(submit);
+
+    Job existingJob = new Job(new Reference("jobid1"), statusOfOriginal);
+
+    when(dataprocApi.listJobsMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL)))
+      .thenReturn(Arrays.asList(existingJob));
+
+    dynamicSubmitter.executeJob(arguments);
+
+    verify(dataprocApi).listJobsMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL));
+    verify(dataprocApi).waitJobForOutput(eq(arguments), eq(existingJob.reference.jobId));
+
+    verify(dataprocApi, never()).createCluster(any(SpydraArgument.class));
+    verify(dataprocApi, never()).deleteCluster(any(SpydraArgument.class));
+  }
+
+  @Test
+  public void rerunDuplicateFailedJob() throws Exception {
+    SpydraArgument.Submit submit = arguments.new Submit();
+    submit.setLabels("spydra-dedup-id=1");
+    arguments.setSubmit(submit);
+    arguments.setClusterType(ClusterType.DATAPROC);
+
+    Job existingJob = new Job(new Reference("jobid1"), new Status(Status.ERROR));
+
+    when(dataprocApi.listJobsMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL)))
+      .thenReturn(Arrays.asList(existingJob));
+
+    when(dataprocApi.createCluster(eq(arguments))).thenReturn(Optional.of(new Cluster()));
+
+    dynamicSubmitter.executeJob(arguments);
+
+    verify(dataprocApi).listJobsMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL));
+    verify(dataprocApi, never()).waitJobForOutput(any(SpydraArgument.class), eq(existingJob.reference.jobId));
+
+    verify(dataprocApi).createCluster(eq(arguments));
+    verify(dataprocApi).submit(eq(arguments));
+    verify(dataprocApi).deleteCluster(eq(arguments));
   }
 }
