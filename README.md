@@ -293,6 +293,54 @@ To enable cluster pooling add a pooling section similar to the one below to your
 }
 ```
 
+##### Duplicate submission avoidance
+Spydra can be configured to avoid submitting duplicate jobs. This is useful for guarding against the 
+Spydra process itself or its orchestrating process failing. Retrying in such situations would normally 
+lead to duplicate jobs running, which will cause increased cost and, depending on the job implementation, 
+may result in hard to debug failures or data corruption.
+
+Duplicates are avoided by letting the client supply a job ID, in the form of a job label named `spydra-dedup-id`. 
+If this ID is found on a previous job, Spydra will behave as follows:
+   * If the previous job has succeeded, Spydra will print the output of the previous job and exit successfully. 
+   * If the previous job has failed, Spydra will run the job, just as if no previous job was found.
+   * If the previous job is in progress, Spydra will wait for the running job to finish, while printing the output 
+     of that job. The exist status of Spydra will be the same as that of the running job. 
+
+If multiple duplicate jobs exist, only the latest will be considered. 
+
+It is possible to limit how far back in time spydra will look for duplicate jobs, using the `deduplication_max_age` 
+parameter, specifying the maximum age of the duplicate job in seconds. 
+
+Duplicate submission avoidance is not supported in conjunction with Static Cluster Submission or Cluster Pooling.
+
+Example json file.
+
+````json
+{
+  "client_id": "simple-spydra-deduplication-test",
+  "cluster_type": "dataproc",
+  "log_bucket": "spydra-test-logs",
+  "region": "europe-west1",
+  "deduplication_max_age":3600,
+  "cluster": {
+    "options": {
+      "project": "spydra-test"
+    }
+  },
+  "submit": {
+    "job_args": [
+      "pi",
+      "8",
+      "100"
+    ],
+    "options": {
+      "jar": "hadoop-mapreduce-examples.jar",
+      "labels":"spydra-dedup-id=1234"
+    }
+  }
+}
+````
+
 ##### Submission Gotchas
    * You can use `--` if you need to pass a parameter starting with dashes to your job,
      e.g. `submit --jar=jar ... -- -myParam`

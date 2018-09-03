@@ -20,6 +20,7 @@
 
 package com.spotify.spydra.submitter.api;
 
+import static com.spotify.spydra.model.SpydraArgument.OPTIONS_DEDUPLICATING_LABEL;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_CLUSTER;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_PROJECT;
 import static com.spotify.spydra.model.SpydraArgument.OPTION_ZONE;
@@ -30,6 +31,7 @@ import com.spotify.spydra.api.model.Job;
 import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
+import com.spotify.spydra.submitter.executor.ExecutorFactory;
 import com.spotify.spydra.util.GcpUtils;
 import java.io.IOException;
 import java.net.URI;
@@ -70,19 +72,20 @@ public class DynamicSubmitter extends Submitter {
 
     dataprocApi.dryRun(argument.isDryRun());
     try {
-      if (!argument.submit.getLabels().isEmpty()) {
-        List<Job> jobs = dataprocApi.listJobs(argument);
-        for (Job job : jobs) {
+      if (argument.submit.getLabels().containsKey(OPTIONS_DEDUPLICATING_LABEL)) {
+        Optional<Job> maybeJob = dataprocApi.findJobToResume(argument);
+        if (maybeJob.isPresent()) {
+          Job job = maybeJob.get();
           if (job.status.isDone() || job.status.isInProggress()) {
-            LOGGER.info(String.format("Job[%s] found with specified labels", job.reference.jobId));
-            dataprocApi.waitJobForOutput(argument, job.reference.jobId);
-            return true;
+            LOGGER.info(String.format(
+                "Attempted to submit duplicate of Job[%s]. "
+                  + "Will wait for original job instead of submitting new.", job.reference.jobId));
+            return dataprocApi.waitJobForOutput(argument, job.reference.jobId);
           }
         }
       }
     } catch (IOException e) {
       LOGGER.error("Failed to list jobs", e);
-      e.printStackTrace();
       return false;
     }
 
@@ -90,7 +93,7 @@ public class DynamicSubmitter extends Submitter {
       if (!acquireCluster(argument, dataprocApi)) {
         return false;
       }
-      return super.executeJob(argument);
+      return executeJob(new ExecutorFactory(() -> dataprocApi), argument);
     } catch (Exception e) {
       LOGGER.error("Failed to create cluster", e);
       metrics.fatalError(argument, e);

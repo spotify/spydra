@@ -22,8 +22,18 @@ package com.spotify.spydra.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.Instant;
+import java.util.Arrays;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
+
+  public Job() { }
+
+  public Job(Reference reference, Status status) {
+    this.reference = reference;
+    this.status = status;
+  }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Status {
@@ -37,25 +47,44 @@ public class Job {
     public static final String DONE = "DONE";
     public static final String ERROR = "ERROR";
     public static final String ATTEMPT_FAILURE = "ATTEMPT_FAILURE";
+
     public String state;
+    public String stateStartTime;
+
+    public Status() { }
+
+    public Status(String state) {
+      this.state = state;
+    }
 
     public boolean isInProggress() {
-      return state.equals(PENDING) || state.equals(RUNNING) || state.equals(SETUP_DONE);
+      return Arrays
+          .asList(PENDING, RUNNING, SETUP_DONE, CANCEL_PENDING, CANCEL_STARTED)
+          .contains(state);
     }
 
     public boolean isDone() {
       return state.equals(DONE);
     }
 
-    public boolean isFailed() {
-      boolean isNotFailed = isInProggress() || isDone();
-      return !isNotFailed;
+    public String getStateStartTime() {
+      return stateStartTime;
     }
 
+    public Instant parseStateStartTime() {
+      return Instant.parse(stateStartTime);
+    }
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Reference {
+
+    public Reference() { }
+
+    public Reference(String jobId) {
+      this.jobId = jobId;
+    }
+
     public String jobId;
   }
 
