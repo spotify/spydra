@@ -28,13 +28,13 @@ import com.spotify.spydra.api.model.Job;
 import com.spotify.spydra.api.process.ProcessResult;
 import com.spotify.spydra.api.process.ProcessService;
 
+import static com.spotify.spydra.api.TestUtils.*;
+
 import static org.mockito.Mockito.*;
 
 import static org.junit.Assert.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,11 +53,10 @@ public class GcloudExecutorTest {
   @Test
   public void testListJobsWithOptinalArgs() throws IOException {
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArgumentCaptor<List<String>> commandCaptor = ArgumentCaptor.forClass((Class)List.class);
+    ArgumentCaptor<List<String>> commandCaptor = listArgumentCaptor(String.class);
 
-    when(processService.executeForOutput(commandCaptor.capture())).thenReturn(
-        new ProcessResult(0, fromResource("/job-list.json")));
+    when(processService.executeForOutput(commandCaptor.capture()))
+      .thenReturn(new ProcessResult(0, fromResource("/job-list.json")));
 
     List<Job> jobs = gcloudExecutor.listJobs("<project>", "<region>",
         Collections.singletonMap("<filterkey>", "<filtervalue>"),
@@ -77,11 +76,10 @@ public class GcloudExecutorTest {
   @Test
   public void testListJobsWithoutOptionalArgs() throws IOException {
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArgumentCaptor<List<String>> commandCaptor = ArgumentCaptor.forClass((Class)List.class);
+    ArgumentCaptor<List<String>> commandCaptor = listArgumentCaptor(String.class);
 
-    when(processService.executeForOutput(commandCaptor.capture())).thenReturn(
-        new ProcessResult(0, fromResource("/job-list.json")));
+    when(processService.executeForOutput(commandCaptor.capture()))
+      .thenReturn(new ProcessResult(0, fromResource("/job-list.json")));
 
     List<Job> jobs = gcloudExecutor.listJobs("<project>", "<region>",
         Collections.emptyMap(),
@@ -97,22 +95,6 @@ public class GcloudExecutorTest {
     assertNoneStartsWith(command, "--limit");
     assertNoneStartsWith(command, "--sort-by");
   }
-
-  private void assertNoneStartsWith(List<String> command, String prefix) {
-      assertFalse(command.stream().anyMatch(s -> s.startsWith(prefix)));
-  }
-
-  private String fromResource(String resource) {
-    char[] buffer = new char[1024];
-    StringBuilder sb = new StringBuilder();
-    int len = 0;
-    try (BufferedReader r = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resource)))) {
-      while ((len = r.read(buffer)) >= 0) {
-        sb.append(buffer, 0, len);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return sb.toString();
-  }
 }
+
+

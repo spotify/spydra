@@ -28,6 +28,9 @@ import com.spotify.spydra.metrics.Metrics;
 import com.spotify.spydra.metrics.MetricsFactory;
 import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,16 +40,17 @@ import java.util.Optional;
 public class DataprocApi {
   private final Metrics metrics;
   private final GcloudExecutor gcloud;
+  private final Clock clock;
 
   public DataprocApi() {
-    gcloud = new GcloudExecutor();
-    metrics = MetricsFactory.getInstance();
+    this(new GcloudExecutor(), MetricsFactory.getInstance(), Clock.systemUTC());
   }
 
   @VisibleForTesting
-  DataprocApi(GcloudExecutor gcloud, Metrics metrics) {
+  DataprocApi(GcloudExecutor gcloud, Metrics metrics, Clock clock) {
     this.gcloud = gcloud;
     this.metrics = metrics;
+    this.clock = clock;
   }
 
   public void dryRun(boolean dryRun) {
@@ -104,12 +108,14 @@ public class DataprocApi {
     return gcloud.listClusters(project, region, filters);
   }
 
-  public Optional<Job> findLatestJobMatchingLabel(SpydraArgument arguments, String labelName)
+  public Optional<Job> findJobToResume(SpydraArgument arguments)
       throws IOException {
     String project = arguments.cluster.getOptions().get("project");
     String region = arguments.getRegion();
     Map<String, String> labelItems = new HashMap<>();
     Map<String, String> labels = arguments.getSubmit().getLabels();
+
+    String labelName = SpydraArgument.OPTIONS_DEDUPLICATING_LABEL;
     if (labels.containsKey(labelName)) {
       labelItems.put(
           String.format("labels.%s",labelName),
@@ -121,9 +127,21 @@ public class DataprocApi {
         labelItems,
         Optional.of(1),
         Optional.of("~status.stateStartTime"));
-    return jobs.isEmpty()
-        ? Optional.empty()
-        : Optional.of(jobs.get(0));
+
+    Optional<Duration> maxAge = arguments.deduplicationMaxAge();
+
+    if (jobs.isEmpty()) {
+      return Optional.empty();
+    } else if (maxAge.isPresent()) {
+      Job job = jobs.get(0);
+      if (job.status.parseStateStartTime().isAfter(Instant.now(clock).minus(maxAge.get()))) {
+        return Optional.of(job);
+      } else {
+        return Optional.<Job>empty();
+      }
+    } else {
+      return Optional.of(jobs.get(0));
+    }
   }
 
   public boolean waitJobForOutput(SpydraArgument arguments, String jobId) throws IOException {

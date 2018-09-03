@@ -122,7 +122,7 @@ public class DynamicSubmitterTest {
 
     Job existingJob = new Job(new Reference("jobid1"), statusOfOriginal);
 
-    when(dataprocApi.findLatestJobMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL)))
+    when(dataprocApi.findJobToResume(eq(arguments)))
       .thenReturn(Optional.of(existingJob));
     when(dataprocApi.waitJobForOutput(eq(arguments), eq(existingJob.reference.jobId))).thenReturn(true);
 
@@ -130,7 +130,7 @@ public class DynamicSubmitterTest {
 
     assertTrue(result);
 
-    verify(dataprocApi).findLatestJobMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL));
+    verify(dataprocApi).findJobToResume(eq(arguments));
     verify(dataprocApi).waitJobForOutput(eq(arguments), eq(existingJob.reference.jobId));
 
     verify(dataprocApi, never()).createCluster(any(SpydraArgument.class));
@@ -146,7 +146,7 @@ public class DynamicSubmitterTest {
 
     Job existingJob = new Job(new Reference("jobid1"), new Status(Status.ERROR));
 
-    when(dataprocApi.findLatestJobMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL)))
+    when(dataprocApi.findJobToResume(eq(arguments)))
       .thenReturn(Optional.of(existingJob));
 
     when(dataprocApi.createCluster(eq(arguments))).thenReturn(Optional.of(new Cluster()));
@@ -156,7 +156,7 @@ public class DynamicSubmitterTest {
 
     assertTrue(result);
 
-    verify(dataprocApi).findLatestJobMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL));
+    verify(dataprocApi).findJobToResume(eq(arguments));
     verify(dataprocApi, never()).waitJobForOutput(any(SpydraArgument.class), eq(existingJob.reference.jobId));
 
     verify(dataprocApi).createCluster(eq(arguments));
@@ -173,7 +173,7 @@ public class DynamicSubmitterTest {
 
     Job existingJob = new Job(new Reference("jobid1"), new Status(Status.PENDING));
 
-    when(dataprocApi.findLatestJobMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL)))
+    when(dataprocApi.findJobToResume(eq(arguments)))
       .thenReturn(Optional.of(existingJob));
 
     when(dataprocApi.waitJobForOutput(eq(arguments), eq(existingJob.reference.jobId))).thenReturn(false);
@@ -182,7 +182,7 @@ public class DynamicSubmitterTest {
 
     assertFalse(result);
 
-    verify(dataprocApi).findLatestJobMatchingLabel(eq(arguments), eq(SpydraArgument.OPTIONS_DEDUPLICATING_LABEL));
+    verify(dataprocApi).findJobToResume(eq(arguments));
     verify(dataprocApi).waitJobForOutput(eq(arguments), eq(existingJob.reference.jobId));
 
     verify(dataprocApi, never()).createCluster(eq(arguments));

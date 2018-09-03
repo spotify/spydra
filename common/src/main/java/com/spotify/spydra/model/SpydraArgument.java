@@ -21,6 +21,7 @@
 package com.spotify.spydra.model;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +59,6 @@ public class SpydraArgument {
   public static final String OPTIONS_FILTER_LABEL_PREFIX = "labels.";
   public static final String OPTIONS_DEDUPLICATING_LABEL = "spydra-dedup-id";
 
-
   public static final String JOB_TYPE_HADOOP = "hadoop";
   public static final String JOB_TYPE_PYSPARK = "pyspark";
 
@@ -81,6 +81,7 @@ public class SpydraArgument {
   public Optional<Boolean> dryRun = Optional.of(false);
   public Optional<AutoScaler> autoScaler = Optional.empty();
   public Optional<Pooling> pooling = Optional.empty();
+  public Optional<Long> deduplicationMaxAgeMs = Optional.empty();
 
   // Dataproc arguments
   public Cluster cluster = new Cluster();
@@ -328,6 +329,12 @@ public class SpydraArgument {
       merged.dryRun = first.dryRun;
     }
 
+    if (second.deduplicationMaxAgeMs.isPresent()) {
+      merged.deduplicationMaxAgeMs = second.deduplicationMaxAgeMs;
+    } else {
+      merged.deduplicationMaxAgeMs = first.deduplicationMaxAgeMs;
+    }
+
     if (second.jobType.isPresent()) {
       merged.jobType = second.jobType;
     } else {
@@ -565,6 +572,14 @@ public class SpydraArgument {
 
   public void setDryRun(Boolean dryRun) {
     this.dryRun = Optional.of(dryRun);
+  }
+
+  public void setDeduplicationMaxAge(long maxAge) {
+    this.deduplicationMaxAgeMs = Optional.of(maxAge);
+  }
+
+  public Optional<Duration> deduplicationMaxAge() {
+    return deduplicationMaxAgeMs.map(ms -> Duration.of(ms, ChronoUnit.MILLIS));
   }
 
   public void setCluster(Cluster cluster) {
