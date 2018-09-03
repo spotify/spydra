@@ -103,7 +103,7 @@ public class DataprocApiTest {
     when(processService.executeForOutput(anyListOf(String.class)))
       .thenReturn(new ProcessResult(0, fromResource("/job-single.json")));
 
-    arguments.deduplicationMaxAgeMs = Optional.of(Duration.of(6, ChronoUnit.HOURS).toMillis());
+    arguments.deduplicationMaxAge = Optional.of(Duration.of(6, ChronoUnit.HOURS).getSeconds());
 
     Optional<Job> maybeJob = api.findJobToResume(arguments);
 
@@ -119,7 +119,7 @@ public class DataprocApiTest {
     when(processService.executeForOutput(anyListOf(String.class)))
       .thenReturn(new ProcessResult(0, fromResource("/job-single.json")));
 
-    arguments.deduplicationMaxAgeMs = Optional.of(Duration.of(6, ChronoUnit.HOURS).toMillis());
+    arguments.deduplicationMaxAge = Optional.of(Duration.of(6, ChronoUnit.HOURS).getSeconds());
 
     Optional<Job> maybeJob = api.findJobToResume(arguments);
 

@@ -81,7 +81,7 @@ public class SpydraArgument {
   public Optional<Boolean> dryRun = Optional.of(false);
   public Optional<AutoScaler> autoScaler = Optional.empty();
   public Optional<Pooling> pooling = Optional.empty();
-  public Optional<Long> deduplicationMaxAgeMs = Optional.empty();
+  public Optional<Long> deduplicationMaxAge = Optional.empty();
 
   // Dataproc arguments
   public Cluster cluster = new Cluster();
@@ -329,10 +329,10 @@ public class SpydraArgument {
       merged.dryRun = first.dryRun;
     }
 
-    if (second.deduplicationMaxAgeMs.isPresent()) {
-      merged.deduplicationMaxAgeMs = second.deduplicationMaxAgeMs;
+    if (second.deduplicationMaxAge.isPresent()) {
+      merged.deduplicationMaxAge = second.deduplicationMaxAge;
     } else {
-      merged.deduplicationMaxAgeMs = first.deduplicationMaxAgeMs;
+      merged.deduplicationMaxAge = first.deduplicationMaxAge;
     }
 
     if (second.jobType.isPresent()) {
@@ -575,11 +575,11 @@ public class SpydraArgument {
   }
 
   public void setDeduplicationMaxAge(long maxAge) {
-    this.deduplicationMaxAgeMs = Optional.of(maxAge);
+    this.deduplicationMaxAge = Optional.of(maxAge);
   }
 
   public Optional<Duration> deduplicationMaxAge() {
-    return deduplicationMaxAgeMs.map(ms -> Duration.of(ms, ChronoUnit.MILLIS));
+    return deduplicationMaxAge.map(ms -> Duration.of(ms, ChronoUnit.SECONDS));
   }
 
   public void setCluster(Cluster cluster) {
