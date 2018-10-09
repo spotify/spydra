@@ -28,7 +28,8 @@ import jdk.nashorn.tools.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProcessHelper {
+public class ProcessHelper implements ProcessService {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessHelper.class);
 
   public static int executeCommand(List<String> command) throws IOException {
@@ -45,10 +46,12 @@ public class ProcessHelper {
       p.destroy();
     }
 
-    return p.exitValue();
+    int exitCode = p.exitValue();
+    LOGGER.debug("Returned with exit code: " + exitCode);
+    return exitCode;
   }
 
-  public static boolean executeForOutput(List<String> command, StringBuilder outputBuilder)
+  public static int executeForOutput(List<String> command, StringBuilder outputBuilder)
       throws IOException {
     LOGGER.debug("Executing command: " + String.join(" ", command));
     ProcessBuilder pb = new ProcessBuilder(command)
@@ -70,7 +73,7 @@ public class ProcessHelper {
         String lineWithSep = line + System.getProperty("line.separator");
         outputBuilder.append(lineWithSep);
       }
-      return success;
+      return exitCode;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       p.destroy();
@@ -79,5 +82,17 @@ public class ProcessHelper {
       p.destroy();
       throw e;
     }
+  }
+
+  @Override
+  public ProcessResult executeForOutput(List<String> command) throws IOException {
+    StringBuilder output = new StringBuilder();
+    int exitCode = ProcessHelper.executeForOutput(command, output);
+    return new ProcessResult(exitCode, output.toString());
+  }
+
+  @Override
+  public int execute(List<String> command) throws IOException {
+    return ProcessHelper.executeCommand(command);
   }
 }

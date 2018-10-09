@@ -36,6 +36,7 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -252,4 +253,17 @@ public class SpydraArgumentUtil {
   public static boolean isStaticInvocation(SpydraArgument arguments) {
     return arguments.getSubmit().getOptions().containsKey(OPTION_CLUSTER);
   }
+
+  public static String joinFilters(Map<String,String> filters) {
+    StringJoiner filterItems = new StringJoiner(" AND ");
+    filters.forEach((key, value) -> {
+      //Allows for label filters to not specify a value to match "anything" (just check if exists)
+      if (value == null || value.isEmpty()) {
+        value = "*";
+      }
+      filterItems.add(String.format("%s=%s", key, value));
+    });
+    return filterItems.toString();
+  }
+
 }

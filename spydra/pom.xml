@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>spydra-parent</artifactId>
-    <groupId>com.spotify.data.spydra</groupId>
-    <version>0.3.22-SNAPSHOT</version>
+    <groupId>com.tapad.data.spydra</groupId>
+    <version>1.0.0x0.3.21</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>spydra</artifactId>
 
   <properties>
-    <init-action-uri>gs://spydra-init-actions/${project.artifactId}</init-action-uri>
+    <init-action-uri>gs://tapad-spydra-init-actions/${project.artifactId}</init-action-uri>
     <versioned-init-action-uri>${init-action-uri}/${project.version}</versioned-init-action-uri>
     <test-configuration-dir>../travis_files</test-configuration-dir>
   </properties>

@@ -59,8 +59,12 @@ public class Submitter {
   }
 
   public boolean executeJob(SpydraArgument arguments) {
+    return executeJob(new ExecutorFactory(), arguments);
+  }
+
+  protected boolean executeJob(ExecutorFactory executorFactory, SpydraArgument arguments) {
     try {
-      Executor executor = new ExecutorFactory().getExecutor(arguments);
+      Executor executor = executorFactory.getExecutor(arguments);
       return executor.submit(arguments);
     } catch (IOException e) {
       LOGGER.error("Failed to submit job", e);

@@ -119,10 +119,10 @@ public class PoolingSubmitter extends DynamicSubmitter {
       ClusterPlacement placement
   ) throws IOException {
     // Label the pooled cluster with the client id. Unknown client ids all end up in their own pool.
-    SpydraArgument.addOption(arguments.cluster.options, SpydraArgument.OPTION_LABELS,
+    SpydraArgument.addOption(arguments.cluster.options, SpydraArgument.OPTION_CLUSTER_LABELS,
                              POOLED_CLUSTER_CLIENTID_LABEL + "=" + arguments.getClientId());
 
-    SpydraArgument.addOption(arguments.cluster.options, SpydraArgument.OPTION_LABELS,
+    SpydraArgument.addOption(arguments.cluster.options, SpydraArgument.OPTION_CLUSTER_LABELS,
                              SPYDRA_PLACEMENT_TOKEN_LABEL + "=" + placement.token());
 
     String clusterName = generateName(arguments.getClientId(), placement.token());
