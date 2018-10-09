@@ -13,10 +13,10 @@
 
   <description>Ephemeral Hadoop clusters using Google Compute Platform</description>
 
-  <groupId>com.spotify.data.spydra</groupId>
+  <groupId>com.tapad.data.spydra</groupId>
   <artifactId>spydra-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.3.22-SNAPSHOT</version>
+  <version>1.0.0x0.3.21</version>
 
   <prerequisites>
     <maven>3.2.2</maven>
@@ -43,9 +43,9 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/spotify/spydra</url>
-    <connection>scm:git:git@github.com:spotify/spydra.git</connection>
-    <developerConnection>scm:git:git@github.com:spotify/spydra.git</developerConnection>
+    <url>https://github.com/tapad/spydra</url>
+    <connection>scm:git:git@github.com:tapad/spydra.git</connection>
+    <developerConnection>scm:git:git@github.com:tapad/spydra.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
@@ -102,6 +102,33 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.5.1</version>
+        <executions>
+          <execution>
+            <id>default-deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>deploy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <serverId>nexus</serverId>
+          <nexusUrl>https://nexus.tapad.com/</nexusUrl>
+          <skipStaging>true</skipStaging>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -109,10 +136,14 @@
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>nexus-releases</id>
+      <url>https://nexus.tapad.com/repository/releases</url>
     </repository>
     <snapshotRepository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>nexus-snapshots</id>
+      <url>https://nexus.tapad.com/repository/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
