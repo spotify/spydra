@@ -18,23 +18,29 @@
  * -/-/-
  */
 
-package com.spotify.spydra.submitter.executor;
+package com.spotify.spydra.api.process;
 
-import com.spotify.spydra.api.DataprocApi;
-import com.spotify.spydra.model.SpydraArgument;
-import java.io.IOException;
+import jdk.nashorn.tools.Shell;
 
-public class DataprocExecutor implements Executor {
+public class ProcessResult {
 
-  private final DataprocApi dataprocApi;
+  private final int exitCode;
+  private final String output;
 
-  public DataprocExecutor(DataprocApi dataprocApi) {
-    this.dataprocApi = dataprocApi;
+  public ProcessResult(int exitCode, String output) {
+    this.exitCode = exitCode;
+    this.output = output;
   }
 
-  @Override
-  public boolean submit(SpydraArgument arguments) throws IOException {
-    dataprocApi.dryRun(arguments.isDryRun());
-    return dataprocApi.submit(arguments);
+  public int getExitCode() {
+    return exitCode;
+  }
+
+  public String getOutput() {
+    return output;
+  }
+
+  public boolean isSuccess() {
+    return exitCode == Shell.SUCCESS;
   }
 }

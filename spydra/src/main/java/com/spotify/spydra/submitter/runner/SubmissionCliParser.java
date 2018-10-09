@@ -59,6 +59,9 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
     options.addOption(CliHelper.createSingleOption(
         CliConsts.JOBNAME_OPTION_NAME,
         "job name, used as dataproc job id"));
+    options.addOption(CliHelper.createSingleOption(
+        CliConsts.JOB_LABELS,
+        "job labels, used as dataproc job labels"));
   }
 
   public SpydraArgument parse(String[] args) throws IOException {
@@ -105,6 +108,10 @@ public class SubmissionCliParser implements CliParser<SpydraArgument> {
 
     if (cmdLine.hasOption(SpydraArgument.OPTION_DRYRUN)) {
       spydraArgument.setDryRun(true);
+    }
+
+    if (cmdLine.hasOption(SpydraArgument.OPTION_JOB_LABELS)) {
+      spydraArgument.getSubmit().setLabels(cmdLine.getOptionValue(CliConsts.JOB_LABELS));
     }
 
     List<String> jobArgs = new LinkedList<>(cmdLine.getArgList());
