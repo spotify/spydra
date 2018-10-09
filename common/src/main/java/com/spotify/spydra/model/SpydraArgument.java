@@ -21,6 +21,7 @@
 package com.spotify.spydra.model;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,8 @@ public class SpydraArgument {
   public static final String OPTION_WORKER_MACHINE_TYPE = "worker-machine-type";
   public static final String OPTION_MASTER_MACHINE_TYPE = "master-machine-type";
   public static final String OPTION_NUM_WORKERS = "num-workers";
-  public static final String OPTION_LABELS = "labels";
+  public static final String OPTION_CLUSTER_LABELS = "labels";
+  public static final String OPTION_JOB_LABELS = "labels";
   public static final String OPTION_TAGS = "tags";
   public static final String OPTION_ACCOUNT = "account";
   public static final String OPTION_SERVICE_ACCOUNT = "service-account";
@@ -55,7 +57,7 @@ public class SpydraArgument {
   public static final String OPTION_MAX_IDLE = "max-idle";
   public static final String OPTIONS_FILTER = "filter";
   public static final String OPTIONS_FILTER_LABEL_PREFIX = "labels.";
-
+  public static final String OPTIONS_DEDUPLICATING_LABEL = "spydra-dedup-id";
 
   public static final String JOB_TYPE_HADOOP = "hadoop";
   public static final String JOB_TYPE_PYSPARK = "pyspark";
@@ -65,6 +67,7 @@ public class SpydraArgument {
   public static final String UUID_PLACEHOLDER = "${UUID}";
 
   public static final String OPTION_DRYRUN = "dry-run";
+
 
   // Required arguments
   public Optional<String> clientId = Optional.empty();
@@ -78,6 +81,7 @@ public class SpydraArgument {
   public Optional<Boolean> dryRun = Optional.of(false);
   public Optional<AutoScaler> autoScaler = Optional.empty();
   public Optional<Pooling> pooling = Optional.empty();
+  public Optional<Long> deduplicationMaxAge = Optional.empty();
 
   // Dataproc arguments
   public Cluster cluster = new Cluster();
@@ -158,6 +162,10 @@ public class SpydraArgument {
       this.jobArgs = Optional.of(jobArgs);
     }
 
+    public Map<String, String> getLabels() {
+      return parseLabels(options);
+    }
+
     // Below are convenience functions when using this from the Java API.
 
     public void jar(String mainJar) {
@@ -185,6 +193,11 @@ public class SpydraArgument {
       options.merge(OPTION_PROPERTIES, property,
           (oldProperties, newProperty) -> oldProperties + "," + newProperty);
     }
+
+    public void setLabels(String labelsOption) {
+      options.put(OPTION_JOB_LABELS, labelsOption);
+    }
+
   }
 
   public static class AutoScaler {
@@ -316,6 +329,12 @@ public class SpydraArgument {
       merged.dryRun = first.dryRun;
     }
 
+    if (second.deduplicationMaxAge.isPresent()) {
+      merged.deduplicationMaxAge = second.deduplicationMaxAge;
+    } else {
+      merged.deduplicationMaxAge = first.deduplicationMaxAge;
+    }
+
     if (second.jobType.isPresent()) {
       merged.jobType = second.jobType;
     } else {
@@ -431,7 +450,19 @@ public class SpydraArgument {
         properties.put(split[0], split[1]);
       }
     }
+
     return properties;
+  }
+
+  private static Map<String,String> parseLabels(Map<String,String> options) {
+    Map<String, String> labels = new HashMap<>();
+    if (options.containsKey(OPTION_JOB_LABELS)) {
+      for (String labelValue : options.get(OPTION_JOB_LABELS).split(",")) {
+        String[] split = labelValue.split("=");
+        labels.put(split[0].trim(), split[1].trim());
+      }
+    }
+    return labels;
   }
 
   // Special treatment for options that allow a list of values
@@ -440,7 +471,7 @@ public class SpydraArgument {
       case OPTION_INIT_ACTIONS:
       case OPTION_SCOPES:
       case OPTION_METADATA:
-      case OPTION_LABELS:
+      case OPTION_CLUSTER_LABELS:
       case OPTION_TAGS:
       case OPTION_PROPERTIES:
       case OPTION_JARS:
@@ -541,6 +572,14 @@ public class SpydraArgument {
 
   public void setDryRun(Boolean dryRun) {
     this.dryRun = Optional.of(dryRun);
+  }
+
+  public void setDeduplicationMaxAge(long maxAge) {
+    this.deduplicationMaxAge = Optional.of(maxAge);
+  }
+
+  public Optional<Duration> deduplicationMaxAge() {
+    return deduplicationMaxAge.map(ms -> Duration.of(ms, ChronoUnit.SECONDS));
   }
 
   public void setCluster(Cluster cluster) {

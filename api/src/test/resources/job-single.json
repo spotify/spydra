@@ -1,0 +1,57 @@
+[
+    {
+        "driverControlFilesUri": "gs://bucket/path1",
+        "driverOutputResourceUri": "gs://bucket/path1",
+        "hadoopJob": {
+            "args": [
+                "arg1",
+                "arg2"
+            ],
+            "jarFileUris": [
+                "gs://bucket/jarfile.jar"
+            ],
+            "loggingConfig": {},
+            "mainClass": "com.example.Main"
+        },
+        "labels": {
+            "spydra-dedup-id":"job-1"
+        },
+        "placement": {
+            "clusterName": "spydra-1234",
+            "clusterUuid": "1234"
+        },
+        "reference": {
+            "jobId": "job-1",
+            "projectId": "com.example.project"
+        },
+        "status": {
+            "state": "DONE",
+            "stateStartTime": "2018-08-30T06:14:25.823Z"
+        },
+        "statusHistory": [
+            {
+                "state": "PENDING",
+                "stateStartTime": "2018-08-30T00:06:03.889Z"
+            },
+            {
+                "state": "SETUP_DONE",
+                "stateStartTime": "2018-08-30T00:06:03.935Z"
+            },
+            {
+                "details": "Agent reported job success",
+                "state": "RUNNING",
+                "stateStartTime": "2018-08-30T00:06:04.081Z"
+            }
+        ],
+        "type": "hadoop",
+        "yarnApplications": [
+            {
+                "name": "yarn job 1",
+                "progress": 1.0,
+                "state": "FINISHED",
+                "trackingUrl": "http://tracking-url/1"
+            }
+        ]
+    }
+]
+

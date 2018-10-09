@@ -18,23 +18,14 @@
  * -/-/-
  */
 
-package com.spotify.spydra.submitter.executor;
+package com.spotify.spydra.api.process;
 
-import com.spotify.spydra.api.DataprocApi;
-import com.spotify.spydra.model.SpydraArgument;
 import java.io.IOException;
+import java.util.List;
 
-public class DataprocExecutor implements Executor {
+public interface ProcessService {
 
-  private final DataprocApi dataprocApi;
+  public int execute(List<String> command) throws IOException;
 
-  public DataprocExecutor(DataprocApi dataprocApi) {
-    this.dataprocApi = dataprocApi;
-  }
-
-  @Override
-  public boolean submit(SpydraArgument arguments) throws IOException {
-    dataprocApi.dryRun(arguments.isDryRun());
-    return dataprocApi.submit(arguments);
-  }
+  public ProcessResult executeForOutput(List<String> command) throws IOException;
 }

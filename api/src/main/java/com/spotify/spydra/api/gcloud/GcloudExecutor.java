@@ -22,10 +22,14 @@ package com.spotify.spydra.api.gcloud;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.spotify.spydra.api.model.Cluster;
+import com.spotify.spydra.api.model.Job;
 import com.spotify.spydra.api.process.ProcessHelper;
+import com.spotify.spydra.api.process.ProcessResult;
+import com.spotify.spydra.api.process.ProcessService;
 import com.spotify.spydra.model.JsonHelper;
 import com.spotify.spydra.model.SpydraArgument;
 import com.spotify.spydra.util.GcpUtils;
+import com.spotify.spydra.util.SpydraArgumentUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringJoiner;
 import jdk.nashorn.tools.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +48,18 @@ public class GcloudExecutor {
 
   private static final String DEFAULT_GCLOUD_COMMAND = "gcloud";
 
+  private final ProcessService processService;
   private final String baseCommand;
 
   private boolean dryRun = false;
 
   public GcloudExecutor() {
+    this(new ProcessHelper());
+  }
+
+  public GcloudExecutor(ProcessService processService) {
     this.baseCommand = DEFAULT_GCLOUD_COMMAND;
+    this.processService = processService;
   }
 
   public Optional<Cluster> createCluster(String name, String region, Map<String, String> args)
@@ -59,12 +68,10 @@ public class GcloudExecutor {
     createOptions.put(SpydraArgument.OPTION_REGION, region);
     List<String> command = Arrays.asList(
         "--format=json", "beta", "dataproc", "clusters", "create", name);
-    StringBuilder outputBuilder = new StringBuilder();
-    boolean success = ProcessHelper.executeForOutput(
-        buildCommand(command, createOptions, Collections.emptyList()),
-        outputBuilder);
-    String output = outputBuilder.toString();
-    if (success) {
+    ProcessResult result = processService.executeForOutput(
+        buildCommand(command, createOptions, Collections.emptyList()));
+    String output = result.getOutput();
+    if (result.isSuccess()) {
       Cluster cluster = JsonHelper.objectMapper()
           .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
           .readValue(output, Cluster.class);
@@ -143,7 +150,7 @@ public class GcloudExecutor {
       System.out.println(String.join(" ", command));
       return true;
     } else {
-      return ProcessHelper.executeCommand(command) == Shell.SUCCESS;
+      return processService.execute(command) == Shell.SUCCESS;
     }
   }
 
@@ -159,6 +166,38 @@ public class GcloudExecutor {
     this.dryRun = dryRun;
   }
 
+  public List<Job> listJobs(String project, String region, Map<String,String> filters,
+        Optional<Integer> limit, Optional<String> sortBy)
+      throws IOException {
+
+    final List<String> command = Arrays.asList("dataproc", "jobs", "list", "--format=json");
+    Map<String, String> options = new HashMap<>();
+    options.put(SpydraArgument.OPTION_PROJECT, project);
+    options.put(SpydraArgument.OPTION_REGION, region);
+    limit.ifPresent(l -> options.put("limit", String.valueOf(l)));
+    sortBy.ifPresent(s -> options.put("sort-by", s));
+
+    if (filters != null && !filters.isEmpty()) {
+      String labelItems = SpydraArgumentUtil.joinFilters(filters);
+      options.put(SpydraArgument.OPTIONS_FILTER, labelItems);
+    }
+
+    ProcessResult result = processService.executeForOutput(
+        buildCommand(command, options, Collections.emptyList()));
+    String output = result.getOutput();
+    if (result.isSuccess()) {
+      Job[] jobs = JsonHelper.objectMapper()
+              .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+              .readValue(output, Job[].class);
+      return Arrays.asList(jobs);
+    } else {
+      LOGGER.error("Dataproc job listing call failed. Command line output:");
+      LOGGER.error(output);
+      throw new IOException("Failed to list jobs. Gcloud call failed.");
+    }
+
+  }
+
   public List<Cluster> listClusters(String project, String region, Map<String, String> filters)
       throws IOException {
     final List<String> command = Arrays.asList("dataproc", "clusters", "list", "--format=json");
@@ -167,32 +206,36 @@ public class GcloudExecutor {
     options.put(SpydraArgument.OPTION_REGION, region);
 
     if (filters != null && !filters.isEmpty()) {
-      StringJoiner filterItems = new StringJoiner(" AND ");
-      filters.forEach((key, value) -> {
-        //Allows for label filters to not specify a value to match "anything" (just check if exists)
-        if (value == null || value.isEmpty()) {
-          value = "*";
-        }
-        filterItems.add(String.format("%s = %s", key, value));
-      });
-      options.put(SpydraArgument.OPTIONS_FILTER, filterItems.toString());
+      String filterItems = SpydraArgumentUtil.joinFilters(filters);
+      options.put(SpydraArgument.OPTIONS_FILTER, filterItems);
     }
 
-    StringBuilder outputBuilder = new StringBuilder();
-    boolean success = ProcessHelper.executeForOutput(
-        buildCommand(command, options, Collections.emptyList()),
-        outputBuilder
-    );
-    String output = outputBuilder.toString();
-    if (success) {
+    ProcessResult result = processService.executeForOutput(
+        buildCommand(command, options, Collections.emptyList()));
+    String output = result.getOutput();
+    if (result.isSuccess()) {
       Cluster[] clusters = JsonHelper.objectMapper()
-          .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-          .readValue(output, Cluster[].class);
+             .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+             .readValue(output, Cluster[].class);
       return Arrays.asList(clusters);
     } else {
       LOGGER.error("Dataproc cluster listing call failed. Command line output:");
       LOGGER.error(output);
       throw new IOException("Failed to list clusters. Gcloud call failed.");
+    }
+  }
+
+  public boolean waitForOutput(String region, String jobId) throws IOException {
+    final List<String> command = Arrays.asList("dataproc", "jobs", "wait", jobId);
+    Map<String, String> options = new HashMap<>();
+    options.put(SpydraArgument.OPTION_REGION, region);
+
+    int exitCode = processService.execute(buildCommand(command, options, Collections.emptyList()));
+    if (exitCode != 0) {
+      LOGGER.error("Dataproc wait for job failed.");
+      return false;
+    } else {
+      return true;
     }
   }
 }
