@@ -56,20 +56,39 @@ public class ProcessHelper {
         .redirectOutput(ProcessBuilder.Redirect.PIPE);
 
     Process p = pb.start();
+    String lineSeparator = System.getProperty("line.separator");
     try {
+      // Read from both stdout and stderr so that we don't
+      // fill up buffers and deadlock the process.
+      BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+      StringBuilder output = new StringBuilder();
+      StringBuilder error = new StringBuilder();
+
+      while (p.isAlive() || outReader.ready() || errReader.ready()) {
+        while (outReader.ready()) {
+          output.append(outReader.readLine());
+          output.append(lineSeparator);
+        }
+
+        while (errReader.ready()) {
+          error.append(errReader.readLine());
+          error.append(lineSeparator);
+        }
+
+        Thread.sleep(100);
+      }
+
       int exitCode = p.waitFor();
       boolean success = exitCode == Shell.SUCCESS;
-      BufferedReader in;
+
       if (success) {
-        in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        outputBuilder.append(output);
       } else {
-        in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        outputBuilder.append(error);
       }
-      String line;
-      while ((line = in.readLine()) != null) {
-        String lineWithSep = line + System.getProperty("line.separator");
-        outputBuilder.append(lineWithSep);
-      }
+
       return success;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
