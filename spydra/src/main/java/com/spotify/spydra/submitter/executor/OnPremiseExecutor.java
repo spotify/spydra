@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import jdk.nashorn.tools.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +111,7 @@ public class OnPremiseExecutor implements Executor {
         System.out.println(fullCommand);
         result = true;
       } else {
-        result = ProcessHelper.executeCommand(command) == Shell.SUCCESS;
+        result = ProcessHelper.executeCommand(command) == 0;
       }
     } finally {
       metrics.jobSubmission(arguments, "on-premise", result);

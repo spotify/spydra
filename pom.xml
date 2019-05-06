@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.spotify</groupId>
     <artifactId>foss-root</artifactId>
-    <version>8</version>
+    <version>9</version>
   </parent>
 
   <name>Spotify Spydra Parent</name>
@@ -61,7 +61,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <violationSeverity>warning</violationSeverity>
-          <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+          <sourceDirectories>${project.build.sourceDirectory}</sourceDirectories>
         </configuration>
       </plugin>
 

@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import jdk.nashorn.tools.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,7 +142,7 @@ public class GcloudExecutor {
       System.out.println(String.join(" ", command));
       return true;
     } else {
-      return ProcessHelper.executeCommand(command) == Shell.SUCCESS;
+      return ProcessHelper.executeCommand(command) == 0;
     }
   }
 
