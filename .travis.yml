@@ -3,6 +3,8 @@ language: java
 jdk:
   - oraclejdk8
 
+dist: bionic
+
 cache:
   directories:
     - "$HOME/google-cloud-sdk/"
