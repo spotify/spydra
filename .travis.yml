@@ -3,7 +3,7 @@ language: java
 jdk:
   - oraclejdk8
 
-dist: bionic
+dist: trusty
 
 cache:
   directories:
