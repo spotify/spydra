@@ -65,7 +65,7 @@ public class LifecycleIT {
     // service in gcp if we use the default account
     Assume.assumeTrue("Skipping lifecycle test, not running on gce and "
                       + "GOOGLE_APPLICATION_CREDENTIALS not set",
-        hasApplicationJsonOrRunningOnGce());
+        hasApplicationJson());
     SpydraArgument testArgs = SpydraArgumentUtil.loadArguments("integration-test-config.json");
     SpydraArgument arguments = SpydraArgumentUtil
         .dataprocConfiguration(CLIENT_ID, testArgs.getLogBucket(), testArgs.getRegion());
@@ -97,9 +97,8 @@ public class LifecycleIT {
     assertEquals(0, getFileCount(intermediateUri));
   }
 
-  private boolean hasApplicationJsonOrRunningOnGce() {
-    return new GcpUtils().getJsonCredentialsPath().isPresent()
-           || GceHelper.runningOnComputeEngine();
+  private boolean hasApplicationJson() {
+    return new GcpUtils().getJsonCredentialsPath().isPresent();
   }
 
   private boolean isClusterCollected(SpydraArgument arguments)
