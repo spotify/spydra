@@ -94,7 +94,7 @@ To be able to use Dataproc and on-premise Hadoop, a few things need to be set up
   * A JSON key for the service account, and the environment variable [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials)
     needs to point to the location of this service account JSON key. This cannot be a user credential.
   * If the [GOOGLE_APPLICATION_CREDENTIALS](https://developers.google.com/identity/protocols/application-default-credentials)
-    environment variable is not set, Spydra will attempt to use application default credentails. In a local development environment
+    environment variable is not set, Spydra will attempt to use application default credentials. In a local development environment
     application default credentials can be obtained by authenticating with the command
     [gcloud auth application-default login](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login). When running
     on Google Compute Platform managed nodes, the application default credentials are provided by the default service account of the node.
