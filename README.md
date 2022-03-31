@@ -1,6 +1,8 @@
-# Spydra (Beta)
+# Spydra (Beta / Inactive)
 
 [![License](https://img.shields.io/github/license/spotify/spydra.svg)](LICENSE)
+
+**Note** This project is inactive. 
 
 Ephemeral Hadoop clusters using Google Compute Platform
 
