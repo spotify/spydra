@@ -24,7 +24,7 @@
 
   <properties>
     <jackson.version>2.7.3</jackson.version>
-    <hadoop.version>2.6.0</hadoop.version>
+    <hadoop.version>2.10.1</hadoop.version>
   </properties>
 
   <modules>
